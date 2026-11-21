@@ -29,8 +29,8 @@ import { cn } from "@/lib/cn";
 import { BASE_PATH } from "@/lib/static-data";
 
 /**
- * 梦想课堂结业证书
- * =================
+ * 开放教育学习平台结业证书
+ * ==========================
  *
  * 一张**深蓝金边**的学术证书——极简烫金排版。
  *
@@ -54,10 +54,10 @@ import { BASE_PATH } from "@/lib/static-data";
  * .. code-block:: text
  *
  *     ┌─────────────────────────────┐
- *     │  梦想课堂 · 深圳后海总部      │  ← 机构
+ *     │  开放教育学习平台 · 深圳后海总部 │  ← 机构
  *     │  ─────────────────────────  │  ← 金线
  *     │      结业证书                │  ← 主体
- *     │    Dream Class               │
+ *     │  Open Education Learning...  │
  *     │      张三                    │  ← 学员
  *     │   《MIT 线性代数》            │  ← 课程
  *     │  ─────────────────────────  │  ← 金线
@@ -403,7 +403,7 @@ export function CertificateDialog({
         <div className="flex shrink-0 items-center gap-3 border-b border-[var(--border)] px-4 py-3">
           <Award size={16} strokeWidth={2.2} className="text-[#c9a227]" />
           <div className="min-w-0 flex-1">
-            <p className="text-[13.5px] font-semibold">梦想课堂结业证书</p>
+            <p className="text-[13.5px] font-semibold">开放教育学习平台结业证书</p>
             <p className="text-[11px] text-[var(--muted-foreground)]">
               Certificate of Completion
             </p>

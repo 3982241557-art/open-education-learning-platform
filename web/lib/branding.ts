@@ -7,15 +7,17 @@
  * 品牌定位
  * --------
  *
- * **梦想课堂 · 深圳后海总部**
- * （Dream Class · Houhai HQ, Shenzhen）
+ * **开放教育学习平台**
+ * （Open Education Learning Platform）
  *
  * 服务对象是**全球海外华人**——覆盖东亚、东南亚、北美、欧洲、澳新
  * 等大区。所以品牌名必须同时给到**中文归属感**与**国际可读性**：
  *
- * * 「梦想课堂」——中文世界的情感连接，四个字就能唤起「一起把事
- *   做成」的感觉；
- * * 「Dream Class」——英文世界直接可读，不需要解释；
+ * * 「开放教育学习平台」——把**开放教育资源**这件事说清楚。中文
+ *   世界对「开放课程 / 开放大学」有天然亲近感，一听就知道是「学得
+ *   到的公开课」；
+ * * 「Open Education Learning Platform」——英文世界直接可读，不需
+ *   要解释；「Open」既指开放教育资源，也指面向全球开放；
  * * 「深圳后海总部」——把**物理锚点**说清楚。海外用户搜「后海」
  *   能定位到我们，而「后海」本身就是一个具体的、真实的、科技聚集
  *   的地方——它让品牌有根。
@@ -25,13 +27,13 @@
  */
 
 /** 产品全名（中文）。 */
-export const PLATFORM_NAME = "梦想课堂";
+export const PLATFORM_NAME = "开放教育学习平台";
 
 /** 侧边栏与紧凑位置使用的短名。 */
-export const PLATFORM_SHORT_NAME = "梦想课堂";
+export const PLATFORM_SHORT_NAME = "开放教育";
 
 /** 英文全名。 */
-export const PLATFORM_NAME_EN = "Dream Class";
+export const PLATFORM_NAME_EN = "Open Education Learning Platform";
 
 /** 总部标识——中文。 */
 export const HQ_LABEL = "深圳后海总部";
@@ -56,11 +58,11 @@ export const BRAND_SUBTITLE = `${HQ_LABEL} | ${PLATFORM_NAME_EN} · ${HQ_LABEL_E
 
 /** 页脚品牌栏文案。 */
 export const FOOTER_BRAND =
-  "梦想课堂（深圳后海总部） · 连接全球华人的终身学习家园 | Dream Class Global Chinese Learning Hub";
+  "开放教育学习平台（深圳后海总部） · 连接全球华人的终身学习家园 | Open Education Learning Platform";
 
 /** 页脚品牌栏文案（英文）。 */
 export const FOOTER_BRAND_EN =
-  "Dream Class (Houhai HQ, Shenzhen) · A lifelong learning hub for global Chinese";
+  "Open Education Learning Platform (Houhai HQ, Shenzhen) · A lifelong learning hub for global Chinese";
 
 /** 页脚 / 关于面板的一句话描述。 */
 export const PLATFORM_DESCRIPTION =

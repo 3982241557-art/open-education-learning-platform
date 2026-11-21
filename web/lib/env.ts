@@ -49,7 +49,7 @@ export const IS_PRODUCTION: boolean =
  * 站点标题——给 ``<title>`` 与分享卡片用。
  */
 export const SITE_TITLE: string =
-  process.env.NEXT_PUBLIC_SITE_TITLE || "梦想课堂 · 深圳后海总部";
+  process.env.NEXT_PUBLIC_SITE_TITLE || "开放教育学习平台 · 深圳后海总部";
 
 /**
  * 站点描述——SEO 用。

@@ -66,7 +66,12 @@ CERTIFICATE_DIR = SESSIONS_ROOT / "certificates"
 #: 证书文件。
 CERTIFICATE_PATH = CERTIFICATE_DIR / "issued.json"
 
-#: 证书编号前缀——``DC`` = Dream Class，``SZHH`` = 深圳后海总部。
+#: 证书编号前缀——``DC`` = 平台代号，``SZHH`` = 深圳后海总部。
+#:
+#: ⚠️ **故意不改**：证书编号是**已签发证书的稳定标识符**。
+#: 平台改名（Dream Class → Open Education Learning Platform）后，
+#: 保留旧前缀才能让**之前签发的证书**继续被验证通过。
+#: 编号一旦发出就不能改——改了等于作废历史证书。
 CERTIFICATE_PREFIX = "DC-SZHH"
 
 #: 达到「已掌握」所需的覆盖率。

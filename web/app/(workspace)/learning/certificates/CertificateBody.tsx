@@ -102,7 +102,7 @@ export default function CertificateBody({ id }: { id: string }) {
           返回证书墙
         </Link>
         <div className="min-w-0 flex-1">
-          <p className="text-[13px] font-semibold">梦想课堂结业证书</p>
+          <p className="text-[13px] font-semibold">开放教育学习平台结业证书</p>
           <p className="text-[10.5px] text-[var(--muted-foreground)]">
             {PLATFORM_NAME} · {HQ_LABEL}
           </p>

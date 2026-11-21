@@ -1,4 +1,4 @@
-# 自主学习AI智能平台
+# 开放教育学习平台 · Open Education Learning Platform
 
 一个**可视化的架构蓝图与脚手架**。它的目标不是「一个有假内容的 Demo」，而是：
 

@@ -1,4 +1,4 @@
-# SEEK Learning Platform · 项目状态同步文档
+# 开放教育学习平台 · Open Education Learning Platform · 项目状态同步文档
 
 > **更新时间**：2026-11-12
 > **当前阶段**：🚨 核心架构革命第一阶段 —— **Resource Aggregator Pivot**（资源枢纽转型）

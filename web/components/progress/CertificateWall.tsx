@@ -175,7 +175,7 @@ function EmptyCertificateWall() {
           还没有拿到结业证书
         </p>
         <p className="mt-1.5 max-w-md text-[12px] leading-relaxed text-[var(--muted-foreground)]">
-          任意一门公开课学完这三项，就会自动解锁「梦想课堂结业证书」——
+          任意一门公开课学完这三项，就会自动解锁「开放教育学习平台结业证书」——
           可预览、可下载、可分享，编号可验证。
         </p>
         <ul className="mt-4 flex flex-wrap items-center justify-center gap-2">

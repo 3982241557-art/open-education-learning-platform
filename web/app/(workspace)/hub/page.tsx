@@ -483,7 +483,7 @@ function GlobalHubConsole() {
       <header className="shrink-0 border-b border-[var(--border)] bg-white px-4 py-2.5">
         {/* ── 品牌条 ──
          *
-         * 「梦想课堂 · 深圳后海总部 | Dream Class · Houhai HQ, Shenzhen」
+         * 「开放教育学习平台 · 深圳后海总部 | Open Education Learning Platform · Houhai HQ, Shenzhen」
          *
          * 主副标题的形式：中文在前（主要用户是华人），英文在后
          * （给英文用户和搜索引擎看）。

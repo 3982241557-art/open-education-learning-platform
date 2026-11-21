@@ -1795,7 +1795,7 @@ def build() -> dict:
             "updated_at": "2026-11-13",
             "metadata": {
                 "pillar": "mixed",
-                "author": "SEEK Learning Platform",
+                "author": "Open Education Learning Platform",
                 "notes": (
                     "所有视频均为各平台官方公开频道（MIT OpenCourseWare / YaleCourses / "
                     "Harvard University / CrashCourse / Khan Academy / TED）或国内公网"

@@ -29,8 +29,8 @@ import CertificatePageClient from "./CertificatePageClient";
 
 /** 页面标题——静态导出时写进 HTML 的 ``<title>``。 */
 export const metadata = {
-  title: "结业证书 · 梦想课堂",
-  description: "查看与验证梦想课堂的结业证书。",
+  title: "结业证书 · 开放教育学习平台",
+  description: "查看与验证开放教育学习平台的结业证书。",
 };
 
 export default function CertificatePage() {

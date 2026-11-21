@@ -15,7 +15,12 @@ import { readLocal, writeLocal, StorageKeys } from "@/lib/local-store";
 /** 一张结业证书。 */
 export interface Certificate {
   id: string;
-  /** 唯一编号——``DC-SZHH-2026-A3F7``。 */
+  /**
+   * 唯一编号——``DC-SZHH-2026-A3F7``。
+   *
+   * 前缀 ``DC`` 是平台的历史代号，**不随改名变化**——已签发证书
+   * 的编号必须保持稳定，否则旧证书无法再被验证。
+   */
   number: string;
   course_id: string;
   course_title: string;

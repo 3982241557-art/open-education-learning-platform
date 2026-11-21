@@ -156,7 +156,7 @@ export function LocaleRegionSwitcher({
  * 顶栏品牌条
  * ==========
  *
- * 「梦想课堂 · 深圳后海总部 | Dream Class · Houhai HQ, Shenzhen」
+ * 「开放教育学习平台 · 深圳后海总部 | Open Education Learning Platform · Houhai HQ, Shenzhen」
  *
  * 主副标题的形式
  * --------------
@@ -166,7 +166,7 @@ export function LocaleRegionSwitcher({
  *
  * 副标题用 ``|`` 分隔中文与英文段落。这**不是**排版偷懒——
  * 它让两套语言在视觉上分成两组，避免读成
- * 「深圳后海总部 | Dream Class · Houhai HQ, Shenzhen」这样的
+ * 「深圳后海总部 | Open Education Learning Platform · Houhai HQ, Shenzhen」这样的
  * 断裂句子。
  */
 export function BrandBar({
@@ -184,7 +184,7 @@ export function BrandBar({
         aria-hidden
         className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--primary)] text-[13px] font-bold text-white"
       >
-        梦
+        开
       </span>
 
       <div className="min-w-0">
@@ -229,8 +229,8 @@ export function BrandFooter({ className = "" }: { className?: string }) {
   const { locale } = useLocale();
   const text =
     locale === "en"
-      ? "Dream Class (Houhai HQ, Shenzhen) · A lifelong learning hub for global Chinese"
-      : "梦想课堂（深圳后海总部） · 连接全球华人的终身学习家园 | Dream Class Global Chinese Learning Hub";
+      ? "Open Education Learning Platform (Houhai HQ, Shenzhen) · A lifelong learning hub for global Chinese"
+      : "开放教育学习平台（深圳后海总部） · 连接全球华人的终身学习家园 | Open Education Learning Platform";
 
   return (
     <footer
