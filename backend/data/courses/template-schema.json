@@ -1,0 +1,578 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "seek://course-template-schema",
+  "title": "Course 数据结构模板",
+  "description": "自主学习AI智能平台 —— 课程（Course）的结构骨架。此文件仅说明结构，不含任何真实课程内容。字段定义严格对齐原版 DeepTutor 的 Book Engine（deeptutor/book/models.py）。实际投放课程时，请复制本文件为 <course-id>.json 并填入具体内容。",
+  "type": "object",
+  "required": ["book", "spine", "pages", "progress"],
+  "additionalProperties": false,
+
+  "properties": {
+    "book": {
+      "$ref": "#/definitions/Book"
+    },
+    "spine": {
+      "$ref": "#/definitions/Spine"
+    },
+    "pages": {
+      "type": "array",
+      "description": "课程页面列表。每个页面属于一个 chapter，页面内挂若干 blocks。",
+      "items": { "$ref": "#/definitions/Page" }
+    },
+    "progress": {
+      "$ref": "#/definitions/Progress"
+    }
+  },
+
+  "definitions": {
+    "Book": {
+      "title": "Book — 课程元数据",
+      "description": "对应原版 deeptutor/book/models.py::Book。落盘在 manifest.json。",
+      "type": "object",
+      "required": ["id", "title", "status"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{1,64}$",
+          "description": "课程唯一标识。文件名必须与之一致（原版约定为 book_{id}/ 目录）。",
+          "examples": ["bk_my_course_01"]
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1,
+          "description": "乐观协作版本号。每次内容变更递增。"
+        },
+        "title": { "type": "string", "minLength": 1, "description": "课程标题。" },
+        "description": { "type": "string", "description": "一句话简介。" },
+        "status": {
+          "type": "string",
+          "enum": ["draft", "spine_ready", "compiling", "paused", "ready", "error", "archived"],
+          "default": "draft",
+          "description": "课程生命周期状态。手工投放的课程通常为 ready。"
+        },
+        "proposal": {
+          "oneOf": [
+            { "type": "null" },
+            { "$ref": "#/definitions/BookProposal" }
+          ],
+          "description": "课程提案（可为空）。"
+        },
+        "knowledge_bases": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "关联的知识库名称列表。"
+        },
+        "language": {
+          "type": "string",
+          "default": "en",
+          "description": "课程语言代码（en / zh / pt / fr / tr）。"
+        },
+        "depth": {
+          "type": "string",
+          "enum": ["brief", "standard", "deep"],
+          "default": "standard",
+          "description": "内容深度，影响每章篇幅（brief 0.5x / standard 1.0x / deep 1.6x）。"
+        },
+        "page_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "页面总数。以实际 pages 数量为准，留空亦可。"
+        },
+        "chapter_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "章节总数。以实际 spine.chapters 数量为准，留空亦可。"
+        },
+        "created_at": {
+          "type": "number",
+          "description": "创建时间，epoch 秒。留空时按文件 mtime 处理。"
+        },
+        "updated_at": {
+          "type": "number",
+          "description": "更新时间，epoch 秒。留空时按文件 mtime 处理。"
+        },
+        "metadata": {
+          "type": "object",
+          "description": "自由元数据。平台约定读取 tags / category / level 三个键用于列表展示与过滤。",
+          "properties": {
+            "tags": { "type": "array", "items": { "type": "string" } },
+            "category": { "type": "string" },
+            "level": { "type": "string" }
+          },
+          "additionalProperties": true
+        },
+        "kb_fingerprints": {
+          "type": "object",
+          "additionalProperties": { "type": "string" },
+          "description": "编译时各知识库的内容指纹，用于检测知识库漂移。"
+        },
+        "kb_document_fingerprints": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": { "type": "string" }
+          },
+          "description": "逐文档内容哈希。"
+        },
+        "stale_page_ids": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "因知识库变更而过期的页面 id 列表。"
+        },
+        "stale_detected_at": {
+          "type": "number",
+          "description": "检测到过期集合的 epoch 秒。"
+        }
+      }
+    },
+
+    "BookProposal": {
+      "title": "BookProposal — 课程提案",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "scope": { "type": "string", "description": "课程覆盖范围。" },
+        "target_level": { "type": "string", "description": "目标难度层级。" },
+        "estimated_chapters": { "type": "integer", "minimum": 0 },
+        "rationale": { "type": "string", "description": "编排理由。" }
+      }
+    },
+
+    "Spine": {
+      "title": "Spine — 章节树",
+      "description": "对应原版 deeptutor/book/models.py::Spine。落盘在 spine.json。",
+      "type": "object",
+      "required": ["book_id", "chapters"],
+      "additionalProperties": false,
+      "properties": {
+        "book_id": {
+          "type": "string",
+          "description": "必须与 book.id 一致。"
+        },
+        "version": { "type": "integer", "minimum": 1, "default": 1 },
+        "updated_at": { "type": "number" },
+        "exploration_summary": {
+          "type": "string",
+          "description": "对素材的整体脉络概述。"
+        },
+        "concept_graph": {
+          "$ref": "#/definitions/ConceptGraph"
+        },
+        "chapters": {
+          "type": "array",
+          "description": "章节列表，顺序由 order 决定。",
+          "items": { "$ref": "#/definitions/Chapter" }
+        }
+      }
+    },
+
+    "Chapter": {
+      "title": "Chapter — 章节",
+      "type": "object",
+      "required": ["id", "title"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "learning_objectives": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "本章的学习目标。"
+        },
+        "content_type": {
+          "type": "string",
+          "enum": ["theory", "derivation", "history", "practice", "concept", "overview"],
+          "default": "theory",
+          "description": "内容类型，决定内容块组合的推荐模板。"
+        },
+        "source_anchors": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/SourceAnchor" },
+          "description": "锚定本章的原始素材。"
+        },
+        "prerequisites": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "前置章节 id 列表。"
+        },
+        "page_ids": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "本章包含的页面 id 列表。"
+        },
+        "summary": { "type": "string", "description": "章节概要。" },
+        "order": { "type": "integer", "minimum": 0 }
+      }
+    },
+
+    "ConceptGraph": {
+      "title": "ConceptGraph — 概念图",
+      "description": "章节结构背后的有向概念图。",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/ConceptNode" }
+        },
+        "edges": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/ConceptEdge" }
+        }
+      }
+    },
+
+    "ConceptNode": {
+      "title": "ConceptNode — 概念节点",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "description": "概念短标识。" },
+        "label": { "type": "string", "description": "概念显示名。" },
+        "chapter_id": { "type": "string", "description": "主要覆盖该概念的章节 id。" },
+        "description": { "type": "string" },
+        "weight": {
+          "type": "number",
+          "description": "重要度 / 中心性提示。"
+        }
+      }
+    },
+
+    "ConceptEdge": {
+      "title": "ConceptEdge — 概念关系边",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "src": { "type": "string", "description": "源节点 id。" },
+        "dst": { "type": "string", "description": "目标节点 id。" },
+        "relation": {
+          "type": "string",
+          "description": "关系类型。约定值：depends_on / extends / related。"
+        },
+        "rationale": { "type": "string", "description": "为什么有这条关系。" }
+      }
+    },
+
+    "SourceAnchor": {
+      "title": "SourceAnchor — 素材锚点",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "description": "素材类型。约定值：kb / notebook / chat / web / manual。"
+        },
+        "kb_name": { "type": "string", "description": "知识库来源的名称。" },
+        "ref": { "type": "string", "description": "素材标识（文档 id、记录 id、消息 id 等）。" },
+        "snippet": { "type": "string", "description": "简短预览。" }
+      }
+    },
+
+    "Page": {
+      "title": "Page — 页面",
+      "description": "对应原版 deeptutor/book/models.py::Page。落盘在 pages/{page_id}.json。",
+      "type": "object",
+      "required": ["id", "title"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "book_id": { "type": "string", "description": "所属课程 id。" },
+        "chapter_id": { "type": "string", "description": "所属章节 id。" },
+        "title": { "type": "string", "minLength": 1 },
+        "learning_objectives": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "content_type": {
+          "type": "string",
+          "enum": ["theory", "derivation", "history", "practice", "concept", "overview"],
+          "default": "theory"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "planning", "generating", "ready", "partial", "error"],
+          "default": "pending"
+        },
+        "order": { "type": "integer", "minimum": 0 },
+        "blocks": {
+          "type": "array",
+          "description": "有序内容块列表。",
+          "items": { "$ref": "#/definitions/Block" }
+        },
+        "links": {
+          "type": "array",
+          "description": "跨页关系。",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "target_page_id": { "type": "string" },
+              "relation": {
+                "type": "string",
+                "description": "约定值：deepens / prereq / references。"
+              },
+              "label": { "type": "string" }
+            }
+          }
+        },
+        "parent_page_id": {
+          "type": "string",
+          "description": "父页面 id（深潜子页面用）。"
+        },
+        "error": { "type": "string" },
+        "created_at": { "type": "number" },
+        "updated_at": { "type": "number" }
+      }
+    },
+
+    "Block": {
+      "title": "Block — 内容块",
+      "description": "对应原版 deeptutor/book/models.py::Block。页面上的最小内容单元。payload 的形状随 type 而变，见各 type 的 payloadSchema。",
+      "type": "object",
+      "required": ["id", "type"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "type": {
+          "type": "string",
+          "enum": [
+            "text",
+            "callout",
+            "quiz",
+            "user_note",
+            "figure",
+            "interactive",
+            "animation",
+            "code",
+            "timeline",
+            "flash_cards",
+            "deep_dive",
+            "section",
+            "concept_graph",
+            "diagnostic",
+            "pretest",
+            "retrieval_practice",
+            "error_diagnosis",
+            "module_test",
+            "progress_dashboard"
+          ],
+          "description": "内容块类型。"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "generating", "ready", "error", "hidden"],
+          "default": "pending"
+        },
+        "title": { "type": "string", "description": "块标题。" },
+        "params": {
+          "type": "object",
+          "description": "生成器输入参数（保留以便重新生成）。",
+          "additionalProperties": true
+        },
+        "payload": {
+          "type": "object",
+          "description": "生成结果。形状随 type 而变。",
+          "additionalProperties": true,
+          "allOf": [
+            {
+              "if": { "properties": { "type": { "const": "text" } }, "required": ["type"] },
+              "then": {
+                "properties": {
+                  "payload": {
+                    "type": "object",
+                    "properties": {
+                      "format": { "type": "string" },
+                      "role": { "type": "string" },
+                      "body": { "type": "string" }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "if": { "properties": { "type": { "const": "callout" } }, "required": ["type"] },
+              "then": {
+                "properties": {
+                  "payload": {
+                    "type": "object",
+                    "properties": {
+                      "variant": {
+                        "type": "string",
+                        "enum": ["key_idea", "common_pitfall", "summary", "tip"]
+                      },
+                      "label": { "type": "string" },
+                      "body": { "type": "string" }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "if": { "properties": { "type": { "const": "code" } }, "required": ["type"] },
+              "then": {
+                "properties": {
+                  "payload": {
+                    "type": "object",
+                    "properties": {
+                      "language": { "type": "string" },
+                      "code": { "type": "string" },
+                      "explanation": { "type": "string" },
+                      "intent": { "type": "string" }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "if": { "properties": { "type": { "const": "quiz" } }, "required": ["type"] },
+              "then": {
+                "properties": {
+                  "payload": {
+                    "type": "object",
+                    "properties": {
+                      "topic": { "type": "string" },
+                      "questions": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "question_id": { "type": "string" },
+                            "question": { "type": "string" },
+                            "question_type": { "type": "string" },
+                            "options": {
+                              "type": "object",
+                              "additionalProperties": { "type": "string" }
+                            },
+                            "correct_answer": { "type": "string" },
+                            "explanation": { "type": "string" },
+                            "difficulty": { "type": "string" },
+                            "concentration": { "type": "string" }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "if": { "properties": { "type": { "const": "flash_cards" } }, "required": ["type"] },
+              "then": {
+                "properties": {
+                  "payload": {
+                    "type": "object",
+                    "properties": {
+                      "cards": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "front": { "type": "string" },
+                            "back": { "type": "string" },
+                            "hint": { "type": "string" }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "if": { "properties": { "type": { "const": "section" } }, "required": ["type"] },
+              "then": {
+                "properties": {
+                  "payload": {
+                    "type": "object",
+                    "properties": {
+                      "format": { "type": "string" },
+                      "role": { "type": "string" },
+                      "focus": { "type": "string" },
+                      "intro": { "type": "string" },
+                      "key_takeaway": { "type": "string" },
+                      "subsections": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "heading": { "type": "string" },
+                            "role": { "type": "string" },
+                            "focus": { "type": "string" },
+                            "body": { "type": "string" },
+                            "target_words": { "type": "integer" }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "source_anchors": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/SourceAnchor" }
+        },
+        "metadata": {
+          "type": "object",
+          "description": "自由元数据（耗时、模型、重试次数等）。",
+          "additionalProperties": true
+        },
+        "error": { "type": "string" },
+        "created_at": { "type": "number" },
+        "updated_at": { "type": "number" }
+      }
+    },
+
+    "Progress": {
+      "title": "Progress — 阅读进度",
+      "description": "对应原版 deeptutor/book/models.py::Progress。落盘在 progress.json。",
+      "type": "object",
+      "required": ["book_id"],
+      "additionalProperties": false,
+      "properties": {
+        "book_id": { "type": "string" },
+        "current_page_id": { "type": "string", "description": "当前阅读到的页面。" },
+        "visited_page_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "bookmarked_page_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "quiz_attempts": {
+          "type": "array",
+          "description": "答题记录。",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "block_id": { "type": "string" },
+              "page_id": { "type": "string" },
+              "question_id": { "type": "string" },
+              "user_answer": { "type": "string" },
+              "is_correct": {
+                "oneOf": [{ "type": "boolean" }, { "type": "null" }],
+                "description": "null 表示已揭示答案但未自评。"
+              },
+              "timestamp": { "type": "number" }
+            }
+          }
+        },
+        "weak_chapters": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "薄弱章节 id 列表。"
+        },
+        "score": { "type": "integer", "minimum": 0, "default": 0 },
+        "updated_at": { "type": "number" }
+      }
+    }
+  }
+}

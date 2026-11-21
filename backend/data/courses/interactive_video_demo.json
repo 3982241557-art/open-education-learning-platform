@@ -1,0 +1,1315 @@
+{
+  "book": {
+    "id": "interactive_video_demo",
+    "revision": 1,
+    "title": "微观经济学导论：稀缺性与机会成本",
+    "description": "从生活中的免费冰淇淋与渔夫交易模型出发，理解人类决策背后的机会成本与比较优势法则。课程用两个日常案例把「取舍」这件事讲透：每一份资源都有代价，而分工正是让所有人越过自己代价线的原因",
+    "status": "ready",
+    "proposal": null,
+    "knowledge_bases": [],
+    "language": "zh",
+    "depth": "standard",
+    "page_count": 2,
+    "chapter_count": 2,
+    "created_at": 0.0,
+    "updated_at": 1794540200.775031,
+    "metadata": {
+      "pillar": "society",
+      "prerequisite": "none",
+      "author": "SEEK 公开课书系",
+      "tags": [
+        "经济学",
+        "机会成本",
+        "比较优势",
+        "公开课"
+      ]
+    },
+    "kb_fingerprints": {},
+    "kb_document_fingerprints": {},
+    "stale_page_ids": [],
+    "stale_detected_at": 0.0
+  },
+  "spine": {
+    "book_id": "interactive_video_demo",
+    "version": 1,
+    "updated_at": 0.0,
+    "exploration_summary": "一门关于「选择」的基础课。第一讲从免费冰淇淋的悖论入手，界定机会成本；第二讲把机会成本推到极致，解释为什么比较优势能让分工双方同时受益",
+    "concept_graph": {},
+    "chapters": [
+      {
+        "id": "topic_opportunity_cost",
+        "title": "机会成本：一切选择的代价",
+        "learning_objectives": [],
+        "content_type": "concept",
+        "source_anchors": [],
+        "prerequisites": [],
+        "page_ids": [
+          "node_opportunity_cost"
+        ],
+        "summary": "从「免费冰淇淋其实不免费」出发，看清楚经济学第一个概念如何解释几乎所有的日常决策",
+        "order": 1
+      },
+      {
+        "id": "topic_trade",
+        "title": "贸易与专业化",
+        "learning_objectives": [],
+        "content_type": "concept",
+        "source_anchors": [],
+        "prerequisites": [],
+        "page_ids": [
+          "node_trade"
+        ],
+        "summary": "把机会成本推到极致：为什么「各做各的」反而让所有人更穷",
+        "order": 2
+      }
+    ]
+  },
+  "pages": [
+    {
+      "id": "node_opportunity_cost",
+      "book_id": "interactive_video_demo",
+      "chapter_id": "topic_opportunity_cost",
+      "title": "什么是机会成本？",
+      "learning_objectives": [],
+      "content_type": "concept",
+      "status": "ready",
+      "order": 1,
+      "blocks": [
+        {
+          "id": "blk_res_oc_mru",
+          "type": "resource",
+          "status": "ready",
+          "title": "微观经济学导论：稀缺性与机会成本",
+          "params": {},
+          "payload": {
+            "id": "res_oc_mru",
+            "resource_type": "video",
+            "title": "微观经济学导论：稀缺性与机会成本",
+            "url": "https://www.youtube.com/watch?v=x-hYzRncxTc",
+            "ai_context": "Marginal Revolution University 的《What Is Opportunity Cost?》（2018，2 分 45 秒，有官方中文配音与中文字幕）。全片结构：① 0:09 抛出「什么是机会成本」；② 0:16 给出定义——机会成本是个人为了追求另一个选项而放弃的、本可以得到的东西的价值；③ 0:23 用「排队等免费冰淇淋」说明零成本的东西也有成本，你放弃的是用这段时间工作或读书的机会，所以冰淇淋其实并不免费；④ 0:35 指出经济学家用机会成本来判断人与人之间能否从相互交易中获益；⑤ 0:42 进入 Bob 与 Ann 的例子：两人只生产香蕉和鱼两种产品，Bob 全部时间可采 10 根香蕉或捕 10 条鱼，Ann 全部时间可采 10 根香蕉或捕 30 条鱼；⑥ 0:50 各自自给自足时经济状况都较差，Bob 必须二选一，选 1 根香蕉就等于放弃 1 条鱼，他的机会成本是每根香蕉换 1 条鱼；⑦ 1:32 Ann 的机会成本是每根香蕉换 3 条鱼，所以 Ann 采香蕉的机会成本比 Bob 高；⑧ 2:01 如果两人能相互交易，Ann 专注捕鱼、Bob 专注采香蕉 specialize 会让双方受益；⑨ 2:12 总结——因为时间有价值，做任何选择都有代价，但把时间集中在擅长的事上、不过度大包大揽，整体经济状况会改善",
+            "provider": "Marginal Revolution University",
+            "meta": {
+              "duration": 165,
+              "language": "zh",
+              "has_chinese_captions": true,
+              "channel": "Marginal Revolution University",
+              "published": "2018-08-14"
+            },
+            "captions": [
+              {
+                "start": 4,
+                "text": "经济学词典"
+              },
+              {
+                "start": 9,
+                "text": "什么是「机会成本」？"
+              },
+              {
+                "start": 14,
+                "text": "机会成本是指个人本来可以获得的，但为了另一种选择而放弃了的价值。"
+              },
+              {
+                "start": 23,
+                "text": "所以如果你排队等候免费冰淇淋，你实际上放弃了用这时间做别的事的机会，例如工作或读书。"
+              },
+              {
+                "start": 33,
+                "text": "所以那冰淇淋其实并不是免费的。"
+              },
+              {
+                "start": 35,
+                "text": "经济学家甚至使用「机会成本」的概念来判断人们是否可以从相互交易中受益。"
+              },
+              {
+                "start": 42,
+                "text": "只有两个人：Bob 和 Ann，他们都只生产两种产品——香蕉和鱼。"
+              },
+              {
+                "start": 46,
+                "text": "他们都只生产两种产品——香蕉和鱼。"
+              },
+              {
+                "start": 58,
+                "text": "如果 Bob 把所有的时间都花在一种产品上，他可以采摘 10 根香蕉，或者捕到 10 条鱼。"
+              },
+              {
+                "start": 66,
+                "text": "Ann 可以采摘 10 根香蕉，或者捕到 30 条鱼。"
+              },
+              {
+                "start": 71,
+                "text": "Bob 必须选择采摘香蕉或捕鱼。"
+              },
+              {
+                "start": 75,
+                "text": "当他选择采摘 1 根香蕉时，他就放弃了 1 条鱼。"
+              },
+              {
+                "start": 78,
+                "text": "本质上讲，Bob 在与自己进行交易。"
+              },
+              {
+                "start": 85,
+                "text": "这个交易的成本是每根香蕉换 1 条鱼，那便是 Bob 的机会成本。"
+              },
+              {
+                "start": 92,
+                "text": "对于 Ann 也同样，只不过对她来说每根香蕉的成本是 3 条鱼。"
+              },
+              {
+                "start": 98,
+                "text": "Ann 采摘 1 根香蕉所需的时间，可以捕到 3 条鱼。"
+              },
+              {
+                "start": 107,
+                "text": "Bob 只要放弃 1 条鱼就能得到 1 根香蕉。"
+              },
+              {
+                "start": 111,
+                "text": "而 Ann 必须放弃 3 条鱼才能获得 1 根香蕉。"
+              },
+              {
+                "start": 115,
+                "text": "所以，Ann 采摘香蕉的机会成本比 Bob 的高。"
+              },
+              {
+                "start": 121,
+                "text": "如果 Ann 和 Bob 能相互交易，Ann 专注于捕鱼，而 Bob 专注于采摘香蕉，他们很可能会从这种专门化中获益。"
+              },
+              {
+                "start": 132,
+                "text": "因为我们的时间具有价值，所以做任何选择都会有代价。"
+              },
+              {
+                "start": 135,
+                "text": "但如果像 Ann 和 Bob 那样把时间集中在擅长的事上，自己不去大包大揽，那我们的经济状况将会得到改善。"
+              }
+            ],
+            "interactive_nodes": [
+              {
+                "timestamp": 9.0,
+                "keyword": "什么是机会成本？",
+                "type": "concept",
+                "context": "机会成本是指个人本来可以获得的，但为了另一种选择而放弃了的价值",
+                "hint": "为什么「免费」的东西也有成本？"
+              },
+              {
+                "timestamp": 23.0,
+                "keyword": "免费冰淇淋的成本",
+                "type": "question",
+                "context": "如果你排队等候免费冰淇淋，你实际上放弃了用这时间做别的事的机会，例如工作或读书。所以那冰淇淋其实并不是免费的",
+                "hint": "排队那 10 分钟，你在放弃什么？"
+              },
+              {
+                "timestamp": 35.0,
+                "keyword": "相互交易与受益",
+                "type": "concept",
+                "context": "经济学家使用机会成本的概念来判断人们是否可以从相互交易中受益",
+                "hint": "机会成本如何解释「交易」这件事？"
+              },
+              {
+                "timestamp": 58.0,
+                "keyword": "Bob 的产出可能性",
+                "type": "concept",
+                "context": "如果 Bob 把所有的时间都花在一种产品上，他可以采摘 10 根香蕉，或者捕到 10 条鱼",
+                "hint": "同样一份时间，能换几种产出？"
+              },
+              {
+                "timestamp": 71.0,
+                "keyword": "必须二选一",
+                "type": "question",
+                "context": "Bob 必须选择采摘香蕉或捕鱼。当他选择采摘 1 根香蕉时，他就放弃了 1 条鱼",
+                "hint": "选择本身就是在放弃另一种可能"
+              },
+              {
+                "timestamp": 85.0,
+                "keyword": "机会成本的计算",
+                "type": "concept",
+                "context": "这个交易的成本是每根香蕉换 1 条鱼，那便是 Bob 的机会成本",
+                "hint": "机会成本怎么算成「比价」？"
+              },
+              {
+                "timestamp": 94.0,
+                "keyword": "比较优势",
+                "type": "concept",
+                "context": "对于 Ann 也同样，只不过对她来说每根香蕉的成本是 3 条鱼。所以 Ann 采摘香蕉的机会成本比 Bob 的高",
+                "hint": "为什么 Ann 的机会成本更高，却仍值得分工？"
+              },
+              {
+                "timestamp": 132.0,
+                "keyword": "选择的代价",
+                "type": "quote",
+                "context": "因为我们的时间具有价值，所以做任何选择都会有代价",
+                "hint": "用你自己的一个真实选择来套这句话"
+              },
+              {
+                "timestamp": 137.0,
+                "keyword": "专业化与分工",
+                "type": "concept",
+                "context": "如果像 Ann 和 Bob 那样把时间集中在擅长的事上，自己不去大包大揽，那我们的经济状况将会得到改善",
+                "hint": "分工为什么能改善所有人的处境？"
+              }
+            ],
+            "is_default": true,
+            "auto_context": false
+          },
+          "source_anchors": [],
+          "metadata": {},
+          "error": "",
+          "created_at": 0.0,
+          "updated_at": 0.0
+        },
+        {
+          "id": "blk_res_oc_mru_direct",
+          "type": "resource",
+          "status": "ready",
+          "title": "微观经济学导论：稀缺性与机会成本",
+          "params": {},
+          "payload": {
+            "id": "res_oc_mru_direct",
+            "resource_type": "video",
+            "title": "微观经济学导论：稀缺性与机会成本",
+            "url": "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4",
+            "ai_context": "同一堂 MRU 机会成本课程的**直链回放**版本。与 YouTube 版内容一致，但走直链 MP4——原生播放器能给出精确的播放进度，因此视频画面上的知识点提示会在准确的时间戳弹出，左侧切片导航也能精确跳转",
+            "provider": "直链",
+            "meta": {
+              "duration": 10
+            },
+            "captions": [],
+            "interactive_nodes": [
+              {
+                "timestamp": 2.0,
+                "keyword": "机会成本的基本定义",
+                "type": "concept",
+                "context": "机会成本是个人为了追求另一个选项而放弃的、本可以得到的东西的价值",
+                "hint": "为什么「免费」的东西也有成本？"
+              },
+              {
+                "timestamp": 5.0,
+                "keyword": "免费冰淇淋的成本",
+                "type": "question",
+                "context": "如果你排队等候免费冰淇淋，你实际上放弃了用这时间做别的事的机会",
+                "hint": "排队那 10 分钟，你在放弃什么？"
+              },
+              {
+                "timestamp": 8.0,
+                "keyword": "专业化与分工",
+                "type": "concept",
+                "context": "把时间集中在各自擅长的事上，整体的经济状况会得到改善",
+                "hint": "分工为什么能改善所有人的处境？"
+              }
+            ],
+            "is_default": false,
+            "auto_context": false
+          },
+          "source_anchors": [],
+          "metadata": {},
+          "error": "",
+          "created_at": 0.0,
+          "updated_at": 0.0
+        }
+      ],
+      "links": [],
+      "parent_page_id": "",
+      "summary": "机会成本是指你为了得到某个东西而放弃的另一样东西的价值。视频用排队买免费冰淇淋的例子引出这个概念，再用 Bob 与 Ann 的香蕉—鱼交易模型把它讲透，最后落到「专业化的收益来自比较优势」",
+      "error": "",
+      "created_at": 0.0,
+      "updated_at": 0.0
+    },
+    {
+      "id": "node_trade",
+      "book_id": "interactive_video_demo",
+      "chapter_id": "topic_trade",
+      "title": "机会成本与贸易的收益",
+      "learning_objectives": [],
+      "content_type": "concept",
+      "status": "ready",
+      "order": 1,
+      "blocks": [
+        {
+          "id": "blk_res_trade_mru",
+          "type": "resource",
+          "status": "ready",
+          "title": "微观经济学导论：稀缺性与机会成本",
+          "params": {},
+          "payload": {
+            "id": "res_trade_mru",
+            "resource_type": "video",
+            "title": "微观经济学导论：稀缺性与机会成本",
+            "url": "https://www.youtube.com/watch?v=uorrlWJ23Mg",
+            "ai_context": "Marginal Revolution University 的《Opportunity Cost and Tradeoffs》（4 分 38 秒，有官方中文字幕）。在《What Is Opportunity Cost?》的基础上继续展开「取舍（tradeoffs）」：核心论点是——资源（尤其是时间）有限，所以任何选择都要放弃另一样东西；正是因为机会成本存在，人与人之间的相互交易与专业化分工才可能带来共同的改善。这个视频适合作为上一知识点的延伸：先讲清取舍，再讲清交易为何能让双方都受益",
+            "provider": "Marginal Revolution University",
+            "meta": {
+              "duration": 278,
+              "language": "zh",
+              "has_chinese_captions": true,
+              "channel": "Marginal Revolution University"
+            },
+            "captions": [
+              {
+                "start": 2.78,
+                "text": "♪ [音乐] ♪"
+              },
+              {
+                "start": 5.8,
+                "text": "一旦你们掌握了经济学的思维方式"
+              },
+              {
+                "start": 8.41,
+                "text": "就会以截然不同的方式看待这个世界"
+              },
+              {
+                "start": 11.74,
+                "text": "有两个基本的经济概念随处可见"
+              },
+              {
+                "start": 16.4,
+                "text": "机会成本"
+              },
+              {
+                "start": 20.0,
+                "text": "以及权衡"
+              },
+              {
+                "start": 24.59,
+                "text": "首先我们谈谈机会成本"
+              },
+              {
+                "start": 27.69,
+                "text": "在这家热闹的咖啡店里"
+              },
+              {
+                "start": 30.21,
+                "text": "每个决定背后都隐藏着机会成本"
+              },
+              {
+                "start": 34.28,
+                "text": "就像珍妮，她来这里是与亚当的 第三次约会"
+              },
+              {
+                "start": 41.26,
+                "text": "这是个好决定吗？"
+              },
+              {
+                "start": 42.89,
+                "text": "毕竟，经济学就是要研究决策"
+              },
+              {
+                "start": 46.68,
+                "text": "就该决定的效益与成本进行比较"
+              },
+              {
+                "start": 48.28,
+                "text": "从而做出正确的决定"
+              },
+              {
+                "start": 52.26,
+                "text": "对于珍妮来说，这次约会的明显成本"
+              },
+              {
+                "start": 54.92,
+                "text": "包含到这里来而需支付的优步车费"
+              },
+              {
+                "start": 58.26,
+                "text": "大杯装印度香料奶茶拿铁加全脂牛奶"
+              },
+              {
+                "start": 61.83,
+                "text": "但还欠缺什么呢？"
+              },
+              {
+                "start": 63.09,
+                "text": "她的机会成本"
+              },
+              {
+                "start": 65.47,
+                "text": "机会成本的意思是 下一个最佳替代方案的价值"
+              },
+              {
+                "start": 69.67,
+                "text": "例如，她没有跟亚当第三次约会的话"
+              },
+              {
+                "start": 73.3,
+                "text": "珍妮可能正在狂看她最喜欢的电视节目"
+              },
+              {
+                "start": 76.95,
+                "text": "她可能跟罗曼第一次约会"
+              },
+              {
+                "start": 80.78,
+                "text": "或者她可能跟她非常可爱的妹妹"
+              },
+              {
+                "start": 82.74,
+                "text": "一起吃早餐"
+              },
+              {
+                "start": 85.89,
+                "text": "假设她的下一个最佳替代方案"
+              },
+              {
+                "start": 87.62,
+                "text": "是和她妹妹一起吃早餐"
+              },
+              {
+                "start": 90.33,
+                "text": "与亚当第三次约会的好处"
+              },
+              {
+                "start": 92.77,
+                "text": "是否超过了机会成本呢？"
+              },
+              {
+                "start": 95.27,
+                "text": "以这种方式考虑恋爱关系似乎很奇怪"
+              },
+              {
+                "start": 98.38,
+                "text": "这并不意味着"
+              },
+              {
+                "start": 99.39,
+                "text": "每一个决定都要精确到了每个细节"
+              },
+              {
+                "start": 103.88,
+                "text": "尽管如此，珍妮的时间、注意力和精力 都是稀缺的"
+              },
+              {
+                "start": 111.25,
+                "text": "如果她根本不考虑其他选择"
+              },
+              {
+                "start": 113.94,
+                "text": "她可能正在浪费生命的一部分"
+              },
+              {
+                "start": 118.79,
+                "text": "经济学中还有另一个基本相关概念"
+              },
+              {
+                "start": 122.84,
+                "text": "权衡"
+              },
+              {
+                "start": 124.51,
+                "text": "举个例子，咖啡店天花板上的洒水器"
+              },
+              {
+                "start": 129.27,
+                "text": "在火灾发生时，添加洒水器可以使店铺更加安全"
+              },
+              {
+                "start": 132.21,
+                "text": "但是安装成本也很高"
+              },
+              {
+                "start": 136.69,
+                "text": "如果没有装洒水器，咖啡会便宜多少呢？"
+              },
+              {
+                "start": 140.7,
+                "text": "在资源稀缺的世界里，人们通常必须做出选择"
+              },
+              {
+                "start": 145.07,
+                "text": "需要权衡一下"
+              },
+              {
+                "start": 146.21,
+                "text": "建筑物越安全成本越高"
+              },
+              {
+                "start": 148.13,
+                "text": "但这意味着咖啡可能会更贵"
+              },
+              {
+                "start": 158.22,
+                "text": "嗯，顾客在门口排队"
+              },
+              {
+                "start": 161.98,
+                "text": "也许店主考虑过开设第二家分店"
+              },
+              {
+                "start": 167.64,
+                "text": "然而，随着建筑法规变得更加严格"
+              },
+              {
+                "start": 170.38,
+                "text": "在另一地点开新店的成本会增加"
+              },
+              {
+                "start": 174.35,
+                "text": "这不仅是支付洒水器之类的直接金钱成本"
+              },
+              {
+                "start": 179.71,
+                "text": "这也包含申请许可证、监工和安排检查"
+              },
+              {
+                "start": 183.74,
+                "text": "所需的额外时间和精力的机会成本"
+              },
+              {
+                "start": 189.8,
+                "text": "更严格的建筑法规意味着"
+              },
+              {
+                "start": 192.36,
+                "text": "开设新店的成本更高"
+              },
+              {
+                "start": 198.76,
+                "text": "反过来说，更高的成本可能意味着"
+              },
+              {
+                "start": 201.41,
+                "text": "越来越少生意人开设新店"
+              },
+              {
+                "start": 210.0,
+                "text": "让建筑物更安全与更容易开设新店之间的"
+              },
+              {
+                "start": 218.74,
+                "text": "正确权衡是什么？"
+              },
+              {
+                "start": 224.99,
+                "text": "一旦你看懂这些权衡"
+              },
+              {
+                "start": 226.65,
+                "text": "到处都会发现权衡"
+              },
+              {
+                "start": 229.26,
+                "text": "卫生保健—专门治疗 vs 大规模预防保健"
+              },
+              {
+                "start": 235.13,
+                "text": "粮食—动物福利 vs 负担得起的营养"
+              },
+              {
+                "start": 242.01,
+                "text": "环境—海上风能 vs 海岸景观"
+              },
+              {
+                "start": 248.75,
+                "text": "教育—幼儿教育课程 vs 大学助学金"
+              },
+              {
+                "start": 254.98,
+                "text": "还有一项需要考虑的决定"
+              },
+              {
+                "start": 257.16,
+                "text": "如果你是一位老师"
+              },
+              {
+                "start": 258.31,
+                "text": "你是否应该查看我们包含此视频的 免费单元计划"
+              },
+              {
+                "start": 260.77,
+                "text": "从而给你的经济学课增添趣味吗？"
+              },
+              {
+                "start": 264.99,
+                "text": "如果你是一位学生 你是否应该观看另一个 MRU 视频吗？"
+              },
+              {
+                "start": 268.84,
+                "text": "YouTube 上有很多有趣的视频"
+              },
+              {
+                "start": 272.3,
+                "text": "但当然要考虑机会成本"
+              },
+              {
+                "start": 275.59,
+                "text": "♪ [音乐] ♪"
+              }
+            ],
+            "interactive_nodes": [
+              {
+                "timestamp": 20.0,
+                "keyword": "取舍不可避免",
+                "type": "concept",
+                "context": "资源是有限的，所以每一个选择都意味着放弃另一些可能",
+                "hint": "举一个你今天做过的取舍"
+              },
+              {
+                "timestamp": 95.0,
+                "keyword": "比较优势",
+                "type": "concept",
+                "context": "当两个人在不同产品上的机会成本不同，让他们各自专注于相对更擅长的那件事，双方都能获益",
+                "hint": "为什么「绝对优势」不如「比较优势」重要？"
+              },
+              {
+                "timestamp": 180.0,
+                "keyword": "专业化与总产出",
+                "type": "concept",
+                "context": "把时间集中在各自擅长的事上，不过度大包大揽，整体的经济状况会得到改善",
+                "hint": "分工之后，产出总量变了吗？"
+              }
+            ],
+            "is_default": true,
+            "auto_context": false
+          },
+          "source_anchors": [],
+          "metadata": {},
+          "error": "",
+          "created_at": 0.0,
+          "updated_at": 0.0
+        }
+      ],
+      "links": [],
+      "parent_page_id": "",
+      "summary": "接续上一知识点：当两人的机会成本不同（Bob 每根香蕉换 1 条鱼，Ann 换 3 条鱼），互相交易就能让双方都越过自己的机会成本线。这就是比较优势原理，也是「为什么专业分工能让整体经济状况改善」的答案",
+      "error": "",
+      "created_at": 0.0,
+      "updated_at": 0.0
+    }
+  ],
+  "progress": {
+    "book_id": "interactive_video_demo",
+    "current_page_id": "node_opportunity_cost",
+    "visited_page_ids": [
+      "node_opportunity_cost"
+    ],
+    "bookmarked_page_ids": [],
+    "quiz_attempts": [],
+    "weak_chapters": [],
+    "score": 0,
+    "updated_at": 1794540200.7743602,
+    "dwell_seconds": 110887.039,
+    "page_coverage": {
+      "node_opportunity_cost": 0.0
+    },
+    "page_dwell": {
+      "node_opportunity_cost": 110887.039
+    },
+    "resource_progress": {
+      "res_oc_mru": {
+        "resource_id": "res_oc_mru",
+        "dwell_seconds": 114462.57500000024,
+        "opened": true,
+        "last_active_at": 1794540200.774359,
+        "page_id": "node_opportunity_cost",
+        "marked_done": false
+      },
+      "res_oc_mru_direct": {
+        "resource_id": "res_oc_mru_direct",
+        "dwell_seconds": 506.0219999999997,
+        "opened": true,
+        "last_active_at": 1794527161.007034,
+        "page_id": "node_opportunity_cost",
+        "marked_done": false
+      }
+    }
+  },
+  "hub": {
+    "id": "interactive_video_demo",
+    "title": "微观经济学导论：稀缺性与机会成本",
+    "description": "从生活中的免费冰淇淋与渔夫交易模型出发，理解人类决策背后的机会成本与比较优势法则。课程用两个日常案例把「取舍」这件事讲透：每一份资源都有代价，而分工正是让所有人越过自己代价线的原因",
+    "language": "zh",
+    "depth": "standard",
+    "status": "ready",
+    "revision": 1,
+    "created_at": 0.0,
+    "updated_at": 1794540200.775031,
+    "metadata": {
+      "pillar": "society",
+      "prerequisite": "none",
+      "author": "SEEK 公开课书系",
+      "tags": [
+        "经济学",
+        "机会成本",
+        "比较优势",
+        "公开课"
+      ]
+    },
+    "exploration_summary": "一门关于「选择」的基础课。第一讲从免费冰淇淋的悖论入手，界定机会成本；第二讲把机会成本推到极致，解释为什么比较优势能让分工双方同时受益",
+    "topics": [
+      {
+        "id": "topic_opportunity_cost",
+        "title": "机会成本：一切选择的代价",
+        "summary": "从「免费冰淇淋其实不免费」出发，看清楚经济学第一个概念如何解释几乎所有的日常决策",
+        "order": 1,
+        "nodes": [
+          {
+            "id": "node_opportunity_cost",
+            "topic_id": "topic_opportunity_cost",
+            "title": "什么是机会成本？",
+            "question": "为什么一份「免费」的冰淇淋其实并不免费？",
+            "summary": "机会成本是指你为了得到某个东西而放弃的另一样东西的价值。视频用排队买免费冰淇淋的例子引出这个概念，再用 Bob 与 Ann 的香蕉—鱼交易模型把它讲透，最后落到「专业化的收益来自比较优势」",
+            "order": 1,
+            "resources": [
+              {
+                "id": "res_oc_mru",
+                "resource_type": "video",
+                "title": "微观经济学导论：稀缺性与机会成本",
+                "url": "https://www.youtube.com/watch?v=x-hYzRncxTc",
+                "ai_context": "Marginal Revolution University 的《What Is Opportunity Cost?》（2018，2 分 45 秒，有官方中文配音与中文字幕）。全片结构：① 0:09 抛出「什么是机会成本」；② 0:16 给出定义——机会成本是个人为了追求另一个选项而放弃的、本可以得到的东西的价值；③ 0:23 用「排队等免费冰淇淋」说明零成本的东西也有成本，你放弃的是用这段时间工作或读书的机会，所以冰淇淋其实并不免费；④ 0:35 指出经济学家用机会成本来判断人与人之间能否从相互交易中获益；⑤ 0:42 进入 Bob 与 Ann 的例子：两人只生产香蕉和鱼两种产品，Bob 全部时间可采 10 根香蕉或捕 10 条鱼，Ann 全部时间可采 10 根香蕉或捕 30 条鱼；⑥ 0:50 各自自给自足时经济状况都较差，Bob 必须二选一，选 1 根香蕉就等于放弃 1 条鱼，他的机会成本是每根香蕉换 1 条鱼；⑦ 1:32 Ann 的机会成本是每根香蕉换 3 条鱼，所以 Ann 采香蕉的机会成本比 Bob 高；⑧ 2:01 如果两人能相互交易，Ann 专注捕鱼、Bob 专注采香蕉 specialize 会让双方受益；⑨ 2:12 总结——因为时间有价值，做任何选择都有代价，但把时间集中在擅长的事上、不过度大包大揽，整体经济状况会改善",
+                "provider": "Marginal Revolution University",
+                "meta": {
+                  "duration": 165,
+                  "language": "zh",
+                  "has_chinese_captions": true,
+                  "channel": "Marginal Revolution University",
+                  "published": "2018-08-14"
+                },
+                "captions": [
+                  {
+                    "start": 4,
+                    "text": "经济学词典"
+                  },
+                  {
+                    "start": 9,
+                    "text": "什么是「机会成本」？"
+                  },
+                  {
+                    "start": 14,
+                    "text": "机会成本是指个人本来可以获得的，但为了另一种选择而放弃了的价值。"
+                  },
+                  {
+                    "start": 23,
+                    "text": "所以如果你排队等候免费冰淇淋，你实际上放弃了用这时间做别的事的机会，例如工作或读书。"
+                  },
+                  {
+                    "start": 33,
+                    "text": "所以那冰淇淋其实并不是免费的。"
+                  },
+                  {
+                    "start": 35,
+                    "text": "经济学家甚至使用「机会成本」的概念来判断人们是否可以从相互交易中受益。"
+                  },
+                  {
+                    "start": 42,
+                    "text": "只有两个人：Bob 和 Ann，他们都只生产两种产品——香蕉和鱼。"
+                  },
+                  {
+                    "start": 46,
+                    "text": "他们都只生产两种产品——香蕉和鱼。"
+                  },
+                  {
+                    "start": 58,
+                    "text": "如果 Bob 把所有的时间都花在一种产品上，他可以采摘 10 根香蕉，或者捕到 10 条鱼。"
+                  },
+                  {
+                    "start": 66,
+                    "text": "Ann 可以采摘 10 根香蕉，或者捕到 30 条鱼。"
+                  },
+                  {
+                    "start": 71,
+                    "text": "Bob 必须选择采摘香蕉或捕鱼。"
+                  },
+                  {
+                    "start": 75,
+                    "text": "当他选择采摘 1 根香蕉时，他就放弃了 1 条鱼。"
+                  },
+                  {
+                    "start": 78,
+                    "text": "本质上讲，Bob 在与自己进行交易。"
+                  },
+                  {
+                    "start": 85,
+                    "text": "这个交易的成本是每根香蕉换 1 条鱼，那便是 Bob 的机会成本。"
+                  },
+                  {
+                    "start": 92,
+                    "text": "对于 Ann 也同样，只不过对她来说每根香蕉的成本是 3 条鱼。"
+                  },
+                  {
+                    "start": 98,
+                    "text": "Ann 采摘 1 根香蕉所需的时间，可以捕到 3 条鱼。"
+                  },
+                  {
+                    "start": 107,
+                    "text": "Bob 只要放弃 1 条鱼就能得到 1 根香蕉。"
+                  },
+                  {
+                    "start": 111,
+                    "text": "而 Ann 必须放弃 3 条鱼才能获得 1 根香蕉。"
+                  },
+                  {
+                    "start": 115,
+                    "text": "所以，Ann 采摘香蕉的机会成本比 Bob 的高。"
+                  },
+                  {
+                    "start": 121,
+                    "text": "如果 Ann 和 Bob 能相互交易，Ann 专注于捕鱼，而 Bob 专注于采摘香蕉，他们很可能会从这种专门化中获益。"
+                  },
+                  {
+                    "start": 132,
+                    "text": "因为我们的时间具有价值，所以做任何选择都会有代价。"
+                  },
+                  {
+                    "start": 135,
+                    "text": "但如果像 Ann 和 Bob 那样把时间集中在擅长的事上，自己不去大包大揽，那我们的经济状况将会得到改善。"
+                  }
+                ],
+                "interactive_nodes": [
+                  {
+                    "timestamp": 9.0,
+                    "keyword": "什么是机会成本？",
+                    "type": "concept",
+                    "context": "机会成本是指个人本来可以获得的，但为了另一种选择而放弃了的价值",
+                    "hint": "为什么「免费」的东西也有成本？"
+                  },
+                  {
+                    "timestamp": 23.0,
+                    "keyword": "免费冰淇淋的成本",
+                    "type": "question",
+                    "context": "如果你排队等候免费冰淇淋，你实际上放弃了用这时间做别的事的机会，例如工作或读书。所以那冰淇淋其实并不是免费的",
+                    "hint": "排队那 10 分钟，你在放弃什么？"
+                  },
+                  {
+                    "timestamp": 35.0,
+                    "keyword": "相互交易与受益",
+                    "type": "concept",
+                    "context": "经济学家使用机会成本的概念来判断人们是否可以从相互交易中受益",
+                    "hint": "机会成本如何解释「交易」这件事？"
+                  },
+                  {
+                    "timestamp": 58.0,
+                    "keyword": "Bob 的产出可能性",
+                    "type": "concept",
+                    "context": "如果 Bob 把所有的时间都花在一种产品上，他可以采摘 10 根香蕉，或者捕到 10 条鱼",
+                    "hint": "同样一份时间，能换几种产出？"
+                  },
+                  {
+                    "timestamp": 71.0,
+                    "keyword": "必须二选一",
+                    "type": "question",
+                    "context": "Bob 必须选择采摘香蕉或捕鱼。当他选择采摘 1 根香蕉时，他就放弃了 1 条鱼",
+                    "hint": "选择本身就是在放弃另一种可能"
+                  },
+                  {
+                    "timestamp": 85.0,
+                    "keyword": "机会成本的计算",
+                    "type": "concept",
+                    "context": "这个交易的成本是每根香蕉换 1 条鱼，那便是 Bob 的机会成本",
+                    "hint": "机会成本怎么算成「比价」？"
+                  },
+                  {
+                    "timestamp": 94.0,
+                    "keyword": "比较优势",
+                    "type": "concept",
+                    "context": "对于 Ann 也同样，只不过对她来说每根香蕉的成本是 3 条鱼。所以 Ann 采摘香蕉的机会成本比 Bob 的高",
+                    "hint": "为什么 Ann 的机会成本更高，却仍值得分工？"
+                  },
+                  {
+                    "timestamp": 132.0,
+                    "keyword": "选择的代价",
+                    "type": "quote",
+                    "context": "因为我们的时间具有价值，所以做任何选择都会有代价",
+                    "hint": "用你自己的一个真实选择来套这句话"
+                  },
+                  {
+                    "timestamp": 137.0,
+                    "keyword": "专业化与分工",
+                    "type": "concept",
+                    "context": "如果像 Ann 和 Bob 那样把时间集中在擅长的事上，自己不去大包大揽，那我们的经济状况将会得到改善",
+                    "hint": "分工为什么能改善所有人的处境？"
+                  }
+                ],
+                "is_default": true,
+                "auto_context": false
+              },
+              {
+                "id": "res_oc_mru_direct",
+                "resource_type": "video",
+                "title": "微观经济学导论：稀缺性与机会成本",
+                "url": "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4",
+                "ai_context": "同一堂 MRU 机会成本课程的**直链回放**版本。与 YouTube 版内容一致，但走直链 MP4——原生播放器能给出精确的播放进度，因此视频画面上的知识点提示会在准确的时间戳弹出，左侧切片导航也能精确跳转",
+                "provider": "直链",
+                "meta": {
+                  "duration": 10
+                },
+                "captions": [],
+                "interactive_nodes": [
+                  {
+                    "timestamp": 2.0,
+                    "keyword": "机会成本的基本定义",
+                    "type": "concept",
+                    "context": "机会成本是个人为了追求另一个选项而放弃的、本可以得到的东西的价值",
+                    "hint": "为什么「免费」的东西也有成本？"
+                  },
+                  {
+                    "timestamp": 5.0,
+                    "keyword": "免费冰淇淋的成本",
+                    "type": "question",
+                    "context": "如果你排队等候免费冰淇淋，你实际上放弃了用这时间做别的事的机会",
+                    "hint": "排队那 10 分钟，你在放弃什么？"
+                  },
+                  {
+                    "timestamp": 8.0,
+                    "keyword": "专业化与分工",
+                    "type": "concept",
+                    "context": "把时间集中在各自擅长的事上，整体的经济状况会得到改善",
+                    "hint": "分工为什么能改善所有人的处境？"
+                  }
+                ],
+                "is_default": false,
+                "auto_context": false
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "topic_trade",
+        "title": "贸易与专业化",
+        "summary": "把机会成本推到极致：为什么「各做各的」反而让所有人更穷",
+        "order": 2,
+        "nodes": [
+          {
+            "id": "node_trade",
+            "topic_id": "topic_trade",
+            "title": "机会成本与贸易的收益",
+            "question": "既然机会成本有高低，为什么分工反而让双方都受益？",
+            "summary": "接续上一知识点：当两人的机会成本不同（Bob 每根香蕉换 1 条鱼，Ann 换 3 条鱼），互相交易就能让双方都越过自己的机会成本线。这就是比较优势原理，也是「为什么专业分工能让整体经济状况改善」的答案",
+            "order": 1,
+            "resources": [
+              {
+                "id": "res_trade_mru",
+                "resource_type": "video",
+                "title": "微观经济学导论：稀缺性与机会成本",
+                "url": "https://www.youtube.com/watch?v=uorrlWJ23Mg",
+                "ai_context": "Marginal Revolution University 的《Opportunity Cost and Tradeoffs》（4 分 38 秒，有官方中文字幕）。在《What Is Opportunity Cost?》的基础上继续展开「取舍（tradeoffs）」：核心论点是——资源（尤其是时间）有限，所以任何选择都要放弃另一样东西；正是因为机会成本存在，人与人之间的相互交易与专业化分工才可能带来共同的改善。这个视频适合作为上一知识点的延伸：先讲清取舍，再讲清交易为何能让双方都受益",
+                "provider": "Marginal Revolution University",
+                "meta": {
+                  "duration": 278,
+                  "language": "zh",
+                  "has_chinese_captions": true,
+                  "channel": "Marginal Revolution University"
+                },
+                "captions": [
+                  {
+                    "start": 2.78,
+                    "text": "♪ [音乐] ♪"
+                  },
+                  {
+                    "start": 5.8,
+                    "text": "一旦你们掌握了经济学的思维方式"
+                  },
+                  {
+                    "start": 8.41,
+                    "text": "就会以截然不同的方式看待这个世界"
+                  },
+                  {
+                    "start": 11.74,
+                    "text": "有两个基本的经济概念随处可见"
+                  },
+                  {
+                    "start": 16.4,
+                    "text": "机会成本"
+                  },
+                  {
+                    "start": 20.0,
+                    "text": "以及权衡"
+                  },
+                  {
+                    "start": 24.59,
+                    "text": "首先我们谈谈机会成本"
+                  },
+                  {
+                    "start": 27.69,
+                    "text": "在这家热闹的咖啡店里"
+                  },
+                  {
+                    "start": 30.21,
+                    "text": "每个决定背后都隐藏着机会成本"
+                  },
+                  {
+                    "start": 34.28,
+                    "text": "就像珍妮，她来这里是与亚当的 第三次约会"
+                  },
+                  {
+                    "start": 41.26,
+                    "text": "这是个好决定吗？"
+                  },
+                  {
+                    "start": 42.89,
+                    "text": "毕竟，经济学就是要研究决策"
+                  },
+                  {
+                    "start": 46.68,
+                    "text": "就该决定的效益与成本进行比较"
+                  },
+                  {
+                    "start": 48.28,
+                    "text": "从而做出正确的决定"
+                  },
+                  {
+                    "start": 52.26,
+                    "text": "对于珍妮来说，这次约会的明显成本"
+                  },
+                  {
+                    "start": 54.92,
+                    "text": "包含到这里来而需支付的优步车费"
+                  },
+                  {
+                    "start": 58.26,
+                    "text": "大杯装印度香料奶茶拿铁加全脂牛奶"
+                  },
+                  {
+                    "start": 61.83,
+                    "text": "但还欠缺什么呢？"
+                  },
+                  {
+                    "start": 63.09,
+                    "text": "她的机会成本"
+                  },
+                  {
+                    "start": 65.47,
+                    "text": "机会成本的意思是 下一个最佳替代方案的价值"
+                  },
+                  {
+                    "start": 69.67,
+                    "text": "例如，她没有跟亚当第三次约会的话"
+                  },
+                  {
+                    "start": 73.3,
+                    "text": "珍妮可能正在狂看她最喜欢的电视节目"
+                  },
+                  {
+                    "start": 76.95,
+                    "text": "她可能跟罗曼第一次约会"
+                  },
+                  {
+                    "start": 80.78,
+                    "text": "或者她可能跟她非常可爱的妹妹"
+                  },
+                  {
+                    "start": 82.74,
+                    "text": "一起吃早餐"
+                  },
+                  {
+                    "start": 85.89,
+                    "text": "假设她的下一个最佳替代方案"
+                  },
+                  {
+                    "start": 87.62,
+                    "text": "是和她妹妹一起吃早餐"
+                  },
+                  {
+                    "start": 90.33,
+                    "text": "与亚当第三次约会的好处"
+                  },
+                  {
+                    "start": 92.77,
+                    "text": "是否超过了机会成本呢？"
+                  },
+                  {
+                    "start": 95.27,
+                    "text": "以这种方式考虑恋爱关系似乎很奇怪"
+                  },
+                  {
+                    "start": 98.38,
+                    "text": "这并不意味着"
+                  },
+                  {
+                    "start": 99.39,
+                    "text": "每一个决定都要精确到了每个细节"
+                  },
+                  {
+                    "start": 103.88,
+                    "text": "尽管如此，珍妮的时间、注意力和精力 都是稀缺的"
+                  },
+                  {
+                    "start": 111.25,
+                    "text": "如果她根本不考虑其他选择"
+                  },
+                  {
+                    "start": 113.94,
+                    "text": "她可能正在浪费生命的一部分"
+                  },
+                  {
+                    "start": 118.79,
+                    "text": "经济学中还有另一个基本相关概念"
+                  },
+                  {
+                    "start": 122.84,
+                    "text": "权衡"
+                  },
+                  {
+                    "start": 124.51,
+                    "text": "举个例子，咖啡店天花板上的洒水器"
+                  },
+                  {
+                    "start": 129.27,
+                    "text": "在火灾发生时，添加洒水器可以使店铺更加安全"
+                  },
+                  {
+                    "start": 132.21,
+                    "text": "但是安装成本也很高"
+                  },
+                  {
+                    "start": 136.69,
+                    "text": "如果没有装洒水器，咖啡会便宜多少呢？"
+                  },
+                  {
+                    "start": 140.7,
+                    "text": "在资源稀缺的世界里，人们通常必须做出选择"
+                  },
+                  {
+                    "start": 145.07,
+                    "text": "需要权衡一下"
+                  },
+                  {
+                    "start": 146.21,
+                    "text": "建筑物越安全成本越高"
+                  },
+                  {
+                    "start": 148.13,
+                    "text": "但这意味着咖啡可能会更贵"
+                  },
+                  {
+                    "start": 158.22,
+                    "text": "嗯，顾客在门口排队"
+                  },
+                  {
+                    "start": 161.98,
+                    "text": "也许店主考虑过开设第二家分店"
+                  },
+                  {
+                    "start": 167.64,
+                    "text": "然而，随着建筑法规变得更加严格"
+                  },
+                  {
+                    "start": 170.38,
+                    "text": "在另一地点开新店的成本会增加"
+                  },
+                  {
+                    "start": 174.35,
+                    "text": "这不仅是支付洒水器之类的直接金钱成本"
+                  },
+                  {
+                    "start": 179.71,
+                    "text": "这也包含申请许可证、监工和安排检查"
+                  },
+                  {
+                    "start": 183.74,
+                    "text": "所需的额外时间和精力的机会成本"
+                  },
+                  {
+                    "start": 189.8,
+                    "text": "更严格的建筑法规意味着"
+                  },
+                  {
+                    "start": 192.36,
+                    "text": "开设新店的成本更高"
+                  },
+                  {
+                    "start": 198.76,
+                    "text": "反过来说，更高的成本可能意味着"
+                  },
+                  {
+                    "start": 201.41,
+                    "text": "越来越少生意人开设新店"
+                  },
+                  {
+                    "start": 210.0,
+                    "text": "让建筑物更安全与更容易开设新店之间的"
+                  },
+                  {
+                    "start": 218.74,
+                    "text": "正确权衡是什么？"
+                  },
+                  {
+                    "start": 224.99,
+                    "text": "一旦你看懂这些权衡"
+                  },
+                  {
+                    "start": 226.65,
+                    "text": "到处都会发现权衡"
+                  },
+                  {
+                    "start": 229.26,
+                    "text": "卫生保健—专门治疗 vs 大规模预防保健"
+                  },
+                  {
+                    "start": 235.13,
+                    "text": "粮食—动物福利 vs 负担得起的营养"
+                  },
+                  {
+                    "start": 242.01,
+                    "text": "环境—海上风能 vs 海岸景观"
+                  },
+                  {
+                    "start": 248.75,
+                    "text": "教育—幼儿教育课程 vs 大学助学金"
+                  },
+                  {
+                    "start": 254.98,
+                    "text": "还有一项需要考虑的决定"
+                  },
+                  {
+                    "start": 257.16,
+                    "text": "如果你是一位老师"
+                  },
+                  {
+                    "start": 258.31,
+                    "text": "你是否应该查看我们包含此视频的 免费单元计划"
+                  },
+                  {
+                    "start": 260.77,
+                    "text": "从而给你的经济学课增添趣味吗？"
+                  },
+                  {
+                    "start": 264.99,
+                    "text": "如果你是一位学生 你是否应该观看另一个 MRU 视频吗？"
+                  },
+                  {
+                    "start": 268.84,
+                    "text": "YouTube 上有很多有趣的视频"
+                  },
+                  {
+                    "start": 272.3,
+                    "text": "但当然要考虑机会成本"
+                  },
+                  {
+                    "start": 275.59,
+                    "text": "♪ [音乐] ♪"
+                  }
+                ],
+                "interactive_nodes": [
+                  {
+                    "timestamp": 20.0,
+                    "keyword": "取舍不可避免",
+                    "type": "concept",
+                    "context": "资源是有限的，所以每一个选择都意味着放弃另一些可能",
+                    "hint": "举一个你今天做过的取舍"
+                  },
+                  {
+                    "timestamp": 95.0,
+                    "keyword": "比较优势",
+                    "type": "concept",
+                    "context": "当两个人在不同产品上的机会成本不同，让他们各自专注于相对更擅长的那件事，双方都能获益",
+                    "hint": "为什么「绝对优势」不如「比较优势」重要？"
+                  },
+                  {
+                    "timestamp": 180.0,
+                    "keyword": "专业化与总产出",
+                    "type": "concept",
+                    "context": "把时间集中在各自擅长的事上，不过度大包大揽，整体的经济状况会得到改善",
+                    "hint": "分工之后，产出总量变了吗？"
+                  }
+                ],
+                "is_default": true,
+                "auto_context": false
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

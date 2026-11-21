@@ -1,0 +1,156 @@
+# ─────────────────────────────────────────────────────────────
+#  GitHub Pages 自动部署
+# ─────────────────────────────────────────────────────────────
+#
+#  每次推送到 ``main`` 分支时自动构建并发布到 GitHub Pages。
+#
+#  流程
+#  ----
+#
+#  1. 检出代码；
+#  2. 装依赖（用缓存，第二次跑快得多）；
+#  3. 把**仓库名**注入 ``NEXT_PUBLIC_BASE_PATH``；
+#  4. 同步静态数据 + 构建静态产物；
+#  5. 生成 ``.nojekyll``（让 Pages 不跑 Jekyll）；
+#  6. 上传到 Pages。
+#
+#  为什么需要 ``.nojekyll``
+#  ----------------------
+#
+#  GitHub Pages 默认用 Jekyll 处理内容——它会**忽略**以 ``_`` 开头的
+#  目录。而 Next 的静态产物里有 ``/_next/`` 目录——Jekyll 会把它删掉，
+#  结果是「HTML 能打开，但 JS 和 CSS 全 404」，页面一片空白。
+#
+#  一个空的 ``.nojekyll`` 文件就能关掉 Jekyll。
+#
+#  为什么 basePath 要用仓库名
+#  -------------------------
+#
+#  GitHub Pages 的**项目站点**在二级路径下：
+#
+#      https://<用户名>.github.io/<仓库名>/
+#
+#  所以 ``basePath`` 必须是 ``/<仓库名>``。这个值由
+#  ``github.event.repository.name`` 自动提供——换仓库不用改配置。
+#
+#  （如果用的是**用户站点**——仓库名就是 ``<用户名>.github.io``——
+#   basePath 应该是空的。这个工作流会自动处理：仓库名以 ``.github.io``
+#   结尾时，basePath 留空。）
+#
+# ─────────────────────────────────────────────────────────────
+
+name: 部署到 GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  # 手动触发——Pages 首次开启时用得上。
+  workflow_dispatch:
+
+# 只需要写权限——发布 Pages 要用。
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 不打断正在跑的部署。同一时间只保留最新的一次。
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: 构建静态站点
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── 1. 检出 ──
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      # ── 2. 装依赖 ──
+      #
+      # 用 ``npm ci``（严格按 lockfile）而不是 ``npm install``——
+      # 保证每次构建的依赖版本完全一致。
+      #
+      # 缓存 key 包含 lockfile 的哈希——依赖变了缓存自动失效。
+      - name: 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: 安装依赖
+        working-directory: web
+        run: npm ci
+
+      # ── 3. 算出 basePath ──
+      #
+      # 仓库名形如 ``dream-class`` → basePath 是 ``/dream-class``。
+      #
+      # 但如果仓库名是 ``<用户名>.github.io``（用户站点），
+      # 站点在根路径上，basePath 必须是**空**——否则所有资源都
+      # 会指向 ``/<用户名>.github.io/...`` 而 404。
+      - name: 计算 basePath
+        id: base
+        run: |
+          REPO_NAME="${{ github.event.repository.name }}"
+          if [[ "$REPO_NAME" == *.github.io ]]; then
+            # 用户站点——在根路径。
+            echo "base_path=" >> "$GITHUB_OUTPUT"
+            echo "prefix=" >> "$GITHUB_OUTPUT"
+            echo "::notice::检测到用户站点（${REPO_NAME}），basePath 留空。"
+          else
+            echo "base_path=/${REPO_NAME}" >> "$GITHUB_OUTPUT"
+            echo "prefix=/${REPO_NAME}/" >> "$GITHUB_OUTPUT"
+            echo "::notice::项目站点，basePath = /${REPO_NAME}"
+          fi
+
+      # ── 4. 构建 ──
+      #
+      # ``npm run build:static`` 会：
+      #
+      # * 先跑 ``prebuild``——把后端数据同步到 ``public/data/``；
+      # * 再执行 ``next build``（``output: export``）；
+      # * 最后给 ``404.html`` 打上 GitHub Pages 回退补丁。
+      #
+      # 环境变量在**这一步**注入——``NEXT_PUBLIC_*`` 是编译期内联的，
+      # 所以必须在 build 之前设置。
+      - name: 构建静态站点
+        working-directory: web
+        env:
+          NEXT_PUBLIC_STATIC_EXPORT: "true"
+          NEXT_PUBLIC_BASE_PATH: ${{ steps.base.outputs.base_path }}
+          NEXT_PUBLIC_ASSET_PREFIX: ${{ steps.base.outputs.prefix }}
+        run: npm run build:static
+
+      # ── 5. 生成 .nojekyll ──
+      #
+      # 让 GitHub Pages 跳过 Jekyll 处理——否则 ``/_next/`` 会被删掉。
+      - name: 生成 .nojekyll
+        working-directory: web
+        run: touch out/.nojekyll
+
+      # ── 6. 上传 Pages 产物 ──
+      #
+      # ``actions/upload-pages-artifact`` 会把 ``out/`` 打包成一个
+      # artifact，后面的 ``deploy-pages`` 会自动解开它。
+      - name: 上传 Pages 产物
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/out
+
+  deploy:
+    name: 发布到 GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: 发布
+        id: deployment
+        uses: actions/deploy-pages@v4

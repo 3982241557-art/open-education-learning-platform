@@ -1,0 +1,48 @@
+# ─────────────────────────────────────────────────────────────
+#  Zeabur 部署配置
+# ─────────────────────────────────────────────────────────────
+#
+#  Zeabur 的零配置部署：这个文件告诉它「后端在 backend/，
+#  用 Dockerfile 构建，端口读 $PORT」。
+#
+#  用法：
+#
+#  1. 在 Zeabur 后台点 **New Project → Deploy from GitHub**；
+#  2. 选这个仓库；
+#  3. 在 **Variables** 里填 ``DEEPSEEK_API_KEY``（必填）
+#     与 ``ALLOWED_ORIGINS``（前端域名，可选）；
+#  4. 等构建完成，点 **Networking** 给它开一个公网域名。
+#
+#  前端（Next.js）建议部署到 **Vercel**——Next.js 在 Vercel 上是
+#  零配置的，构建产物、缓存、CDN 全都现成。
+#
+# ─────────────────────────────────────────────────────────────
+
+# 后端服务。
+#
+# ``builder.type: dockerfile`` + ``dockerfile`` 指定 ``backend/Dockerfile``，
+# ``context`` 指定构建上下文是 ``backend/`` 目录。
+services:
+  - name: backend
+    builder:
+      type: dockerfile
+      dockerfile: backend/Dockerfile
+      context: backend
+    # 平台注入 PORT，backend/run.py 会读它并监听 0.0.0.0。
+    ports:
+      - port: 8001
+        protocol: HTTP
+    health:
+      path: /api/health
+      # 冷启动可能要装依赖 + 读数据，给足时间。
+      timeout: 60
+    variables:
+      # 模型密钥——**必填**，去 Zeabur 后台填。
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY}
+      DEEPSEEK_BASE_URL: https://api.deepseek.com
+      DEEPSEEK_MODEL: deepseek-chat
+      # 前端域名，逗号分隔。前端部署好之后回来填。
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+      # GitHub 令牌——可选，提高开源项目筛选配额。
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+      LOG_LEVEL: info

@@ -1,0 +1,219 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "seek://hub-schema",
+  "title": "外链课程（Resource Hub Course）作者格式",
+  "description": "「全网资源连接枢纽」型课程的**作者输入格式**。作者只需要写：主题（topics）→ 知识节点（nodes）→ 外链资源（resources）。平台负责把 id、provider、预置摘要等缺失字段自动补全，并把结构投影成统一的课程形态（章节 / 节 / 资源块），使得进度、笔记、遥测、AI 陪读全部零改动复用。投放方式：把本文件复制为 <course-id>.json 填入内容，放进 backend/data/courses/ 即可自动出现在课程列表。",
+  "type": "object",
+  "required": ["hub"],
+  "additionalProperties": false,
+
+  "properties": {
+    "hub": {
+      "$ref": "#/definitions/Hub"
+    }
+  },
+
+  "definitions": {
+    "Hub": {
+      "type": "object",
+      "required": ["title", "topics"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{1,64}$",
+          "description": "课程唯一标识。缺省时由标题自动生成。文件名建议与之一致。"
+        },
+        "revision": { "type": "integer", "minimum": 1, "default": 1 },
+        "title": { "type": "string", "minLength": 1, "description": "课程标题。" },
+        "description": { "type": "string", "description": "一句话简介——这个枢纽连接的是哪一片全网资源。" },
+        "language": { "type": "string", "default": "zh" },
+        "depth": { "type": "string", "enum": ["light", "standard", "deep"], "default": "standard" },
+        "status": { "type": "string", "default": "ready" },
+        "pillar": {
+          "type": "string",
+          "enum": ["humanities", "science", "technology", "society"],
+          "description": "四大通识支柱之一——决定它在课程列表里的归属。"
+        },
+        "prerequisite": {
+          "type": "string",
+          "enum": ["none", "chinese", "math", "code", "science"],
+          "default": "none",
+          "description": "前置知识要求。代替「入门 / 进阶 / 高阶」这类等级制。"
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "自由标签，用于课程库检索。"
+        },
+        "defaults": {
+          "$ref": "#/definitions/Defaults",
+          "description": "整门课共享的兜底字段。写在这里可以让下面的每条资源省掉重复填写。"
+        },
+        "topics": {
+          "type": "array",
+          "minItems": 1,
+          "description": "主题模块列表。",
+          "items": { "$ref": "#/definitions/Topic" }
+        }
+      }
+    },
+
+    "Defaults": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "批量导入时的兜底值。资源上同名字段优先于这里的取值。",
+      "properties": {
+        "resource_type": {
+          "type": "string",
+          "enum": ["video", "webpage", "document"],
+          "default": "webpage",
+          "description": "缺省资源类型。"
+        },
+        "provider": {
+          "type": "string",
+          "description": "缺省来源平台（如 Bilibili / Wikipedia / SEP）。留空则按 URL 自动推断。"
+        },
+        "ai_context": {
+          "type": "string",
+          "description": "缺省预置摘要。留空则按「主题摘要 + 节点摘要 + 节点标题」自动合成一段概要（会明确标注为自动生成）。"
+        },
+        "is_default": {
+          "type": "boolean",
+          "default": false,
+          "description": "缺省是否作为该节点的首选资源。"
+        }
+      }
+    },
+
+    "Topic": {
+      "type": "object",
+      "required": ["title", "nodes"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "description": "缺省时由标题自动生成。" },
+        "title": { "type": "string", "minLength": 1 },
+        "summary": {
+          "type": "string",
+          "description": "主题导读。会自动进入节点摘要的兜底合成。"
+        },
+        "order": { "type": "integer", "default": 0 },
+        "nodes": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/definitions/Node" }
+        }
+      }
+    },
+
+    "Node": {
+      "type": "object",
+      "required": ["title", "resources"],
+      "additionalProperties": false,
+      "description": "知识节点——「什么是荒谬？」这类问题级单位。节点本身没有正文，只有外链资源。",
+      "properties": {
+        "id": { "type": "string", "description": "缺省时由标题自动生成。" },
+        "title": { "type": "string", "minLength": 1 },
+        "question": {
+          "type": "string",
+          "description": "节点的核心问题——这一节要回答什么。"
+        },
+        "summary": {
+          "type": "string",
+          "description": "节点导读。会进入 AI 的课程上下文，也是资源摘要的兜底素材。"
+        },
+        "order": { "type": "integer", "default": 0 },
+        "resources": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/definitions/Resource" }
+        }
+      }
+    },
+
+    "Resource": {
+      "type": "object",
+      "required": ["url"],
+      "additionalProperties": false,
+      "description": "一条外链资源。",
+      "properties": {
+        "id": { "type": "string", "description": "缺省时由标题 + 序号自动生成。" },
+        "resource_type": {
+          "type": "string",
+          "enum": ["video", "webpage", "document"],
+          "description": "资源类型——决定前端挂载哪种渲染器。缺省时取 hub.defaults.resource_type。"
+        },
+        "title": { "type": "string", "description": "资源标题。缺省时取 URL 的末段。" },
+        "url": {
+          "type": "string",
+          "pattern": "^https?://",
+          "description": "外链地址。必须是 http(s)。"
+        },
+        "provider": {
+          "type": "string",
+          "description": "来源平台。缺省时按域名自动推断（bilibili / wikipedia / plato.stanford.edu …）。"
+        },
+        "ai_context": {
+          "type": "string",
+          "description": "预置的 AI 上下文（摘要 / 核心知识点）。这是 AI「看不见视频」时唯一的桥梁——留空会自动合成一段概要，但自动合成的内容信息量有限，重要资源请手写。"
+        },
+        "is_default": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否作为该节点的首选资源。同一节点内至多一条为 true。"
+        },
+        "meta": {
+          "type": "object",
+          "description": "补充信息（作者、时长、语言、版权等）。",
+          "additionalProperties": true
+        },
+        "captions": {
+          "type": "array",
+          "description": "视频字幕节点。",
+          "items": {
+            "type": "object",
+            "properties": {
+              "start": { "type": "number", "minimum": 0 },
+              "text": { "type": "string" }
+            }
+          }
+        },
+        "interactive_nodes": {
+          "type": "array",
+          "description": "**交互节点**——视频播放到某个时间戳时弹出的知识点。这是「流媒体交互式沙盘」的核心数据：前端在播放进度到达 timestamp 时浮出可点击的气泡，用户一点，视频暂停、右侧 AI 被唤醒并结合这一段作答。",
+          "items": {
+            "type": "object",
+            "required": ["keyword"],
+            "properties": {
+              "timestamp": {
+                "type": ["number", "string"],
+                "description": "触发时刻（秒）。也接受 \"02:00\" / \"1:02:03\" 这类时间串。认不出来的一条会被丢弃，不影响其余节点。",
+                "examples": [120, "02:00"]
+              },
+              "keyword": {
+                "type": "string",
+                "minLength": 1,
+                "description": "知识点名称。气泡上显示的主标题，也是唤醒 AI 时提问的对象。",
+                "examples": ["机会成本"]
+              },
+              "type": {
+                "type": "string",
+                "enum": ["concept", "question", "quote", "warning"],
+                "default": "concept",
+                "description": "节点类型——决定气泡的图标与强调色：concept 概念（豆沙粉）/ question 提问（雾蓝）/ quote 金句（淡紫）/ warning 警示（玫瑰）。"
+              },
+              "context": {
+                "type": "string",
+                "description": "视频原话——这一刻讲的那句话。它会随提问一起发给 AI，是「贴着这一段回答」的关键。"
+              },
+              "hint": {
+                "type": "string",
+                "description": "引导问题——作者替用户想好的「这里该问什么」。它比原话更适合喂给模型。"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

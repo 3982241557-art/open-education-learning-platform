@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "updated_at": 1795136097.287852,
+  "profiles": {
+    "default": {
+      "user_id": "default",
+      "nickname": "陈家明",
+      "avatar_id": "teal",
+      "avatar_url": "",
+      "region": "na",
+      "timezone": "America/Los_Angeles",
+      "locale": "en",
+      "goal": "系统学完线性代数与机器学习",
+      "updated_at": 1795136097.287841
+    }
+  }
+}

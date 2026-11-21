@@ -1,0 +1,640 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── 设计令牌 ──────────────────────────────────────────────────────────
+   同一套 var() 名字被浅色与深色两套值复用，组件里只写 var(--xxx)，
+   切换主题时不需要重新渲染任何组件。
+
+   主题：深蓝黑白学术风
+   ----------------------
+
+   这一版做了一件**减法**的事——把整套莫兰迪暖色调（奶油 / 雅灰 /
+   暖白三种底色 + 豆沙粉交互色 + 五色划线）整体换成深蓝黑白。
+
+   换掉的理由不是「深蓝更高级」，而是**颜色在屏幕上是有成本的**：
+
+   * 三种分区底色 → 三个色相 → 注意力被从内容上抢走；
+   * 五种划线色 → 正文变成万花筒；
+   * 豆沙粉实心按钮 → 几十个色块把屏幕切碎。
+
+   现在屏幕上**只有一种彩色**：学术深蓝 ``#1D4ED8``。它只出现在三个
+   地方——可点击、选中、当前。其余全是黑、白、灰。
+
+   分区靠 1px 实线表达，层次靠留白表达，可点击性靠边框表达。
+   没有任何一个像素是「为了好看」而存在的。 */
+:root {
+  /* ── 深蓝黑白学术主题 ──────────────────────────────────────────────
+     这一版彻底放弃莫兰迪暖色调，换成「极度理性和专注」的深蓝黑白。
+
+     设计原则只有三条：
+
+     1. **底色几乎不可见**——页面是 ``#F8FAFC`` 的浅灰白，卡片是纯白。
+        层次靠**留白与 1px 实线**表达，不靠色块，也不靠阴影。
+     2. **颜色只用来强调**——整个界面只有一种彩色：学术深蓝
+        ``#1D4ED8``。它负责「可点击」「选中」「当前」三种状态。
+     3. **正文是纯黑灰**——``#0F172A`` 在 ``#FFFFFF`` 上对比度 ≈ 17:1，
+        长时间阅读不累。
+
+     换句话说：颜色是**信号**，不是**装饰**。屏幕上看到的每一处蓝，
+     都意味着「这里有交互」。 */
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --primary: #1d4ed8;
+  --primary-foreground: #ffffff;
+  --border: #e2e8f0;
+  --ring: #1d4ed8;
+  --destructive: #dc2626;
+  --overlay: rgba(15, 23, 42, 0.5);
+  --font-sans: "Inter", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-serif: "Georgia", "Songti SC", serif;
+
+  /* ── 玻璃与悬浮层 ────────────────────────────────────────────────────
+     AI 相关的浮层（选区魔法棒、任务看板、解读面板）统一用这套令牌，
+     靠半透明 + 模糊区分层级，而不是靠边框——边框会让
+     阅读界面显得支离破碎。 */
+  --glass: rgba(255, 255, 255, 0.9);
+  --glass-border: rgba(15, 23, 42, 0.1);
+  --shadow-float: 0 4px 16px rgba(15, 23, 42, 0.08);
+  --shadow-panel: 0 8px 28px rgba(15, 23, 42, 0.1);
+  --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.04);
+  --shadow-lift: 0 4px 14px rgba(15, 23, 42, 0.06);
+
+  /* ── 划线色：全部收敛到蓝调 ─────────────────────────────────────────
+     曾经有琥珀 / 雾蓝 / 豆沙 / 玫瑰 / 淡紫五种低饱和配色。现在
+     它们统一成**同一支蓝色家族**的不同明度——
+
+     划线是「我标记了这里」，它属于**语义标记**，不是装饰插画。
+     五种颜色会让正文变成万花筒；一支蓝色家族则让界面安静下来，
+     注意力全部还给内容。 */
+  --seek-color-amber: #1d4ed8;
+  --seek-color-haze: #2563eb;
+  --seek-color-bean: #1e40af;
+  --seek-color-rose: #3b82f6;
+  --seek-color-lilac: #1e3a8a;
+
+  --seek-bg-amber: rgba(29, 78, 216, 0.14);
+  --seek-bg-haze: rgba(37, 99, 235, 0.12);
+  --seek-bg-bean: rgba(30, 64, 175, 0.14);
+  --seek-bg-rose: rgba(59, 130, 246, 0.1);
+  --seek-bg-lilac: rgba(30, 58, 138, 0.14);
+
+  /* ── 三栏认知分区色 ──────────────────────────────────────────────────
+     三个区域各承担一种认知角色：
+
+     - **沉淀区（左）** ``--seek-cream``——放「我的东西」；
+     - **专注区（中）** ``--seek-cool``——大背景压下去，纯白卡片浮
+       在上面，形成「桌面上放着白纸」的悬浮感；
+     - **启发区（右）** ``--seek-warm``——放 AI 的回应。
+
+     **这一版三块底色完全一致**（都是 ``#F8FAFC``）。
+
+     上一版给三块底色安排了不同的冷暖关系（奶油 / 雅灰 / 暖白），
+     看起来「有分区」，实际效果是：屏幕上多出三种色相，注意力被
+     从内容上抢走。而现在**分区靠 1px 分隔线表达**——线比色块安静
+     得多，却一样能切开。 */
+  --seek-cream: #f8fafc;
+  --seek-cool: #f8fafc;
+  --seek-warm: #f8fafc;
+
+  /* 强调色——学术深蓝。整个界面只有这一种彩色。 */
+  --seek-bean: #1d4ed8;
+  --seek-plum: #1d4ed8;
+
+  /* 浅蓝按钮底——「可点击」的信号，但绝不喧宾夺主。 */
+  --seek-bean-soft: #eff6ff;
+  --seek-bean-soft-border: #bfdbfe;
+  --seek-bean-soft-hover: #dbeafe;
+
+  /* 未激活状态下的次要字色——比 ``--muted-foreground`` 深一档，
+     在浅底上仍然清晰可读。 */
+  --seek-muted-foreground: #475569;
+
+  /* 分区之间的硬边界——1px 实线，slate-200。
+     这是这一版**唯一**的分隔手段：没有色块，没有渐变，只有线。 */
+  --seek-divider: #e2e8f0;
+  --seek-divider-cool: #e2e8f0;
+  --seek-divider-warm: #e2e8f0;
+
+  /* 实体按键——1px 实线边框，**无阴影**。
+     上一版靠「淡描边 + 极轻投影」表达可点击性，在深蓝主题下会显得
+     冗余：边框已经是明确的信号了，再叠一层阴影只会让界面发脏。 */
+  --seek-key-border: #cbd5e1;
+  --seek-key-shadow: none;
+  --seek-key-shadow-sm: none;
+
+  /* 弥散阴影——几乎不存在。
+     纯白卡片压在 ``#F8FAFC`` 底上，本身就有足够的对比；阴影只保留
+     一层极淡的，用来在滚动时给一点「浮起」的暗示。 */
+  --seek-shadow-soft: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --seek-shadow-paper: 0 1px 2px rgba(15, 23, 42, 0.04);
+
+  /* ── 左侧深蓝导航栏 ─────────────────────────────────────────────────
+     根导航栏是整个界面的「骨架」——它不该参与内容竞争。用深海蓝
+     把它跟内容区彻底分开，图标全部纯白，形成极客的专业感。 */
+  --seek-rail: #0f172a;
+  --seek-rail-foreground: #ffffff;
+  --seek-rail-muted: rgba(255, 255, 255, 0.62);
+  --seek-rail-active: #1d4ed8;
+}
+
+.dark {
+  /* 深色模式沿用同一套「深蓝黑白」逻辑，只是反过来：
+     底变深、正文变亮、强调色提亮。 */
+  --background: #0b1220;
+  --foreground: #e8edf5;
+  --card: #111a2c;
+  --card-foreground: #e8edf5;
+  --muted: #1a2438;
+  --muted-foreground: #94a3b8;
+  --primary: #3b82f6;
+  --primary-foreground: #0b1220;
+  --border: #1e2a40;
+  --ring: #3b82f6;
+  --destructive: #ef4444;
+  --overlay: rgba(0, 0, 0, 0.6);
+
+  --glass: rgba(17, 26, 44, 0.82);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --shadow-float: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-panel: 0 8px 28px rgba(0, 0, 0, 0.5);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-lift: 0 4px 14px rgba(0, 0, 0, 0.35);
+
+  /* 深色模式下划线色要更亮一点才看得见。 */
+  --seek-color-amber: #60a5fa;
+  --seek-color-haze: #93c5fd;
+  --seek-color-bean: #3b82f6;
+  --seek-color-rose: #bfdbfe;
+  --seek-color-lilac: #a5b4fc;
+
+  --seek-bg-amber: rgba(96, 165, 250, 0.2);
+  --seek-bg-haze: rgba(147, 197, 253, 0.18);
+  --seek-bg-bean: rgba(59, 130, 246, 0.2);
+  --seek-bg-rose: rgba(191, 219, 254, 0.16);
+  --seek-bg-lilac: rgba(165, 180, 252, 0.2);
+
+  /* 三栏分区色——与浅色模式同理，统一深蓝灰。 */
+  --seek-cream: #0b1220;
+  --seek-cool: #0b1220;
+  --seek-warm: #0b1220;
+  --seek-bean: #3b82f6;
+  --seek-plum: #60a5fa;
+
+  --seek-bean-soft: rgba(59, 130, 246, 0.16);
+  --seek-bean-soft-border: rgba(96, 165, 250, 0.24);
+  --seek-bean-soft-hover: rgba(59, 130, 246, 0.26);
+
+  --seek-muted-foreground: #a8b6c8;
+
+  --seek-divider: #1e2a40;
+  --seek-divider-cool: #1e2a40;
+  --seek-divider-warm: #1e2a40;
+
+  --seek-key-border: #2b3a54;
+  --seek-key-shadow: none;
+  --seek-key-shadow-sm: none;
+
+  --seek-shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --seek-shadow-paper: 0 1px 2px rgba(0, 0, 0, 0.3);
+
+  --seek-rail: #060b16;
+  --seek-rail-foreground: #ffffff;
+  --seek-rail-muted: rgba(255, 255, 255, 0.58);
+  --seek-rail-active: #3b82f6;
+}
+
+/* ── 划线渲染 ──────────────────────────────────────────────────────────
+   正文里被划线的文字用 ``<mark data-seek-style data-seek-color>``
+   标记。三种形状 × 五种颜色由这一组规则覆盖——加新颜色只需要改
+   上面两组 CSS 变量，不需要动 JS。
+
+   ``text-decoration-skip-ink`` 让波浪线从字形底部穿过而不是被
+   笔画切断——这是波浪下划线好不好看的分水岭。 */
+[data-seek-style] {
+  background: var(--seek-hl-bg, transparent);
+  color: var(--seek-hl-color, inherit);
+  text-decoration: var(--seek-hl-decoration, none);
+  text-decoration-color: var(--seek-hl-color, currentColor);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+  text-decoration-skip-ink: auto;
+  border-radius: 3px;
+  padding: 0 2px;
+  cursor: pointer;
+  transition: filter 120ms ease;
+}
+
+[data-seek-style]:hover {
+  filter: brightness(0.97);
+}
+
+/* 正在被「取消划线」瞄准的那一条——给出明确的可点提示。 */
+[data-seek-style][data-seek-armed="true"] {
+  outline: 2px dashed var(--destructive);
+  outline-offset: 1px;
+}
+
+/* ── 可点击的知识节点 ──────────────────────────────────────────────────
+   正文里被标记成「知识节点」的核心概念（``[[闭包]]`` 这类标记渲染
+   出来的）。视觉上必须一眼看出「这东西能点」，但又不能抢正文。
+
+   做法：虚线下划线 + 极淡的暖底色。虚线而不是实线，是因为实线下划线
+   会被读成「链接」（能跳转），而这里的点击是「就地提问」——语义
+   不同，虚线给���的是"待探索"的暗示。 */
+[data-seek-concept] {
+  color: var(--seek-plum);
+  background: color-mix(in srgb, var(--seek-bean) 42%, transparent);
+  border-bottom: 1px dashed color-mix(in srgb, var(--seek-plum) 45%, transparent);
+  border-radius: 3px;
+  padding: 0 2px;
+  cursor: pointer;
+  transition: background 140ms ease, border-color 140ms ease;
+}
+
+[data-seek-concept]:hover {
+  background: color-mix(in srgb, var(--seek-bean) 75%, transparent);
+  border-bottom-color: color-mix(in srgb, var(--seek-plum) 75%, transparent);
+}
+
+[data-seek-concept]:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--seek-plum) 45%, transparent);
+  outline-offset: 2px;
+}
+
+/* ── 视频容器 ──────────────────────────────────────────────────────────
+   播放器外面包一层「纸」——和正文卡片同源，让视频看起来是正文流里
+   的一部分，而不是嵌了个第三方控件。 */
+[data-seek-video] {
+  background: var(--card);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: var(--seek-shadow-paper);
+}
+
+/* ── 播放器内的视频元素 ────────────────────────────────────────────────
+   react-player v2 会渲染一个 ``<video>``（YouTube 则渲染 ``<iframe>``）。
+   容器已经锁死 16:9，这里再给内部视频一个 ``object-fit: contain``——
+   双重保险：无论 react-player 怎么设内联样式，画面都**完整可见**，
+   不会被裁掉边缘，也不会把容器撑成非 16:9 的畸形比例。
+
+   为什么是 contain 而不是 cover
+   -----------------------------
+   ``cover`` 会把画面**裁掉**边缘以填满容器。对 16:9 视频配 16:9 容器
+   两者没差别，但对竖屏素材（很多 B 站短视频）``cover`` 会直接裁掉
+   上下三分之一——教学视频裁掉字幕是不能接受的。 */
+[data-seek-interactive-video] video,
+[data-seek-interactive-video] iframe {
+  object-fit: contain;
+}
+
+/* react-player 的根容器——撑满父级的 16:9 盒子。 */
+[data-seek-interactive-video] .react-player {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* 视频加载中的骨架——避免大片黑屏看起来像坏了。 */
+[data-seek-interactive-video] .react-player__loading {
+  background: var(--seek-cool);
+}
+
+/* 字幕节点——视频下方的可点击时间轴条目。 */
+[data-seek-caption] {
+  border-left: 2px solid color-mix(in srgb, var(--seek-plum) 30%, transparent);
+  cursor: pointer;
+  transition: background 140ms ease, border-color 140ms ease;
+}
+
+[data-seek-caption]:hover {
+  background: color-mix(in srgb, var(--seek-bean) 22%, transparent);
+  border-left-color: color-mix(in srgb, var(--seek-plum) 45%, transparent);
+}
+
+* {
+  border-color: var(--border);
+}
+
+/* ── 实体按键 ──────────────────────────────────────────────────────────
+   深蓝黑白主题下，可点击性由**1px 实线边框**承担，**不加阴影**。
+
+   为什么把阴影彻底去掉：上一版用「淡描边 + 极轻投影」双保险表达
+   可点击性。在深蓝主题里，边框已经是足够强的信号了——边框存在
+   就意味着「这是个可以按的东西」。再叠一层投影只会让界面发脏，
+   尤其在浅灰白底上，投影会把纯白卡片搞得像贴在纸上。
+
+   按下时（``:active``）只做 1px 的下压——这一个像素的位移就是
+   全部的「手感」来源。 */
+.seek-key {
+  border: 1px solid var(--seek-key-border);
+  box-shadow: none;
+  font-weight: 500;
+  transition: transform 80ms ease, box-shadow 80ms ease,
+    background-color 140ms ease, border-color 140ms ease;
+}
+
+.seek-key:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+.seek-key:disabled {
+  box-shadow: none;
+  opacity: 0.5;
+}
+
+.seek-key:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* 小尺寸变体——用于时间戳胶囊这类小东西。 */
+.seek-key-sm {
+  border: 1px solid var(--seek-key-border);
+  box-shadow: none;
+  font-weight: 500;
+  transition: transform 80ms ease, box-shadow 80ms ease,
+    background-color 140ms ease, border-color 140ms ease;
+}
+
+.seek-key-sm:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+.seek-key-sm:disabled {
+  box-shadow: none;
+  opacity: 0.5;
+}
+
+/* 便签式折叠条——右侧知识向导、导读折叠都用它。 */
+.seek-sticky {
+  border: 1px solid var(--seek-key-border);
+  box-shadow: none;
+  font-weight: 500;
+  transition: transform 80ms ease, box-shadow 80ms ease,
+    background-color 140ms ease, border-color 140ms ease;
+}
+
+.seek-sticky:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+/* ── 莫兰迪豆沙粉按钮 ──────────────────────────────────────────────────
+   快捷提问、便签、源切换胶囊这类**次要操作**统一用它。
+
+   规则：**绝不用实心重色**。底色是极淡的粉白
+   （``--seek-bean-soft``），边框是 1px 淡粉边
+   （``--seek-bean-soft-border``），只有 hover 时底色才略微加深。
+
+   之前这些按钮全是实心 ``--seek-bean`` 铺底——在极简底色上，
+   一排按钮就像一排色块贴纸，把整屏的呼吸感毁掉了。 */
+.seek-bean-key {
+  background: var(--seek-bean-soft);
+  border: 1px solid var(--seek-bean-soft-border);
+  color: var(--seek-plum);
+  font-weight: 500;
+  transition: background-color 140ms ease, border-color 140ms ease,
+    transform 80ms ease, box-shadow 80ms ease;
+}
+
+.seek-bean-key:hover:not(:disabled) {
+  background: var(--seek-bean-soft-hover);
+  border-color: color-mix(in srgb, var(--seek-bean) 45%, var(--seek-bean-soft-border));
+}
+
+.seek-bean-key:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.seek-bean-key:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* ── 深蓝导航栏 ───────────────────────────────────────────────────────
+   最左侧的根导航栏用深海蓝，跟内容区形成硬边界。
+
+   图标全部纯白——在深蓝底上，任何灰调图标都会显脏。白图标 +
+   深蓝底是「专业工具」最直接的视觉信号。 */
+.seek-rail {
+  background: var(--seek-rail);
+  color: var(--seek-rail-foreground);
+  border-right-color: var(--seek-rail);
+}
+
+.seek-rail-item {
+  color: var(--seek-rail-muted);
+  transition: color 140ms ease, background-color 140ms ease;
+}
+
+.seek-rail-item:hover {
+  color: var(--seek-rail-foreground);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.seek-rail-item[data-active="true"] {
+  color: var(--seek-rail-foreground);
+  background: var(--seek-rail-active);
+}
+
+/* ── 视频互动胶囊 ────────────────────────────────────────────────────
+   视频画面右下角那颗精致的小胶囊。
+
+   它是**唯一**允许出现在视频画面上的东西，所以必须做到：
+   - 半透明深蓝底 + 毛玻璃——不遮画面，但清晰可读；
+   - 极小尺寸——「提示」而不是「内容」；
+   - 点击即消失——把大面积的解读工作交给右侧 AI。
+
+   之前的方案是一个 460px 宽的白底卡片直接盖在画面正中，
+   视频被遮掉一半，用户想看清讲师表情都做不到。 */
+.seek-pill {
+  background: rgba(15, 23, 42, 0.82);
+  backdrop-filter: blur(12px) saturate(140%);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.35);
+  animation: seek-pill-in 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes seek-pill-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ── 侧边抽屉 ──────────────────────────────────────────────────────────
+   从左侧滑出的选课 / 笔记抽屉。 */
+@keyframes seek-drawer-in {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ── 标签页 ──────────────────────────────────────────────────────────
+   视频下方三大长列表（知识节点 / 段落导读 / 完整字幕）收纳进
+   Tabs，只渲染当前激活的那一个。
+
+   选中态用**下划线**而不是色块——色块会在页面里多出一块颜色，
+   下划线只是「这条线变蓝了」，安静得多。 */
+.seek-tab {
+  position: relative;
+  color: var(--muted-foreground);
+  transition: color 140ms ease;
+}
+
+.seek-tab::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  border-radius: 2px;
+  background: transparent;
+  transition: background-color 140ms ease;
+}
+
+.seek-tab:hover {
+  color: var(--foreground);
+}
+
+.seek-tab[data-active="true"] {
+  color: var(--primary);
+  font-weight: 500;
+}
+
+.seek-tab[data-active="true"]::after {
+  background: var(--primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .seek-pill {
+    animation: none;
+  }
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── 页面网格 ──────────────────────────────────────────────────────────
+   组件库用 pageGridClass 统一控制列数，容器断点在这里定义。 */
+.dt-page-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+@media (min-width: 640px) {
+  .dt-page-grid-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .dt-page-grid-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .dt-page-grid-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .dt-page-grid-5 {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 640px) {
+  .dt-page-grid-2,
+  .dt-page-grid-3,
+  .dt-page-grid-4,
+  .dt-page-grid-5 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .dt-page-grid-3,
+  .dt-page-grid-4,
+  .dt-page-grid-5 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  .dt-page-grid-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .dt-page-grid-5 {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+/* 滚动条 */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+  background-clip: content-box;
+}
+
+/* ── 呼吸动画 ───────────────────────────────────────────────────────
+ *
+ * AI 正在思考时的三点提示：亮度与缩放同步起伏。
+ *
+ * 为什么不用转圈图标
+ * ------------------
+ * 转圈暗示「在处理/可能出错」，呼吸暗示「在想，别急」。后者的
+ * 心理负担小得多——用户不会以为卡住了而想去刷新。
+ */
+@keyframes seek-breathe {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-spin,
+  [style*="seek-breathe"] {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

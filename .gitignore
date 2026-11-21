@@ -1,0 +1,105 @@
+# ─────────────────────────────────────────────────────────────
+#  梦想课堂 · Git 忽略规则
+# ─────────────────────────────────────────────────────────────
+#
+#  核心原则：**密钥与本地状态绝不进版本库**；
+#           **课程内容必须进版本库**（否则上线是空站）。
+#
+# ─────────────────────────────────────────────────────────────
+
+# ── 环境变量与密钥 ──────────────────────────────────────────
+#
+# 绝对不能提交。下面这些是**任何**常见的密钥文件形态——
+# 不只是根目录的 ``.env``，任何层级的、任何前缀的都不放过。
+.env
+.env.*
+# 例外：``.env.example`` 模板**要**提交（它只有占位符）。
+#
+# 注意必须是 ``**/.env.example`` 而不是 ``.env.example``——
+# 前者匹配**任意层级**的模板文件，后者只匹配根目录那一个。
+# 只写 ``.env.example`` 时，``backend/.env.example`` 仍会被
+# 上面的 ``.env.*`` 规则吃掉。
+!**/.env.example
+*.pem
+*.key
+
+# ── Python ─────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.venv/
+venv/
+env/
+backend/.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+dist/
+build/
+
+# ── Node ───────────────────────────────────────────────────
+node_modules/
+.next/
+.next-build/
+out/
+*.tsbuildinfo
+npm-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# ── 静态数据打包产物 ───────────────────────────────────────
+#
+# ``web/public/data/`` 是 ``scripts/sync-static-data.mjs`` 从
+# ``backend/data/`` 拷过来的**镜像**——每次 ``prebuild`` 都会重新生成。
+#
+# 不提交它有两个理由：
+#
+# 1. **避免重复**——同一份数据在仓库里存两遍（``backend/data/`` 与
+#    ``web/public/data/``），体积翻倍，改动时容易只改一边。
+# 2. **避免冲突**——``manifest.json`` 里带构建时间戳，每次同步都不一样，
+#    提交它等于每次构建都产生一次无意义 diff。
+#
+# 真正进版本库的只有 ``backend/data/``——那是**唯一数据源**。
+# CI 里 ``npm run build:static`` 会先跑 ``prebuild`` 自动同步。
+web/public/data/
+
+# ── 本地数据与缓存（不提交，但**不是**课程数据） ─────────────
+#
+# GitHub 筛选器的检索缓存——纯网络加速用，重新跑一次就有了。
+backend/data/.github_scout_cache/
+
+# 拉取下来的开源项目快照——由「拉取已选项目」生成。
+backend/data/github_pulled/
+
+# 归档的历史文本课程——体积大且已被新结构取代。
+backend/data/_archive_text_courses/
+
+# 用户会话与本地状态。
+backend/data/sessions/
+backend/data/workspaces/
+
+# ── 本地日志与进程文件 ──────────────────────────────────────
+*.log
+*.pid
+backend.log
+backend.pid
+npm-debug.log*
+
+# ── 编辑器与系统 ───────────────────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Cursor 的本地索引与缓存（``.cursorrules`` 是项目规则文件，
+# 属于源码，**要**提交）。
+.cursor/*
+!.cursor/rules
+!.cursorrules

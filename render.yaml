@@ -1,0 +1,41 @@
+# ─────────────────────────────────────────────────────────────
+#  Render 的一键部署蓝图
+# ─────────────────────────────────────────────────────────────
+#
+#  用法：在 Render 后台点 **New + → Blueprint**，选这个仓库，
+#  它会自动读这个文件建服务。
+#
+#  前端不在这个蓝图里——建议单独部署到 Vercel（Next.js 原生支持，
+#  零配置）。前端的后端地址填 Render 给的公网地址。
+#
+#  ⚠️  ``DEEPSEEK_API_KEY`` 必须你自己填——Render 后台会提示，
+#     也会在 ``sync: false`` 时保持为空（服务照样能起，只是不能回答）。
+#
+# ─────────────────────────────────────────────────────────────
+
+services:
+  - type: web
+    name: dreamclass-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: starter
+    region: singapore
+    # 平台注入 PORT，run.py 会读它。
+    healthCheckPath: /api/health
+    envVars:
+      - key: DEEPSEEK_API_KEY
+        sync: false
+      - key: DEEPSEEK_BASE_URL
+        value: https://api.deepseek.com
+      - key: DEEPSEEK_MODEL
+        value: deepseek-chat
+      # 前端域名。前端部署好之后回来填。
+      # 多域名用逗号分隔：https://a.com,https://b.com
+      - key: ALLOWED_ORIGINS
+        sync: false
+      # GitHub 令牌——可选，用来提高开源项目筛选的配额。
+      - key: GITHUB_TOKEN
+        sync: false
+      - key: LOG_LEVEL
+        value: info

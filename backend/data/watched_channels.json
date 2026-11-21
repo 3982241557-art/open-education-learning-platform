@@ -1,0 +1,732 @@
+{
+  "$schema": "./watched_channels.schema.json",
+  "version": 3,
+  "updated_at": "2026-11-15",
+  "description": "全球优质教育信源池。采集引擎按这里的配置去 B 站与 YouTube 实时拉取公开课，筛选后入库。分四大学科主类。",
+  "categories": [
+    {
+      "id": "cat_cs_ai",
+      "title": "计算机与人工智能",
+      "subtitle": "程序设计、算法、系统与机器学习",
+      "description": "从编程入门到机器学习原理，覆盖计算机科学最核心的课程体系。",
+      "icon": "code",
+      "order": 1
+    },
+    {
+      "id": "cat_philosophy",
+      "title": "哲学与人文",
+      "subtitle": "哲学经典、思想史与文学导读",
+      "description": "中西哲学的核心命题与文本细读，理解人类如何思考自身。",
+      "icon": "scroll",
+      "order": 2
+    },
+    {
+      "id": "cat_econ_society",
+      "title": "经济学与社会科学",
+      "subtitle": "经济学原理、法学与公共议题",
+      "description": "从机会成本到宪政制度，理解市场与社会的运行逻辑。",
+      "icon": "chart",
+      "order": 3
+    },
+    {
+      "id": "cat_science_psych",
+      "title": "自然科学与心理学",
+      "subtitle": "物理、生物、天文与认知科学",
+      "description": "自然科学的核心概念与心理学的基础框架，建立理解世界的骨架。",
+      "icon": "flask",
+      "order": 4
+    }
+  ],
+  "bilibili": {
+    "enabled": true,
+    "searches": [
+      {
+        "category": "cat_cs_ai",
+        "keyword": "MIT 线性代数 公开课",
+        "priority": 10,
+        "require_keywords": [
+          "MIT",
+          "线性代数"
+        ],
+        "exclude_keywords": [
+          "剪辑",
+          "速看",
+          "合集搬运",
+          "打卡"
+        ]
+      },
+      {
+        "category": "cat_cs_ai",
+        "keyword": "CS50 哈佛 计算机科学 公开课",
+        "priority": 10,
+        "require_keywords": [
+          "CS50",
+          "哈佛"
+        ],
+        "exclude_keywords": [
+          "剪辑",
+          "速看",
+          "打卡"
+        ]
+      },
+      {
+        "category": "cat_cs_ai",
+        "keyword": "机器学习 李宏毅 公开课",
+        "priority": 9,
+        "require_keywords": [
+          "李宏毅",
+          "机器学习"
+        ],
+        "exclude_keywords": [
+          "剪辑",
+          "速看"
+        ]
+      },
+      {
+        "category": "cat_cs_ai",
+        "keyword": "3Blue1Brown 线性代数",
+        "priority": 8,
+        "require_keywords": [
+          "线性代数",
+          "3Blue1Brown"
+        ],
+        "exclude_keywords": [
+          "剪辑",
+          "速看"
+        ]
+      },
+      {
+        "category": "cat_philosophy",
+        "keyword": "耶鲁大学 哲学 公开课",
+        "priority": 10,
+        "require_keywords": [
+          "耶鲁",
+          "哲学"
+        ],
+        "exclude_keywords": [
+          "剪辑",
+          "速看"
+        ]
+      },
+      {
+        "category": "cat_philosophy",
+        "keyword": "复旦大学 哲学导论",
+        "priority": 10,
+        "require_keywords": [
+          "复旦",
+          "哲学导论"
+        ],
+        "exclude_keywords": [
+          "剪辑",
+          "速看",
+          "考研"
+        ]
+      },
+      {
+        "category": "cat_philosophy",
+        "keyword": "斯坦福哲学 公开课 中文",
+        "priority": 8,
+        "require_keywords": [
+          "哲学"
+        ],
+        "exclude_keywords": [
+          "剪辑",
+          "速看"
+        ]
+      },
+      {
+        "category": "cat_philosophy",
+        "keyword": "CrashCourse 哲学 世界历史",
+        "priority": 8,
+        "require_keywords": [
+          "CrashCourse",
+          "Crash Course"
+        ],
+        "exclude_keywords": [
+          "剪辑",
+          "速看"
+        ]
+      },
+      {
+        "category": "cat_econ_society",
+        "keyword": "清华大学 经济学 公开课 曼昆",
+        "priority": 10,
+        "require_keywords": [
+          "清华",
+          "经济学"
+        ],
+        "exclude_keywords": [
+          "剪辑",
+          "速看"
+        ]
+      },
+      {
+        "category": "cat_econ_society",
+        "keyword": "北京大学 公开课 历史 社会科学",
+        "priority": 9,
+        "require_keywords": [
+          "北京大学",
+          "北大"
+        ],
+        "exclude_keywords": [
+          "剪辑",
+          "速看"
+        ]
+      },
+      {
+        "category": "cat_econ_society",
+        "keyword": "哈佛大学 公正 思辨之旅",
+        "priority": 9,
+        "require_keywords": [
+          "哈佛",
+          "公正"
+        ],
+        "exclude_keywords": [
+          "剪辑",
+          "速看"
+        ]
+      },
+      {
+        "category": "cat_econ_society",
+        "keyword": "可汗学院 经济学 微观",
+        "priority": 7,
+        "require_keywords": [
+          "可汗学院"
+        ],
+        "exclude_keywords": [
+          "剪辑",
+          "速看"
+        ]
+      },
+      {
+        "category": "cat_science_psych",
+        "keyword": "CrashCourse 心理学",
+        "priority": 10,
+        "require_keywords": [
+          "CrashCourse",
+          "Crash Course",
+          "心理学"
+        ],
+        "exclude_keywords": [
+          "剪辑",
+          "速看"
+        ]
+      },
+      {
+        "category": "cat_science_psych",
+        "keyword": "可汗学院 物理 数学",
+        "priority": 9,
+        "require_keywords": [
+          "可汗学院"
+        ],
+        "exclude_keywords": [
+          "剪辑",
+          "速看"
+        ]
+      },
+      {
+        "category": "cat_science_psych",
+        "keyword": "中科院 物理所 公开课 科学",
+        "priority": 8,
+        "require_keywords": [
+          "物理",
+          "科学",
+          "中科院"
+        ],
+        "exclude_keywords": [
+          "剪辑",
+          "速看"
+        ]
+      },
+      {
+        "category": "cat_science_psych",
+        "keyword": "可汗学院 生物 认知科学",
+        "priority": 7,
+        "require_keywords": [
+          "可汗学院",
+          "生物"
+        ],
+        "exclude_keywords": [
+          "剪辑",
+          "速看"
+        ]
+      },
+      {
+        "category": "cat_econ_society",
+        "keyword": "北大 历史学 课程 公开课",
+        "priority": 9,
+        "require_keywords": [
+          "北大",
+          "北京大学",
+          "历史"
+        ],
+        "exclude_keywords": [
+          "剪辑",
+          "速看"
+        ]
+      },
+      {
+        "category": "cat_philosophy",
+        "keyword": "西方哲学史 课程 全集 公开课",
+        "priority": 8,
+        "require_keywords": [
+          "哲学"
+        ],
+        "exclude_keywords": [
+          "剪辑",
+          "速看"
+        ]
+      },
+      {
+        "category": "cat_science_psych",
+        "keyword": "中科院 物理所 公开课",
+        "priority": 8,
+        "require_keywords": [
+          "物理",
+          "中科院"
+        ],
+        "exclude_keywords": [
+          "剪辑",
+          "速看"
+        ]
+      }
+    ]
+  },
+  "youtube": {
+    "enabled": true,
+    "searches": [
+      {
+        "category": "cat_cs_ai",
+        "query": "MIT OpenCourseWare 6.046J design and analysis of algorithms lecture",
+        "priority": 10,
+        "include_keywords": [
+          "6.046",
+          "algorithm",
+          "design and analysis"
+        ],
+        "exclude_keywords": [
+          "shorts",
+          "trailer",
+          "promo"
+        ]
+      },
+      {
+        "category": "cat_cs_ai",
+        "query": "MIT OpenCourseWare linear algebra 18.06 lecture Gilbert Strang",
+        "priority": 10,
+        "include_keywords": [
+          "linear algebra",
+          "18.06",
+          "strang"
+        ],
+        "exclude_keywords": [
+          "shorts",
+          "trailer"
+        ]
+      },
+      {
+        "category": "cat_cs_ai",
+        "query": "Harvard CS50 full computer science course lecture David Malan",
+        "priority": 10,
+        "include_keywords": [
+          "cs50",
+          "harvard",
+          "computer science"
+        ],
+        "exclude_keywords": [
+          "shorts",
+          "trailer",
+          "memes",
+          "reaction"
+        ]
+      },
+      {
+        "category": "cat_cs_ai",
+        "query": "3Blue1Brown essence of linear algebra series",
+        "priority": 9,
+        "include_keywords": [
+          "linear algebra",
+          "essence",
+          "vectors",
+          "matrix"
+        ],
+        "exclude_keywords": [
+          "shorts",
+          "trailer"
+        ]
+      },
+      {
+        "category": "cat_cs_ai",
+        "query": "machine learning full course lecture Andrew Ng Stanford",
+        "priority": 9,
+        "include_keywords": [
+          "machine learning",
+          "course",
+          "lecture",
+          "neural"
+        ],
+        "exclude_keywords": [
+          "shorts",
+          "trailer",
+          "clip"
+        ]
+      },
+      {
+        "category": "cat_cs_ai",
+        "query": "deep learning neural networks course lecture full series",
+        "priority": 8,
+        "include_keywords": [
+          "deep learning",
+          "neural network",
+          "course",
+          "lecture"
+        ],
+        "exclude_keywords": [
+          "shorts",
+          "trailer",
+          "clip"
+        ]
+      },
+      {
+        "category": "cat_cs_ai",
+        "query": "python programming course lecture introduction full",
+        "priority": 8,
+        "include_keywords": [
+          "python",
+          "programming",
+          "lecture",
+          "course"
+        ],
+        "exclude_keywords": [
+          "shorts",
+          "trailer",
+          "clip"
+        ]
+      },
+      {
+        "category": "cat_philosophy",
+        "query": "YaleCourses introduction to philosophy death lecture Shelly Kagan",
+        "priority": 10,
+        "include_keywords": [
+          "philosophy",
+          "death",
+          "lecture"
+        ],
+        "exclude_keywords": [
+          "shorts",
+          "trailer",
+          "promo"
+        ]
+      },
+      {
+        "category": "cat_philosophy",
+        "query": "CrashCourse philosophy series lecture",
+        "priority": 10,
+        "include_keywords": [
+          "philosophy",
+          "crash course",
+          "lecture"
+        ],
+        "exclude_keywords": [
+          "shorts",
+          "trailer"
+        ]
+      },
+      {
+        "category": "cat_philosophy",
+        "query": "CrashCourse world history lecture series",
+        "priority": 9,
+        "include_keywords": [
+          "world history",
+          "crash course",
+          "lecture"
+        ],
+        "exclude_keywords": [
+          "shorts",
+          "trailer"
+        ]
+      },
+      {
+        "category": "cat_philosophy",
+        "query": "CrashCourse literature poetry lecture series",
+        "priority": 8,
+        "include_keywords": [
+          "literature",
+          "poetry",
+          "lecture"
+        ],
+        "exclude_keywords": [
+          "shorts",
+          "trailer"
+        ]
+      },
+      {
+        "category": "cat_philosophy",
+        "query": "existentialism philosophy lecture course full series",
+        "priority": 8,
+        "include_keywords": [
+          "existentialism",
+          "philosophy",
+          "lecture"
+        ],
+        "exclude_keywords": [
+          "shorts",
+          "trailer"
+        ]
+      },
+      {
+        "category": "cat_econ_society",
+        "query": "Harvard Justice Harvard Course law lecture Michael Sandel",
+        "priority": 10,
+        "include_keywords": [
+          "justice",
+          "lecture",
+          "sandel"
+        ],
+        "exclude_keywords": [
+          "shorts",
+          "trailer",
+          "promo"
+        ]
+      },
+      {
+        "category": "cat_econ_society",
+        "query": "Marginal Revolution University economics course opportunity cost",
+        "priority": 10,
+        "include_keywords": [
+          "economics",
+          "opportunity cost",
+          "mru"
+        ],
+        "exclude_keywords": [
+          "shorts",
+          "trailer"
+        ]
+      },
+      {
+        "category": "cat_econ_society",
+        "query": "Khan Academy microeconomics full course lectures",
+        "priority": 9,
+        "include_keywords": [
+          "microeconomics",
+          "khan academy",
+          "economics"
+        ],
+        "exclude_keywords": [
+          "shorts",
+          "trailer"
+        ]
+      },
+      {
+        "category": "cat_econ_society",
+        "query": "Khan Academy macroeconomics course lecture",
+        "priority": 8,
+        "include_keywords": [
+          "macroeconomics",
+          "khan academy"
+        ],
+        "exclude_keywords": [
+          "shorts",
+          "trailer"
+        ]
+      },
+      {
+        "category": "cat_econ_society",
+        "query": "Harvard law school lecture course contract law full",
+        "priority": 8,
+        "include_keywords": [
+          "law",
+          "lecture",
+          "course"
+        ],
+        "exclude_keywords": [
+          "shorts",
+          "trailer"
+        ]
+      },
+      {
+        "category": "cat_science_psych",
+        "query": "CrashCourse psychology series lecture",
+        "priority": 10,
+        "include_keywords": [
+          "psychology",
+          "crash course",
+          "lecture"
+        ],
+        "exclude_keywords": [
+          "shorts",
+          "trailer"
+        ]
+      },
+      {
+        "category": "cat_science_psych",
+        "query": "CrashCourse biology physics chemistry astronomy series lecture",
+        "priority": 9,
+        "include_keywords": [
+          "biology",
+          "physics",
+          "chemistry",
+          "astronomy",
+          "lecture"
+        ],
+        "exclude_keywords": [
+          "shorts",
+          "trailer"
+        ]
+      },
+      {
+        "category": "cat_science_psych",
+        "query": "Khan Academy physics course lecture full",
+        "priority": 9,
+        "include_keywords": [
+          "physics",
+          "khan academy",
+          "lecture"
+        ],
+        "exclude_keywords": [
+          "shorts",
+          "trailer"
+        ]
+      },
+      {
+        "category": "cat_science_psych",
+        "query": "Khan Academy biology organic chemistry course lecture",
+        "priority": 8,
+        "include_keywords": [
+          "biology",
+          "chemistry",
+          "khan academy"
+        ],
+        "exclude_keywords": [
+          "shorts",
+          "trailer"
+        ]
+      },
+      {
+        "category": "cat_science_psych",
+        "query": "Khan Academy psychology course cognitive science lecture",
+        "priority": 8,
+        "include_keywords": [
+          "psychology",
+          "cognitive",
+          "khan academy"
+        ],
+        "exclude_keywords": [
+          "shorts",
+          "trailer"
+        ]
+      },
+      {
+        "category": "cat_science_psych",
+        "query": "Veritasium physics quantum relativity explained lecture",
+        "priority": 7,
+        "include_keywords": [
+          "physics",
+          "quantum",
+          "relativity"
+        ],
+        "exclude_keywords": [
+          "shorts",
+          "trailer"
+        ]
+      },
+      {
+        "category": "cat_science_psych",
+        "query": "TED talk psychology brain memory neuroscience",
+        "priority": 7,
+        "include_keywords": [
+          "brain",
+          "memory",
+          "psychology",
+          "mind"
+        ],
+        "exclude_keywords": [
+          "shorts",
+          "trailer",
+          "music",
+          "performance",
+          "song"
+        ]
+      }
+    ]
+  },
+  "filters": {
+    "min_duration_seconds": 180,
+    "max_duration_seconds": 43200,
+    "blocked_title_keywords": [
+      "宣传片",
+      "花絮",
+      "片头",
+      "片尾",
+      "广告",
+      "预告",
+      "预告片",
+      "trailer",
+      "teaser",
+      "promo",
+      "shorts",
+      "竖屏",
+      "reaction",
+      "直播回放",
+      "录播",
+      "打卡",
+      "剪辑",
+      "速看",
+      "完整版解析",
+      "解读",
+      "解读向",
+      "Mv",
+      "MV",
+      "歌单",
+      "纯音乐",
+      "relax",
+      "sleep",
+      "asmr",
+      "举报",
+      "纪念",
+      "庆典",
+      "纪实",
+      "探访",
+      "参观",
+      "实地",
+      "新闻",
+      "报道",
+      "新闻联播",
+      "短片",
+      "纪录片",
+      "混剪",
+      "总结",
+      "盘点",
+      "合集讲解",
+      "逐题精讲",
+      "逐题手写",
+      "手写讲解",
+      "辅导讲义",
+      "严选题",
+      "参赛视频",
+      "分享视频",
+      "书单",
+      "推荐书",
+      "私藏",
+      "揭秘",
+      "大揭秘",
+      "工具",
+      "如何使用",
+      "探秘",
+      "带你逛",
+      "毕业",
+      "开箱",
+      "考研",
+      "四六级",
+      "期末",
+      "复习",
+      "答案",
+      "解析",
+      "作业",
+      "期末考试"
+    ],
+    "require_description": false,
+    "dedupe_by": "video_id"
+  },
+  "notes": "bilibili.searches 与 youtube.searches 是同一套「学科关键词矩阵」的两个平台实现。youtube 侧用 ytsearch 检索（比列频道投稿更准），并在 include_keywords 里锚定权威频道的关键词（MIT OCW / Harvard CS50 / CrashCourse / YaleCourses / Khan Academy / 3Blue1Brown / MRU）。"
+}

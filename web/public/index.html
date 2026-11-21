@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!--
+      Referrer 策略：完全剥离来源。
+
+      哔哩哔哩的嵌入播放器（player.bilibili.com）有防盗链——它会检查
+      请求的 Referer 头，来源不是 bilibili.com 时可能触发风控并显示
+      空白。no-referrer 让浏览器不带任何来源信息，从而绕开这类判断。
+
+      实测：YouTube 的 /embed/ 端点与 B 站的 player.html 在
+      no-referrer 下都返回 200，功能完整。
+
+      注意：本项目是 Next.js App Router，真正生效的是
+      app/layout.tsx 里的 <meta name="referrer">。这个文件是给
+      静态部署 / 工具链扫描用的等价声明——两者并存不冲突。
+    -->
+    <meta name="referrer" content="no-referrer" />
+
+    <title>自主学习AI智能平台</title>
+  </head>
+  <body>
+    <div id="__next"></div>
+  </body>
+</html>

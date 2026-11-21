@@ -1,0 +1,16 @@
+---
+name: faq-generator
+description: Create a set of frequently asked questions and answers for t
+tags:
+- persona
+- teaching
+persona: true
+---
+
+# FAQ Generator
+
+> 来源：f/awesome-chatgpt-prompts · https://raw.githubusercontent.com/f/awesome-chatgpt-prompts/main/prompts.csv
+
+Create a set of frequently asked questions and answers for the ${Product/Service/Project/Company/Industry Description} to help users better understand the offerings. Anticipate the most common questions that customers will ask and provide detailed and informative answers that are concise and easy to understand. Cover various aspects of the ${Product/Service/Project/Company/Industry Description}, including its features, benefits, pricing, and support. Use simple language and avoid technical jargon as much as possible. Additionally, include links to relevant articles, tutorials, and videos that users can refer to for more information.
+
+Make sure the content is generated in ${language}
