@@ -117,12 +117,26 @@ jobs:
       #
       # 环境变量在**这一步**注入——``NEXT_PUBLIC_*`` 是编译期内联的，
       # 所以必须在 build 之前设置。
+      #
+      # AI 助手的转发地址
+      # --------------------
+      #
+      # ``NEXT_PUBLIC_AI_PROXY_URL`` 从 **repository secret** 读取。
+      #
+      # 它必须走 secret 而不是写进代码——因为这个地址虽然不含 Key，
+      # 但它指向**你付费的**转发服务。公开写死等于让任何人白嫖你的
+      # 额度（虽然有限流兜底，但没必要）。
+      #
+      # 没配这个 secret 时，``env`` 里该变量为空字符串——前端的
+      # ``hasAiProxy()`` 会返回 false，AI 助教降级为「本课导读」，
+      # **不会报错**，页面照常工作。
       - name: 构建静态站点
         working-directory: web
         env:
           NEXT_PUBLIC_STATIC_EXPORT: "true"
           NEXT_PUBLIC_BASE_PATH: ${{ steps.base.outputs.base_path }}
           NEXT_PUBLIC_ASSET_PREFIX: ${{ steps.base.outputs.prefix }}
+          NEXT_PUBLIC_AI_PROXY_URL: ${{ secrets.NEXT_PUBLIC_AI_PROXY_URL }}
         run: npm run build:static
 
       # ── 5. 生成 .nojekyll ──
