@@ -47,8 +47,6 @@ export const zhCN: Dictionary = {
   "nav.ask": "提问",
   "nav.skills": "能力库",
   "nav.settings": "设置",
-  "nav.review": "开源资源审核",
-  "nav.developer": "开发者入口",
 
   // ── 通用动作 ──
   "action.back": "返回",
@@ -265,8 +263,6 @@ export const zhTW: Dictionary = {
   "nav.ask": "提問",
   "nav.skills": "能力庫",
   "nav.settings": "設定",
-  "nav.review": "開源資源審核",
-  "nav.developer": "開發者入口",
 
   "action.back": "返回",
   "action.search": "搜尋",
@@ -470,8 +466,6 @@ export const en: Dictionary = {
   "nav.ask": "Ask",
   "nav.skills": "Skills",
   "nav.settings": "Settings",
-  "nav.review": "Review Desk",
-  "nav.developer": "Developer",
 
   "action.back": "Back",
   "action.search": "Search",

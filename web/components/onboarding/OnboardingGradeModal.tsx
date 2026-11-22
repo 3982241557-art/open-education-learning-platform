@@ -174,7 +174,7 @@ export function OnboardingGradeModal({ forceOpen = false }: OnboardingGradeModal
                       "rounded-xl",
                       active
                         ? "border-blue-700/45 bg-blue-600/[0.09]"
-                        : "border-slate-900/[0.10] bg-white/70 hover:border-slate-900/[0.20] hover:bg-white",
+                        : "border-slate-200 bg-white hover:border-blue-700 hover:bg-blue-50",
                     )}
                   >
                     <span
@@ -219,7 +219,7 @@ export function OnboardingGradeModal({ forceOpen = false }: OnboardingGradeModal
                             "rounded-xl border px-3 py-1.5 text-left transition-all",
                             active
                               ? "border-blue-700 bg-blue-700 text-white"
-                              : "border-slate-900/[0.10] bg-white/70 hover:border-blue-700/35 hover:bg-white",
+                              : "border-slate-200 bg-white hover:border-blue-700 hover:bg-blue-50",
                           )}
                         >
                           <span className="block text-[13px] font-medium">

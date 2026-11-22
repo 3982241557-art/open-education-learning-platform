@@ -392,7 +392,7 @@ export function EpisodeCompletionModal({
         className={cn(
           "relative w-full max-w-[560px] overflow-hidden",
           style.radius,
-          "border border-white/60 bg-white/72",
+          "border border-slate-200 bg-white",
           "shadow-[0_24px_70px_-12px_rgba(15,23,42,0.35),0_2px_8px_rgba(15,23,42,0.10)]",
           "backdrop-blur-2xl",
           "motion-safe:animate-[diagnostic-in_420ms_cubic-bezier(0.16,1,0.3,1)]",
@@ -567,7 +567,7 @@ function QuizStage({
                             ? "border-rose-500/40 bg-rose-50/60 text-slate-900"
                             : selected
                               ? "border-blue-700/45 bg-blue-600/[0.09] text-slate-900"
-                              : "border-slate-900/[0.08] bg-white/55 text-slate-700 hover:border-slate-900/[0.16] hover:bg-white/85",
+                              : "border-slate-200 bg-white text-slate-700 hover:border-blue-700 hover:bg-blue-50",
                       )}
                     >
                       <span
@@ -691,13 +691,13 @@ function SummaryStage({
           <li
             key={`${point.title}-${index}`}
             className={cn(
-              "border border-slate-900/[0.07] bg-white/55 px-3.5 py-3",
+              "border border-slate-200 bg-slate-50 px-3.5 py-3",
               style.radius,
             )}
           >
             <div className="flex items-start gap-2.5">
               <span
-                className="mt-0.5 flex shrink-0 items-center justify-center rounded-full bg-blue-700/10 text-[9.5px] font-medium tabular-nums text-blue-800 ring-1 ring-blue-700/25"
+                className="mt-0.5 flex shrink-0 items-center justify-center rounded-full bg-blue-100 text-[9.5px] font-medium tabular-nums text-blue-900 ring-1 ring-blue-200"
                 style={{ height: 18, width: 18 }}
               >
                 {index + 1}
@@ -729,7 +729,7 @@ function SummaryStage({
               style.radius,
               noteSaved
                 ? "cursor-default border-emerald-600/30 bg-emerald-50/60 text-emerald-700"
-                : "border-slate-900/[0.12] bg-white/70 text-slate-700 hover:border-slate-900/25 hover:bg-white",
+                : "border-slate-200 bg-white text-slate-700 hover:border-blue-700 hover:bg-blue-50",
             )}
           >
             {noteSaved ? (

@@ -140,7 +140,7 @@ export function SetupStatusCard() {
         </dl>
 
         {!proxyReady && !localKeyReady ? (
-          <div className="flex items-start gap-2.5 rounded-xl border border-amber-500/25 bg-amber-500/5 p-4">
+          <div className="flex items-start gap-2.5 rounded-xl border border-amber-300 bg-amber-50 p-4">
             <AlertTriangle
               size={16}
               className="mt-0.5 shrink-0 text-amber-500"

@@ -442,7 +442,7 @@ export function ProfileDrawer({
                 "mt-2 rounded-lg border px-2.5 py-2 text-[11px] leading-relaxed",
                 proxyReady
                   ? "border-emerald-500/25 bg-emerald-500/[0.07] text-emerald-700 dark:text-emerald-400"
-                  : "border-[var(--border)] bg-white/60 text-[var(--muted-foreground)]",
+                  : "border-[var(--border)] bg-white text-[var(--muted-foreground)]",
               )}
             >
               {proxyReady ? (

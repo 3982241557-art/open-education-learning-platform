@@ -2,15 +2,19 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import {
+  ArrowRight,
   BookOpen,
+  CheckCircle2,
   ChevronDown,
+  Circle,
   GraduationCap,
   Loader2,
   Search,
   X,
 } from "lucide-react";
-import { fetchK12Index } from "@/lib/k12-client";
+import { fetchK12Index, fetchK12Series } from "@/lib/k12-client";
 import {
   STAGE_NAMES,
   isPlayfulStage,
@@ -18,37 +22,71 @@ import {
   type K12IndexEntry,
   type K12Subject,
 } from "@/lib/k12-api";
+import { readEpisodeRecords } from "@/lib/episode-records";
 import { useGrade } from "@/context/GradeContext";
 import { useLocale } from "@/context/LocaleContext";
 import { cn } from "@/lib/cn";
 
 /**
- * K12 课程大厅
- * ============
+ * 课程大厅 ·「语文」「数学」两大高级巨幕
+ * ==========================================
  *
- * 平台的**首页级**选课入口——按「学段 × 年级 × 年龄」组织。
+ * 顶层控制栏只有**一行**：年级下拉 + 搜索框。
  *
- * 顶栏大减负
- * ----------
+ * 为什么不再堆学科筛选胶囊
+ * -----------------------
  *
- * 旧版顶部挤着 **12 个年级**的文字排布，占满两行——用户还没看到
- * 任何课程，视野就被控件填满了。
+ * 平台只有**两门**核心学科。「全部 | 语文 | 数学」三个胶囊在只有
+ * 两个选项时是纯冗余——语文和数学各有**一整块巨幕**，巨幕本身就是
+ * 学科入口，不需要再选一遍。
  *
- * 现在只有**一行**：
- *
- * .. code-block:: text
- *
- *    [当前年级：二年级 (7–8岁) ▾]  [全部|语文|数学]  [搜索框]
- *
- * 年级切换收进**下拉胶囊**里，下拉中保留「查看全部年级」选项。
- * 默认直接聚焦用户所选年级的语文与数学课程。
- *
- * 卡片布局
+ * 巨幕设计
  * --------
  *
- * 每张卡只展示**决策所需的五项**：课程名、教材版本、册次、年龄、
- * 课时数。其余信息（进度、状态）在点进去之后的第一层看。
+ * 左右两块**对称而有分量**的建筑感版面：
+ *
+ * - **语文**（左）——温润纸白 ``#FFFEFA`` + 极浅古典回纹 SVG 底纹
+ *   + 哑光香槟金细线；主标用**宋体**（衬线）；
+ * - **数学**（右）——极净冷白 ``#FFFFFF`` + 极浅几何坐标系 SVG 底纹
+ *   + 冷静牛津蓝细线；主标用**无衬线**。
+ *
+ * 每块巨幕都直接露出**前 3 讲真实课名**（可点直接进课）——
+ * 不让用户再点一层才知道「这课到底讲什么」。
  */
+
+/** 语文核心培养目标——按年级。 */
+const CHINESE_GOALS: Record<number, string> = {
+  1: "识字、拼音与朗读起步，建立对汉字字形的敏感。",
+  2: "识字量积累与词语运用，学会把话说完整。",
+  3: "段落理解与中心句意识，开始写完整的段落。",
+  4: "从段到篇的过渡，把握文章的主要意思。",
+  5: "说明文与习作初步，学会搜集与整理材料。",
+  6: "文言入门与毕业习作，学会审题与布局。",
+  7: "记叙文三要素与修辞入门，读懂作者的情感基调。",
+  8: "文言实词虚词与说明文说明方法，辨析论证与结论。",
+  9: "中考议论文与记叙文得分点，学会复盘与补漏。",
+  10: "现代文阅读与写实抒情的分寸感，建立文学鉴赏框架。",
+  11: "古代诗歌鉴赏与思辨性文本，学会读懂言外之意。",
+  12: "高考作文立意与素材运用，学会结构化表达。",
+};
+
+/** 数学核心思维目标——按年级。 */
+const MATH_GOALS: Record<number, string> = {
+  1: "数感建立与加减法启蒙，从生活情境里认数。",
+  2: "100 以内加减与乘法意义，建立运算直觉。",
+  3: "分数初步与周长面积，建立图形与度量的观念。",
+  4: "大数运算与三位数乘法，体会运算律的简洁。",
+  5: "小数乘除与简易方程，学会用字母表示数。",
+  6: "分数乘除与比，体会数量关系的形式化。",
+  7: "有理数与整式运算，建立代数思维的第一层。",
+  8: "一次函数与四边形，学会用变量看关系。",
+  9: "二次函数与圆，学会用图象找关键点。",
+  10: "集合与函数概念，学会用定义域讨论问题。",
+  11: "数列与导数雏形，学会看变化率。",
+  12: "导数与圆锥曲线，学会用参数与最优化建模。",
+};
+
+/** 组件。 */
 export default function K12HallPage() {
   const [index, setIndex] = useState<K12Index | null>(null);
   const [loading, setLoading] = useState(true);
@@ -57,8 +95,6 @@ export default function K12HallPage() {
 
   /** 当前选中的年级（``0`` = 全部年级）。 */
   const [activeGrade, setActiveGrade] = useState<number>(0);
-  /** 当前选中的学科（``"all"`` = 全部）。 */
-  const [subject, setSubject] = useState<K12Subject | "all">("all");
   /** 搜索词。 */
   const [query, setQuery] = useState("");
   /** 年级下拉是否展开。 */
@@ -88,60 +124,38 @@ export default function K12HallPage() {
     if (grade > 0) setActiveGrade(grade);
   }, [grade, manuallySwitched]);
 
-  /** 切换年级（手动）——标记为「用户自己选的」。 */
+  /** 切换年级（手动）。 */
   const pickGrade = useCallback((next: number) => {
     setManuallySwitched(true);
     setActiveGrade(next);
     setGradeOpen(false);
   }, []);
 
-  /**
-   * 过滤后的系列列表。
-   *
-   * 三道过滤：年级 → 学科 → 搜索。**顺序固定**——用户的心智是
-   * 「先定位到年级，再选学科，最后搜关键词」。
-   */
-  const series = useMemo(() => {
+  /** 当前年级系列的索引条目。 */
+  const currentEntries = useMemo(() => {
     const all = index?.series ?? [];
-    const keyword = query.trim().toLowerCase();
+    if (activeGrade > 0) {
+      return all.filter((entry) => entry.grade === activeGrade);
+    }
+    return all;
+  }, [index, activeGrade]);
 
-    return all.filter((entry) => {
-      if (activeGrade > 0 && entry.grade !== activeGrade) return false;
-      if (subject !== "all" && entry.subject !== subject) return false;
-      if (!keyword) return true;
-      return (
+  /** 语文 / 数学两个入口。 */
+  const chineseEntry = currentEntries.find((e) => e.subject === "chinese");
+  const mathEntry = currentEntries.find((e) => e.subject === "math");
+
+  /** 搜索结果——只有搜到别的年级时才需要列出来。 */
+  const searchResults = useMemo(() => {
+    const keyword = query.trim().toLowerCase();
+    if (!keyword) return [];
+    return (index?.series ?? []).filter(
+      (entry) =>
         entry.title.toLowerCase().includes(keyword) ||
         entry.shortTitle.toLowerCase().includes(keyword) ||
         entry.edition.toLowerCase().includes(keyword) ||
-        entry.author.toLowerCase().includes(keyword)
-      );
-    });
-  }, [index, activeGrade, subject, query]);
-
-  /** 按年级分组的系列——用于「按单元浏览」的分组标题。 */
-  const grouped = useMemo(() => {
-    const map = new Map<number, K12IndexEntry[]>();
-    for (const entry of series) {
-      const list = map.get(entry.grade) ?? [];
-      list.push(entry);
-      map.set(entry.grade, list);
-    }
-    return [...map.entries()].sort((a, b) => a[0] - b[0]);
-  }, [series]);
-
-  /**
-   * 年级分组标题——「小学四年级」。
-   *
-   * ⚠️ 不能用 ``replace(/[语文数学]$/, "")``——那会把「小学一年级语」
-   *    的「文」去掉、留下「语」。学科名是两个字，得**整个**去掉。
-   */
-  const gradeHeading = useCallback((entry: K12IndexEntry | undefined) => {
-    if (!entry) return "";
-    const subjectName = entry.subject === "chinese" ? "语文" : "数学";
-    return entry.shortTitle.endsWith(subjectName)
-      ? entry.shortTitle.slice(0, -subjectName.length)
-      : entry.shortTitle;
-  }, []);
+        entry.author.toLowerCase().includes(keyword),
+    );
+  }, [index, query]);
 
   /** 当前年级按钮上的文字。 */
   const gradeLabel = useMemo(() => {
@@ -181,25 +195,25 @@ export default function K12HallPage() {
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-[var(--background)]">
-      {/* ── 极简顶栏：只有一行 ── */}
+      {/* ── 极简控制栏：只有一行 ── */}
       <header className="shrink-0 border-b border-[var(--border)] bg-white px-4 py-2.5">
-        <div className="mx-auto flex max-w-[1120px] items-center gap-3">
+        <div className="mx-auto flex max-w-[1180px] items-center gap-3">
           <GraduationCap
             size={17}
             strokeWidth={2.2}
-            className="shrink-0 text-[var(--primary)]"
+            className="shrink-0 text-[#0b162c]"
           />
 
-          {/* ── 年级下拉胶囊 ── */}
+          {/* 年级下拉胶囊。 */}
           <div className="relative shrink-0">
             <button
               type="button"
               onClick={() => setGradeOpen((value) => !value)}
               aria-expanded={gradeOpen}
               aria-haspopup="listbox"
-              className="inline-flex h-8 items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--background)] pl-3 pr-2.5 text-[12.5px] font-medium text-[var(--foreground)] transition-colors hover:border-[var(--primary)]/40"
+              className="inline-flex h-8 items-center gap-1.5 rounded-full border border-[#cbd5e1] bg-white pl-3 pr-2.5 text-[12.5px] font-medium text-[#0f172a] transition-colors hover:border-[#1d4ed8]"
             >
-              <span className="text-[var(--muted-foreground)]">
+              <span className="text-[#55606e]">
                 {tk("k12.currentGrade")}：
               </span>
               <span>{gradeLabel}</span>
@@ -207,7 +221,7 @@ export default function K12HallPage() {
                 size={13}
                 strokeWidth={2.2}
                 className={cn(
-                  "text-[var(--muted-foreground)] transition-transform",
+                  "text-[#55606e] transition-transform",
                   gradeOpen && "rotate-180",
                 )}
               />
@@ -220,11 +234,11 @@ export default function K12HallPage() {
                   className="fixed inset-0 z-10"
                   onClick={() => setGradeOpen(false)}
                 />
+                {/* 下拉面板——100% 实心纯白（禁止半透明）。 */}
                 <div
                   role="listbox"
-                  className="absolute left-0 top-full z-20 mt-1.5 max-h-[380px] w-[248px] overflow-y-auto rounded-xl border border-[var(--border)] bg-white p-1.5 shadow-[0_12px_32px_-8px_rgba(15,23,42,0.22)]"
+                  className="absolute left-0 top-full z-20 mt-1.5 max-h-[380px] w-[248px] overflow-y-auto rounded-xl border border-[#cbd5e1] bg-white p-1.5 shadow-[0_16px_40px_-10px_rgba(11,22,44,0.24)]"
                 >
-                  {/* 全部年级。 */}
                   <button
                     type="button"
                     role="option"
@@ -233,22 +247,22 @@ export default function K12HallPage() {
                     className={cn(
                       "mb-1 flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-left text-[12.5px] transition-colors",
                       activeGrade === 0
-                        ? "bg-[var(--primary)]/8 font-medium text-[var(--primary)]"
-                        : "text-[var(--foreground)] hover:bg-[var(--muted)]",
+                        ? "bg-[#eff6ff] font-medium text-[#1d4ed8]"
+                        : "text-[#0f172a] hover:bg-[#f1f0ec]",
                     )}
                   >
                     {tk("k12.allGrades")}
                   </button>
 
-                  {STAGES.map((stage) => {
+                  {(["primary", "junior", "senior"] as const).map((stage) => {
                     const grades = index.grades.filter(
                       (item) => item.stage === stage,
                     );
                     if (grades.length === 0) return null;
                     return (
                       <div key={stage} className="mb-1 last:mb-0">
-                        <p className="px-2.5 py-1 text-[10px] font-medium tracking-[0.08em] text-[var(--muted-foreground)]">
-                          {STAGE_NAMES[stage as keyof typeof STAGE_NAMES]}
+                        <p className="px-2.5 py-1 text-[10px] font-medium tracking-[0.08em] text-[#55606e]">
+                          {STAGE_NAMES[stage]}
                         </p>
                         {grades.map((item) => (
                           <button
@@ -260,12 +274,12 @@ export default function K12HallPage() {
                             className={cn(
                               "flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-left text-[12.5px] transition-colors",
                               activeGrade === item.number
-                                ? "bg-[var(--primary)]/8 font-medium text-[var(--primary)]"
-                                : "text-[var(--foreground)] hover:bg-[var(--muted)]",
+                                ? "bg-[#eff6ff] font-medium text-[#1d4ed8]"
+                                : "text-[#0f172a] hover:bg-[#f1f0ec]",
                             )}
                           >
                             <span>{item.name}</span>
-                            <span className="text-[11px] text-[var(--muted-foreground)]">
+                            <span className="text-[11px] text-[#55606e]">
                               {item.ageRange[0]}–{item.ageRange[1]} 岁
                             </span>
                           </button>
@@ -278,52 +292,27 @@ export default function K12HallPage() {
             ) : null}
           </div>
 
-          {/* ── 学科切换 ── */}
-          <div className="flex shrink-0 items-center gap-0.5 rounded-lg bg-[var(--muted)] p-0.5">
-            {(
-              [
-                { id: "all", label: tk("k12.subjectAll") },
-                { id: "chinese", label: tk("k12.subjectChinese") },
-                { id: "math", label: tk("k12.subjectMath") },
-              ] as const
-            ).map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => setSubject(item.id)}
-                className={cn(
-                  "rounded-[7px] px-2.5 py-1 text-[12px] font-medium transition-colors",
-                  subject === item.id
-                    ? "bg-white text-[var(--primary)] shadow-[0_1px_2px_rgba(15,23,42,0.08)]"
-                    : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]",
-                )}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
-
           <div className="flex-1" />
 
-          {/* ── 搜索框 ── */}
-          <label className="relative flex h-8 w-[220px] shrink-0 items-center">
+          {/* 搜索框。 */}
+          <label className="relative flex h-8 w-[240px] shrink-0 items-center">
             <Search
               size={13}
               strokeWidth={2.2}
-              className="pointer-events-none absolute left-2.5 text-[var(--muted-foreground)]"
+              className="pointer-events-none absolute left-2.5 text-[#55606e]"
             />
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder={tk("k12.searchPlaceholder")}
-              className="h-full w-full rounded-lg border border-[var(--border)] bg-[var(--background)] pl-8 pr-7 text-[12.5px] text-[var(--foreground)] outline-none transition-colors placeholder:text-[var(--muted-foreground)] focus:border-[var(--primary)]/40"
+              className="h-full w-full rounded-lg border border-[#cbd5e1] bg-white pl-8 pr-7 text-[12.5px] text-[#0f172a] outline-none transition-colors placeholder:text-[#8a93a0] focus:border-[#1d4ed8]"
             />
             {query ? (
               <button
                 type="button"
                 onClick={() => setQuery("")}
                 aria-label={tk("action.close")}
-                className="absolute right-1.5 rounded p-1 text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
+                className="absolute right-1.5 rounded p-1 text-[#55606e] transition-colors hover:text-[#0f172a]"
               >
                 <X size={12} strokeWidth={2.4} />
               </button>
@@ -334,40 +323,53 @@ export default function K12HallPage() {
 
       {/* ── 主体 ── */}
       <main className="min-h-0 flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-[1120px] px-4 py-5">
-          {series.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 text-center">
-              <p className="text-[13.5px] font-medium text-[var(--foreground)]">
-                {tk("k12.noResult")}
-              </p>
-              <p className="mt-1.5 text-[12px] text-[var(--muted-foreground)]">
-                {tk("k12.tryOther")}
-              </p>
-            </div>
+        <div className="mx-auto max-w-[1180px] px-4 py-6 sm:px-6 sm:py-8">
+          {query.trim() ? (
+            /* ══ 搜索结果 ══ */
+            <section>
+              <h2 className="mb-3 text-[13px] font-semibold text-[#0f172a]">
+                搜索「{query.trim()}」· {searchResults.length} 个系列
+              </h2>
+              {searchResults.length === 0 ? (
+                <div className="rounded-xl border border-[var(--border)] bg-white py-14 text-center">
+                  <p className="text-[13.5px] font-medium text-[#0f172a]">
+                    {tk("k12.noResult")}
+                  </p>
+                  <p className="mt-1.5 text-[12px] text-[#55606e]">
+                    {tk("k12.tryOther")}
+                  </p>
+                </div>
+              ) : (
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {searchResults.map((entry) => (
+                    <SeriesCard key={entry.id} entry={entry} />
+                  ))}
+                </div>
+              )}
+            </section>
           ) : (
-            <div className="space-y-7">
-              {grouped.map(([gradeNumber, entries]) => (
-                <section key={gradeNumber}>
-                  {/* 分组标题——一个年级一栏。 */}
-                  <div className="mb-2.5 flex items-baseline gap-2">
-                    <h2 className="text-[13.5px] font-semibold tracking-[-0.01em] text-[var(--foreground)]">
-                      {gradeHeading(entries[0])}
-                    </h2>
-                    <span className="text-[11.5px] text-[var(--muted-foreground)]">
-                      {entries[0]?.ageRange[0]}–{entries[0]?.ageRange[1]} 岁 ·{" "}
-                      {entries[0]
-                        ? STAGE_NAMES[entries[0].stage as keyof typeof STAGE_NAMES]
-                        : ""}
-                    </span>
-                  </div>
-
-                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                    {entries.map((entry) => (
-                      <SeriesCard key={entry.id} entry={entry} />
-                    ))}
-                  </div>
-                </section>
-              ))}
+            /* ══ 两大巨幕 ══ */
+            <div className="grid gap-5 lg:grid-cols-2">
+              <SubjectBanner
+                entry={chineseEntry}
+                subject="chinese"
+                grade={activeGrade}
+                goal={
+                  activeGrade > 0
+                    ? CHINESE_GOALS[activeGrade]
+                    : "按年级推进的字词积累、阅读理解与表达能力训练。"
+                }
+              />
+              <SubjectBanner
+                entry={mathEntry}
+                subject="math"
+                grade={activeGrade}
+                goal={
+                  activeGrade > 0
+                    ? MATH_GOALS[activeGrade]
+                    : "从数感启蒙到函数与几何，建立完整的数学建模能力。"
+                }
+              />
             </div>
           )}
         </div>
@@ -376,10 +378,343 @@ export default function K12HallPage() {
   );
 }
 
-/** 三个学段——下拉里的分组顺序。 */
-const STAGES = ["primary", "junior", "senior"] as const;
+/**
+ * 学科巨幕。
+ *
+ * 左右两块**对称而有分量**。语文是纸白 + 宋体 + 香槟金；数学是冷白 +
+ * 无衬线 + 牛津蓝。
+ */
+function SubjectBanner({
+  entry,
+  subject,
+  grade,
+  goal,
+}: {
+  entry?: K12IndexEntry;
+  subject: K12Subject;
+  grade: number;
+  goal: string;
+}) {
+  const isChinese = subject === "chinese";
 
-/** 一套系列的卡片。 */
+  /** 前 3 讲真实课名——点开直接进课。 */
+  const [preview, setPreview] = useState<
+    Array<{ ep_id: string; title: string; index: number }>
+  >([]);
+  const [doneIds, setDoneIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (!entry) {
+      setPreview([]);
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      const detail = await fetchK12Series(entry.id);
+      if (cancelled) return;
+      const episodes = (detail?.episodes ?? []).slice(0, 3);
+      setPreview(
+        episodes.map((item) => ({
+          ep_id: item.ep_id,
+          title: item.title,
+          index: item.index,
+        })),
+      );
+      const records = readEpisodeRecords(entry.id);
+      const done = new Set<string>();
+      for (const item of episodes) {
+        if (records[item.ep_id]?.completed) done.add(item.ep_id);
+      }
+      setDoneIds(done);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [entry]);
+
+  if (!entry) {
+    return (
+      <div className="rounded-2xl border border-dashed border-[#cbd5e1] bg-white px-6 py-16 text-center">
+        <p className="text-[13.5px] font-medium text-[#0f172a]">
+          这个年级暂时没有{isChinese ? "语文" : "数学"}同步课
+        </p>
+        <p className="mt-1.5 text-[12px] text-[#55606e]">
+          换一个年级试试，或在上方搜索框里查找。
+        </p>
+      </div>
+    );
+  }
+
+  const gradeName = grade > 0 ? entry.shortTitle.replace(/语文|数学$/, "") : "全部年级";
+
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+      className={cn(
+        "relative flex flex-col overflow-hidden rounded-2xl border p-6 oe-card-shadow sm:p-8",
+        isChinese
+          ? "border-[rgba(184,155,94,0.42)] bg-[#fffefa]"
+          : "border-[#e5e7eb] bg-white",
+      )}
+    >
+      {/* ── 底纹 ──
+       *
+       * 语文是**古典回纹**（书页 / 装帧的感觉）；数学是**几何坐标系**
+       *（直尺与网格的感觉）。两者都极淡——只提供质感，不抢内容。
+       */}
+      {isChinese ? (
+        <PatternBorder />
+      ) : (
+        <PatternGrid />
+      )}
+
+      <div className="relative flex min-h-0 flex-1 flex-col">
+        {/* ── 学科铭牌 ── */}
+        <p
+          className={cn(
+            "text-[10.5px] font-medium tracking-[0.2em] uppercase",
+            isChinese ? "text-[#b89b5e]" : "text-[#1d4ed8]",
+          )}
+        >
+          {isChinese ? "国家统编版 / 部编版" : "人教版 / 高中人教 A 版"}
+        </p>
+
+        {/* ── 学科主标 ──
+         *
+         * 语文用**衬线体**（宋体气质），数学用**无衬线体**——
+         * 字体本身就是学科性格的暗示。
+         */}
+        <h2
+          className={cn(
+            "mt-3 text-[30px] leading-[1.15] tracking-[-0.02em] sm:text-[36px]",
+            isChinese
+              ? "oe-display text-[#0b162c]"
+              : "font-semibold text-[#0b162c]",
+          )}
+        >
+          {gradeName} · {isChinese ? "语文" : "数学"}
+        </h2>
+
+        {/* 适用年龄 + 册次。 */}
+        <div className="mt-3 flex flex-wrap items-center gap-1.5">
+          <span
+            className={cn(
+              "rounded-full px-2.5 py-1 text-[10.5px] font-medium",
+              isChinese
+                ? "border border-[rgba(184,155,94,0.4)] bg-white text-[#8a7340]"
+                : "border border-[#bfdbfe] bg-[#eff6ff] text-[#1d4ed8]",
+            )}
+          >
+            {entry.ageRange[0]}–{entry.ageRange[1]} 岁
+          </span>
+          <span
+            className={cn(
+              "rounded-full px-2.5 py-1 text-[10.5px] font-medium",
+              isChinese
+                ? "border border-[rgba(184,155,94,0.4)] bg-white text-[#8a7340]"
+                : "border border-[#bfdbfe] bg-[#eff6ff] text-[#1d4ed8]",
+            )}
+          >
+            {entry.volumes.join(" / ")}
+          </span>
+          <span className="text-[11.5px] text-[#55606e]">
+            共 {entry.episodeCount} 讲
+          </span>
+        </div>
+
+        {/* ── 核心培养目标 ── */}
+        <p
+          className={cn(
+            "mt-5 text-[13.5px] leading-[1.9]",
+            isChinese ? "text-[#3f4a59]" : "text-[#55606e]",
+          )}
+        >
+          {goal}
+        </p>
+
+        {/* ── 前 3 讲真实课名直达 ── */}
+        <div className="mt-6">
+          <p className="mb-2 flex items-center gap-1.5 text-[10.5px] font-medium tracking-[0.14em] text-[#8a93a0] uppercase">
+            <BookOpen size={11} strokeWidth={2.2} />
+            前 3 讲 · 点击直达
+          </p>
+          {preview.length === 0 ? (
+            <div className="space-y-1.5">
+              {[0, 1, 2].map((index) => (
+                <div
+                  key={index}
+                  className="h-9 animate-pulse rounded-lg bg-[#f1f0ec]"
+                />
+              ))}
+            </div>
+          ) : (
+            <ul className="space-y-1.5">
+              {preview.map((item) => {
+                const done = doneIds.has(item.ep_id);
+                return (
+                  <li key={item.ep_id}>
+                    <Link
+                      href={`/courses/${encodeURIComponent(entry.id)}/${encodeURIComponent(item.ep_id)}`}
+                      className={cn(
+                        "group flex items-center gap-2.5 rounded-lg border px-3 py-2 transition-colors",
+                        isChinese
+                          ? "border-[rgba(184,155,94,0.28)] bg-white hover:border-[#b89b5e]"
+                          : "border-[#e5e7eb] bg-[#fbfbfa] hover:border-[#1d4ed8]",
+                      )}
+                    >
+                      {done ? (
+                        <CheckCircle2
+                          size={13}
+                          strokeWidth={2.2}
+                          className="shrink-0 text-emerald-600"
+                        />
+                      ) : (
+                        <Circle
+                          size={13}
+                          strokeWidth={2}
+                          className="shrink-0 text-slate-300"
+                        />
+                      )}
+                      <span className="shrink-0 text-[11px] tabular-nums text-[#8a93a0]">
+                        {String(item.index).padStart(2, "0")}
+                      </span>
+                      <span
+                        className={cn(
+                          "min-w-0 flex-1 truncate text-[13px]",
+                          isChinese
+                            ? "font-medium text-[#0b162c]"
+                            : "font-medium text-[#0f172a]",
+                        )}
+                      >
+                        {item.title}
+                      </span>
+                      <ArrowRight
+                        size={12}
+                        strokeWidth={2.2}
+                        className="shrink-0 text-slate-300 transition-colors group-hover:text-[#1d4ed8]"
+                      />
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+
+        {/* ── 进度条 + 主按钮 ── */}
+        <div className="mt-auto pt-6">
+          <div className="mb-1.5 flex items-baseline justify-between gap-2">
+            <span className="text-[11px] text-[#55606e]">本学科学习进度</span>
+            <span className="text-[11px] tabular-nums text-[#55606e]">
+              {doneIds.size} / {entry.episodeCount} 讲
+            </span>
+          </div>
+          <div
+            className={cn(
+              "h-1.5 w-full overflow-hidden rounded-full",
+              isChinese ? "bg-[rgba(184,155,94,0.16)]" : "bg-[#e5e7eb]",
+            )}
+          >
+            <div
+              className={cn(
+                "h-full rounded-full transition-[width] duration-500",
+                isChinese ? "bg-[#b89b5e]" : "bg-[#1d4ed8]",
+              )}
+              style={{
+                width: `${Math.min(
+                  100,
+                  (doneIds.size / Math.max(1, entry.episodeCount)) * 100,
+                )}%`,
+              }}
+            />
+          </div>
+
+          <Link
+            href={`/courses/${encodeURIComponent(entry.id)}`}
+            className={cn(
+              "mt-4 inline-flex h-11 w-full items-center justify-center gap-1.5 rounded-xl text-[13.5px] font-medium transition-colors sm:w-auto sm:px-6",
+              isChinese
+                ? "bg-[#0b162c] text-white hover:bg-[#122344]"
+                : "bg-[#1d4ed8] text-white hover:bg-[#1e40af]",
+            )}
+          >
+            {doneIds.size > 0
+              ? `继续第 ${doneIds.size + 1} 讲 →`
+              : `进入${isChinese ? "语文" : "数学"}课程目录 →`}
+          </Link>
+        </div>
+      </div>
+    </motion.section>
+  );
+}
+
+/** 语文巨幕的古典回纹底纹——极淡，只提供质感。 */
+function PatternBorder() {
+  return (
+    <svg
+      aria-hidden
+      viewBox="0 0 400 400"
+      preserveAspectRatio="xMidYMid slice"
+      className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.055]"
+    >
+      <defs>
+        <pattern
+          id="oe-chinese-pattern"
+          width="34"
+          height="34"
+          patternUnits="userSpaceOnUse"
+        >
+          <path
+            d="M4 4 h26 v26 h-26 z M10 10 h14 v14 h-14 z"
+            fill="none"
+            stroke="#b89b5e"
+            strokeWidth="1"
+          />
+          <path
+            d="M17 4 v26 M4 17 h26"
+            stroke="#b89b5e"
+            strokeWidth="0.5"
+          />
+        </pattern>
+      </defs>
+      <rect width="400" height="400" fill="url(#oe-chinese-pattern)" />
+    </svg>
+  );
+}
+
+/** 数学巨幕的几何坐标系底纹——极淡。 */
+function PatternGrid() {
+  return (
+    <svg
+      aria-hidden
+      viewBox="0 0 400 400"
+      preserveAspectRatio="xMidYMid slice"
+      className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.5]"
+    >
+      <defs>
+        <pattern
+          id="oe-math-pattern"
+          width="26"
+          height="26"
+          patternUnits="userSpaceOnUse"
+        >
+          <path
+            d="M26 0 L0 0 0 26"
+            fill="none"
+            stroke="#1d4ed8"
+            strokeWidth="0.5"
+            strokeOpacity="0.16"
+          />
+        </pattern>
+      </defs>
+      <rect width="400" height="400" fill="url(#oe-math-pattern)" />
+    </svg>
+  );
+}
+
+/** 一套系列的卡片——搜索结果用。 */
 function SeriesCard({ entry }: { entry: K12IndexEntry }) {
   const playful = isPlayfulStage(entry.stage);
 
@@ -388,43 +723,23 @@ function SeriesCard({ entry }: { entry: K12IndexEntry }) {
       href={`/courses/${encodeURIComponent(entry.id)}`}
       className={cn(
         "group flex flex-col rounded-xl border border-[var(--border)] bg-white p-4 transition-all",
-        "hover:border-[var(--primary)]/35 hover:shadow-[0_4px_16px_-6px_rgba(15,23,42,0.14)]",
-        // 小学部的卡片**更圆润**——跟它的动效语言一致。
+        "hover:border-[#1d4ed8]/35 hover:shadow-[0_4px_16px_-6px_rgba(11,22,44,0.16)]",
         playful && "rounded-2xl",
       )}
     >
-      <div className="flex items-start justify-between gap-3">
-        <h3 className="min-w-0 flex-1 text-[13.5px] font-semibold leading-snug tracking-[-0.01em] text-[var(--foreground)]">
-          {entry.title}
-        </h3>
-        <BookOpen
-          size={14}
-          strokeWidth={2}
-          className={cn(
-            "mt-0.5 shrink-0 transition-colors",
-            playful
-              ? "text-[var(--primary)]/50 group-hover:text-[var(--primary)]"
-              : "text-[var(--muted-foreground)]/50 group-hover:text-[var(--primary)]",
-          )}
-        />
-      </div>
-
-      <p className="mt-1.5 text-[11.5px] text-[var(--muted-foreground)]">
+      <h3 className="min-w-0 flex-1 text-[13.5px] font-semibold leading-snug tracking-[-0.01em] text-[#0f172a]">
+        {entry.title}
+      </h3>
+      <p className="mt-1.5 text-[11.5px] text-[#55606e]">
         {entry.edition} · {entry.volumes.join(" / ")}
       </p>
-
       <div className="mt-auto flex items-center gap-2 pt-3">
-        <span className="rounded-full bg-[var(--muted)] px-2 py-0.5 text-[10.5px] font-medium text-[var(--muted-foreground)]">
+        <span className="rounded-full bg-[#f1f0ec] px-2 py-0.5 text-[10.5px] font-medium text-[#55606e]">
           {entry.ageRange[0]}–{entry.ageRange[1]} 岁
         </span>
-        <span className="rounded-full bg-[var(--seek-bean-soft)] px-2 py-0.5 text-[10.5px] font-medium text-[var(--primary)]">
+        <span className="rounded-full bg-[#eff6ff] px-2 py-0.5 text-[10.5px] font-medium text-[#1d4ed8]">
           {entry.episodeCount} 课时
         </span>
-        {entry.author ? (
-          <span className="truncate text-[10.5px] text-[var(--muted-foreground)]">
-            {entry.author}
-          </span>
-        ) : null}
       </div>
     </Link>
   );

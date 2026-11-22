@@ -38,20 +38,34 @@
 
      换句话说：颜色是**信号**，不是**装饰**。屏幕上看到的每一处蓝，
      都意味着「这里有交互」。 */
-  --background: #f8fafc;
+  --background: #f8f7f4;
   --foreground: #0f172a;
   --card: #ffffff;
   --card-foreground: #0f172a;
-  --muted: #f1f5f9;
-  --muted-foreground: #64748b;
+  --muted: #f1f0ec;
+  --muted-foreground: #55606e;
   --primary: #1d4ed8;
   --primary-foreground: #ffffff;
-  --border: #e2e8f0;
+  --border: #e5e7eb;
   --ring: #1d4ed8;
   --destructive: #dc2626;
   --overlay: rgba(15, 23, 42, 0.5);
+
+  /* ── 学院色板（语义令牌）────────────────────────────────────────── */
+  /* 深午夜牛津蓝——侧栏与权威标题。 */
+  --oxford: #0b162c;
+  --oxford-2: #122344;
+  /* 温润纸白——语文巨幕与书卷卡片。 */
+  --paper: #fffefa;
+  /* 哑光香槟金——证书纹饰 / 里程碑 / 语文点缀。 */
+  --gold: #b89b5e;
+  --gold-soft: rgba(184, 155, 94, 0.12);
+  --gold-line: rgba(184, 155, 94, 0.32);
+
+  /* 高级字体混排——衬线体负责「大标题 / 学科巨幕 / 古诗文」，
+     无衬线体负责「正文 / 导航 / 公式 / 按钮」。 */
   --font-sans: "Inter", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
-  --font-serif: "Georgia", "Songti SC", serif;
+  --font-serif: "Noto Serif SC", "Songti SC", "STSong", Georgia, serif;
 
   /* ── 玻璃与悬浮层 ────────────────────────────────────────────────────
      AI 相关的浮层（选区魔法棒、任务看板、解读面板）统一用这套令牌，
@@ -97,9 +111,9 @@
      看起来「有分区」，实际效果是：屏幕上多出三种色相，注意力被
      从内容上抢走。而现在**分区靠 1px 分隔线表达**——线比色块安静
      得多，却一样能切开。 */
-  --seek-cream: #f8fafc;
-  --seek-cool: #f8fafc;
-  --seek-warm: #f8fafc;
+  --seek-cream: #f8f7f4;
+  --seek-cool: #f8f7f4;
+  --seek-warm: #f8f7f4;
 
   /* 强调色——学术深蓝。整个界面只有这一种彩色。 */
   --seek-bean: #1d4ed8;
@@ -116,9 +130,9 @@
 
   /* 分区之间的硬边界——1px 实线，slate-200。
      这是这一版**唯一**的分隔手段：没有色块，没有渐变，只有线。 */
-  --seek-divider: #e2e8f0;
-  --seek-divider-cool: #e2e8f0;
-  --seek-divider-warm: #e2e8f0;
+  --seek-divider: #e5e7eb;
+  --seek-divider-cool: #e5e7eb;
+  --seek-divider-warm: #e5e7eb;
 
   /* 实体按键——1px 实线边框，**无阴影**。
      上一版靠「淡描边 + 极轻投影」表达可点击性，在深蓝主题下会显得
@@ -134,11 +148,12 @@
   --seek-shadow-paper: 0 1px 2px rgba(15, 23, 42, 0.04);
 
   /* ── 左侧深蓝导航栏 ─────────────────────────────────────────────────
-     根导航栏是整个界面的「骨架」——它不该参与内容竞争。用深海蓝
-     把它跟内容区彻底分开，图标全部纯白，形成极客的专业感。 */
-  --seek-rail: #0f172a;
+     根导航栏是整个界面的「骨架」——它不该参与内容竞争。用**深午夜
+     牛津蓝**（不是刺眼的纯蓝）把它跟内容区彻底分开：内容区是象牙白
+     + 纯白卡片，导航栏是深午夜蓝 + 纯白图标。 */
+  --seek-rail: #0b162c;
   --seek-rail-foreground: #ffffff;
-  --seek-rail-muted: rgba(255, 255, 255, 0.62);
+  --seek-rail-muted: rgba(255, 255, 255, 0.66);
   --seek-rail-active: #1d4ed8;
 }
 
@@ -317,6 +332,67 @@
 
 * {
   border-color: var(--border);
+}
+
+/* ── 学院质感工具类 ──────────────────────────────────────────────────
+   高级牛津学院风的三个落点：
+
+   1. ``.oe-display`` —— 衬线体大字。用于首页大标题、学科巨幕、
+      古诗文与课文标题。**必须**成对使用（衬线标题 + 无衬线正文），
+      否则整页的层次感会塌掉；
+   2. ``.oe-solid-panel`` —— 100% 实心纯白卡片。**所有承载文字的
+      弹窗 / 下拉 / 诊断卡**都用它。半透明玻璃底色在本项目已被
+      彻底废除——文字必须始终落在不透明底上；
+   3. ``.oe-paper`` / ``.oe-gold-rule`` —— 纸白底与香槟金细线，
+      用于语文巨幕、证书纹饰与里程碑。 */
+.oe-display {
+  font-family: var(--font-serif);
+  letter-spacing: -0.01em;
+  font-weight: 600;
+}
+
+/* 100% 不透明实心面板——文字载体的唯一合法底色。 */
+.oe-solid-panel {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  box-shadow:
+    0 18px 44px -18px rgba(11, 22, 44, 0.28),
+    0 2px 6px rgba(11, 22, 44, 0.05);
+}
+
+/* 顶部 3px 深牛津蓝装饰线——弹窗的统一签名。 */
+.oe-top-rule {
+  position: relative;
+}
+.oe-top-rule::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    #0b162c 0%,
+    #122344 45%,
+    var(--gold) 100%
+  );
+}
+
+/* 温润纸白——语文巨幕 / 书卷卡片。 */
+.oe-paper {
+  background: #fffefa;
+}
+
+/* 香槟金细线。 */
+.oe-gold-rule {
+  border-color: var(--gold-line);
+}
+
+/* 学院卡片投影——比普通卡片更有分量，但仍克制。 */
+.oe-card-shadow {
+  box-shadow:
+    0 1px 2px rgba(11, 22, 44, 0.04),
+    0 16px 40px -22px rgba(11, 22, 44, 0.22);
 }
 
 /* ── 实体按键 ──────────────────────────────────────────────────────────

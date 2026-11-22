@@ -14,6 +14,11 @@ import {
 import type { InteractiveLab } from "@/lib/interactive-lab";
 import { cn } from "@/lib/cn";
 import { useLocale } from "@/context/LocaleContext";
+import {
+  LiteraryLab,
+  PrimaryMathLab,
+  SecondaryMathLab,
+} from "@/components/interactive/K12StageLabs";
 
 /**
  * OE 原生互动动画实验室
@@ -29,14 +34,21 @@ import { useLocale } from "@/context/LocaleContext";
  * 3. **分龄**：小学圆润活泼，初高中利落极客；
  * 4. **有反馈**：每个玩具都要给出「对了 / 再试一次」的即时反馈。
  *
- * 七种玩具
- * --------
+ * 三种分学段实验台
+ * -----------------
  *
- * ==============  ==========================================
- * 语文            生字笔顺（hanzi-writer）· 分句图解
- * 小学数学        凑十方块 · 分数切分 · 对称平移
- * 初高中数学      函数图像动态 · 动态几何
- * ==============  ==========================================
+ * ====================  ==========================================
+ * 组件                  适用
+ * ====================  ==========================================
+ * ``HanziLab``          小学语文 —— 生字笔顺（hanzi-writer）
+ * ``PoemLab``           小学语文 —— 分句图解
+ * ``LiteraryLab``       初高中语文 —— 名篇精读与意象赏析
+ * ``PrimaryMathLab``    小学数学 —— 数轴 / 凑十方块 / 分数 / 面积 / 平移
+ * ``SecondaryMathLab``  初高中数学 —— 函数图像 / 动态几何 / 概率 / 代数
+ * ====================  ==========================================
+ *
+ * ⛔ **红线**：初高中语文**绝不**出现笔顺描红；
+ *    小学数学**绝不**出现初高中的函数滑块。
  */
 
 /** 组件属性。 */
@@ -101,7 +113,7 @@ export default function K12InteractiveLab({
       <header
         className={cn(
           "flex items-center gap-2.5 border-b border-[var(--border)] px-4 py-3",
-          playful ? "bg-blue-50/50" : "bg-[var(--muted)]/40",
+          playful ? "bg-[#FFFEFA]" : "bg-white",
         )}
       >
         <span
@@ -130,30 +142,62 @@ export default function K12InteractiveLab({
 
       {/* ── 主体：按 kind 分发 ── */}
       <div className="p-4">
-        {lab.kind === "hanzi" ? (
-          <HanziLab lab={lab} playful={playful} style={style} />
-        ) : null}
-        {lab.kind === "poem" ? (
-          <PoemLab lab={lab} playful={playful} style={style} />
-        ) : null}
-        {lab.kind === "blocks" ? (
-          <BlocksLab lab={lab} playful={playful} style={style} />
-        ) : null}
-        {lab.kind === "fraction" ? (
-          <FractionLab lab={lab} playful={playful} style={style} />
-        ) : null}
-        {lab.kind === "symmetry" ? (
-          <SymmetryLab lab={lab} playful={playful} style={style} />
-        ) : null}
-        {lab.kind === "function" ? (
-          <FunctionLab lab={lab} playful={playful} style={style} />
-        ) : null}
-        {lab.kind === "geometry" ? (
-          <GeometryLab lab={lab} playful={playful} style={style} />
-        ) : null}
+        {renderLab(lab, playful, style)}
       </div>
     </section>
   );
+}
+
+/**
+ * 按 ``kind`` 分发到对应的实验台。
+ *
+ * 分学段的三个实验台（``literary`` / 小学数学 / 初高中数学）
+ * 各自成文件，避免主组件无限膨胀。
+ */
+function renderLab(
+  lab: InteractiveLab,
+  playful: boolean,
+  style: LabStyle,
+) {
+  switch (lab.kind) {
+    /* ── 小学语文 ── */
+    case "hanzi":
+      return <HanziLab lab={lab} playful={playful} style={style} />;
+    case "poem":
+      return <PoemLab lab={lab} playful={playful} style={style} />;
+
+    /* ── 初高中语文 ── */
+    case "literary":
+      return <LiteraryLab lab={lab} />;
+
+    /* ── 小学数学 ── */
+    case "numberline":
+    case "ratio":
+    case "area":
+      return <PrimaryMathLab lab={lab} />;
+    case "blocks":
+    case "fraction":
+    case "transform":
+      return <PrimaryMathLab lab={lab} />;
+
+    /* ── 初高中数学 ── */
+    case "function":
+    case "geometry":
+    case "algebra":
+    case "probability":
+      return <SecondaryMathLab lab={lab} />;
+
+    /* ── 兼容旧 kind ── */
+    case "symmetry":
+      return <SymmetryLab lab={lab} playful={playful} style={style} />;
+
+    default:
+      return (
+        <p className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-6 text-center text-[13px] text-slate-700">
+          本讲的互动实验室正在按教材单元校准。回到视频完成精讲，课后测验会覆盖本讲要点。
+        </p>
+      );
+  }
 }
 
 /* ──────────────────────────────────────────────────────────────────

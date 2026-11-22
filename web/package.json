@@ -4,18 +4,21 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000",
-    "prebuild": "npm run sync:data && npm run build:k12 && npm run build:hanzi",
+    "prebuild": "npm run sync:data && npm run build:k12 && npm run build:content && npm run build:hanzi && npm run build:pinyin",
     "sync:data": "node ../scripts/sync-static-data.mjs",
     "build:k12": "node ../scripts/build-k12-static.mjs",
+    "build:content": "node ../scripts/build-k12-content.mjs",
+    "verify:k12": "node ../scripts/verify-k12-data.mjs",
     "harvest:k12": "node ../scripts/harvest-k12.mjs --apply",
     "build": "NEXT_DIST_DIR=.next-build next build",
-    "prebuild:static": "npm run sync:data && npm run build:k12 && npm run build:hanzi",
+    "prebuild:static": "npm run sync:data && npm run build:k12 && npm run build:content && npm run build:hanzi && npm run build:pinyin",
     "build:static": "NEXT_DIST_DIR=.next-build NEXT_PUBLIC_STATIC_EXPORT=true next build && node ../scripts/patch-gh-pages-404.mjs",
     "start": "NEXT_DIST_DIR=.next-build next start -p 3000",
     "serve:static": "npx serve out -l 3000",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "build:hanzi": "node ../scripts/build-hanzi-data.mjs"
+    "build:hanzi": "node ../scripts/build-hanzi-data.mjs",
+    "build:pinyin": "node ../scripts/build-hanzi-pinyin.mjs"
   },
   "dependencies": {
     "@types/mdast": "^4.0.4",

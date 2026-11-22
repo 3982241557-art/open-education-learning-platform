@@ -4,12 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import {
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
-  MoreHorizontal,
 } from "lucide-react";
-import { PRIMARY_NAV, SECONDARY_NAV, DEVELOPER_NAV, type NavEntry } from "./nav-entries";
+import { PRIMARY_NAV, SECONDARY_NAV, type NavEntry } from "./nav-entries";
 import { useShellActions } from "@/context/ShellActionsContext";
 import { cn } from "@/lib/cn";
 import { PLATFORM_SHORT_NAME, HQ_LABEL } from "@/lib/branding";
@@ -140,13 +138,6 @@ export default function WorkspaceSidebar() {
   // 用户的手动选择。三态：未选择（跟随路由自动）/ 强制展开 / 强制收起。
   const [manual, setManual] = useState<"auto" | "expanded" | "collapsed">("auto");
   const [mobileOpen, setMobileOpen] = useState(false);
-  /**
-   * 开发者入口是否展开。
-   *
-   * 默认**折叠**——「设置」「能力库」在阅读时是噪声。用户主动点开
-   * 才看得到，但**永远**看得见（不藏掉，只是收起）。
-   */
-  const [devOpen, setDevOpen] = useState(false);
 
   const collapsed =
     manual === "auto" ? reading : manual === "collapsed";
@@ -294,24 +285,6 @@ export default function WorkspaceSidebar() {
                   label={NAV_LABELS[entry.href]?.[0] ? tk(NAV_LABELS[entry.href]![0]) : entry.label}
                 />
               ))}
-              {/* 收起态下开发者入口用一个「更多」按钮带出来。 */}
-              <button
-                type="button"
-                onClick={() => setDevOpen((value) => !value)}
-                aria-expanded={devOpen}
-                aria-label="开发者入口"
-                title="开发者入口"
-                className={cn(
-                  "seek-rail-item flex h-9 w-9 items-center justify-center rounded-lg",
-                  devOpen && "bg-white/12 text-white",
-                )}
-              >
-                <MoreHorizontal size={16} strokeWidth={1.8} />
-              </button>
-              {devOpen &&
-                DEVELOPER_NAV.map((entry) => (
-                  <NavLink key={entry.href} entry={entry} collapsed />
-                ))}
             </div>
           </>
         ) : (
@@ -326,45 +299,6 @@ export default function WorkspaceSidebar() {
                   label={NAV_LABELS[entry.href]?.[0] ? tk(NAV_LABELS[entry.href]![0]) : entry.label}
                 />
               ))}
-            </div>
-
-            {/*
-              开发者入口——默认折叠。
-
-              「设置」「能力库」是配置项，不是学习内容。放在阅读路径上
-              会抢走注意力，所以默认收起；但绝不隐藏——用户需要时
-              点一下就出来。
-            */}
-            <div className="mt-2 border-t border-white/10 pt-2">
-              <button
-                type="button"
-                onClick={() => setDevOpen((value) => !value)}
-                aria-expanded={devOpen}
-                className="seek-rail-item flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-[12px]"
-              >
-                <MoreHorizontal size={14} strokeWidth={1.8} />
-                {tk("nav.developer")}
-                <ChevronDown
-                  size={12}
-                  strokeWidth={2}
-                  className={cn(
-                    "ml-auto transition-transform",
-                    devOpen && "rotate-180",
-                  )}
-                />
-              </button>
-              {devOpen && (
-                <div className="mt-1 space-y-0.5">
-                  {DEVELOPER_NAV.map((entry) => (
-                    <NavLink
-                      key={entry.href}
-                      entry={entry}
-                      collapsed={false}
-                      label={NAV_LABELS[entry.href]?.[0] ? tk(NAV_LABELS[entry.href]![0]) : entry.label}
-                    />
-                  ))}
-                </div>
-              )}
             </div>
           </>
         )}

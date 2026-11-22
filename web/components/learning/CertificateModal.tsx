@@ -326,10 +326,10 @@ export function CertificateModal({
               </p>
 
               <div className="mt-4 flex items-center justify-center gap-2">
-                <span className="rounded-full bg-blue-600/[0.09] px-2.5 py-1 text-[11px] font-medium text-blue-800">
+                <span className="rounded-full bg-blue-100 px-2.5 py-1 text-[11px] font-medium text-blue-900">
                   {certificate.stageName}
                 </span>
-                <span className="rounded-full bg-slate-900/[0.05] px-2.5 py-1 text-[11px] font-medium text-slate-600">
+                <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-600">
                   {certificate.completedLessons} / {certificate.totalLessons} 课时
                 </span>
               </div>
@@ -414,7 +414,7 @@ export function CertificateModal({
               <button
                 type="button"
                 onClick={download}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-900/[0.12] bg-white/70 px-3 py-1.5 text-[12px] font-medium text-slate-700 transition-colors hover:bg-white"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[12px] font-medium text-slate-700 transition-colors hover:border-blue-700 hover:bg-blue-50"
               >
                 <Download size={12} strokeWidth={2.2} />
                 高清下载

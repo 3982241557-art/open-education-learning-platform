@@ -2,10 +2,7 @@ import {
   CalendarCheck,
   GraduationCap,
   House,
-  MessageSquareText,
-  Settings,
   TrendingUp,
-  Wand2,
   type LucideIcon,
 } from "lucide-react";
 
@@ -22,14 +19,6 @@ export interface NavEntry {
   tooltipKey?: string;
   /** 主要导航区（灰底分隔线之前）。 */
   primary?: boolean;
-  /**
-   * 这是一项**开发者 / 运维入口**。
-   *
-   * 它们在阅读时是干扰：用户正在读一本书，视野里却杵着「设置」
-   * 「能力库」两个跟内容毫无关系的按钮。所以它们默认**折叠**起来，
-   * 只有用户主动展开才看得到。
-   */
-  developer?: boolean;
 }
 
 /**
@@ -75,43 +64,27 @@ export const PRIMARY_NAV: NavEntry[] = [
 ];
 
 /**
- * 次级导航——用户可能会用到，但不是「阅读」的一部分。
+ * 次级导航——**已清空**。
+ *
+ * 旧版这里有「提问」与「开发者入口（能力库 / 设置）」。现在它们
+ * 全部从侧边栏移除：
+ *
+ * - **开发者入口**（能力库 / 设置）——内部运维与调试项。普通访客
+ *   看到只会困惑「我要调什么？」。路由本身保留（``/settings``、
+ *   ``/space/skills`` 仍可直接访问），只是不再有可见入口。
+ * - **提问**——AI 助教已经在每一集的右侧常驻，不需要再占一个侧边栏
+ *   位置。侧边栏只保留「阅读路径」上的四件事。
+ *
+ * 「开源资源审核」早已迁到 ``/admin/review``，同样不设入口。
  */
-export const SECONDARY_NAV: NavEntry[] = [
-  {
-    href: "/ask",
-    label: "提问",
-    icon: MessageSquareText,
-    tooltipKey: "自由提问与导入教材",
-  },
-];
+export const SECONDARY_NAV: NavEntry[] = [];
 
 /**
- * 开发者 / 运维入口。
+ * 开发者 / 运维入口——**已从导航中彻底移除**。
  *
- * 「设置」（模型密钥、运行状态）与「能力库」（skill 的增删改查）
- * 在测试阶段是刚需，在**阅读**时纯属噪声。所以它们被收进一个
- * 折叠区，默认关闭。
+ * 保留这个导出是为了让历史引用不会崩（``ALL_NAV`` 的类型不变），
+ * 但**不再**被任何导航组件渲染。
  */
-export const DEVELOPER_NAV: NavEntry[] = [
-  {
-    href: "/space/skills",
-    label: "能力库",
-    icon: Wand2,
-    tooltipKey: "调整 AI 的教学风格与回答习惯",
-    developer: true,
-  },
-  {
-    href: "/settings",
-    label: "设置",
-    icon: Settings,
-    tooltipKey: "运行状态与配置",
-    developer: true,
-  },
-];
+export const DEVELOPER_NAV: NavEntry[] = [];
 
-export const ALL_NAV: NavEntry[] = [
-  ...PRIMARY_NAV,
-  ...SECONDARY_NAV,
-  ...DEVELOPER_NAV,
-];
+export const ALL_NAV: NavEntry[] = [...PRIMARY_NAV, ...SECONDARY_NAV];

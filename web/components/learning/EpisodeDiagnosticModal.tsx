@@ -35,9 +35,13 @@ import { cn } from "@/lib/cn";
  * 旧版是「暗灰半透明 + 字迹融进背景」——看不清。这版彻底翻转：
  *
  * - 全屏遮罩：``backdrop-blur-md bg-slate-900/45``；
- * - 卡片：``bg-white/92 backdrop-blur-xl border border-white/70 shadow-2xl``；
+ * - 卡片：``bg-white border border-slate-200`` + 顶部 3px 深牛津蓝装饰线；
  * - 正文：``text-lg font-semibold text-slate-900``（题干）
  *   / ``text-base text-slate-800``（选项）。
+ *
+ * ⛔ **实心铁律**：承载文字的卡片一律 100% 不透明实心白
+ *    （``bg-white`` / ``bg-slate-50``）。只有弹窗**外部的背景遮罩**
+ *    可以用 ``bg-slate-900/45 backdrop-blur-md``。
  *
  * 一次只展示 1 道题
  * ----------------
@@ -263,15 +267,16 @@ export function EpisodeDiagnosticModal({
         className={cn(
           "relative w-full max-w-[560px] overflow-hidden",
           style.radius,
-          // 高对比白磨砂玻璃——文字一律深色，背景一律亮。
-          "border border-white/70 bg-white/92 backdrop-blur-xl",
-          "shadow-[0_28px_80px_-16px_rgba(15,23,42,0.45),0_4px_12px_rgba(15,23,42,0.10)]",
+          // ⛔ 实心纯白卡片——**绝不半透明**。
+          //    文字一律深墨黑，底色一律 100% 不透明。
+          "border border-slate-200 bg-white",
+          "shadow-[0_28px_80px_-16px_rgba(15,23,42,0.28),0_4px_12px_rgba(15,23,42,0.08)]",
         )}
       >
-        {/* 顶部高光——模拟光源从上方来。 */}
+        {/* 顶部 3px 深牛津蓝装饰线——高级学院风的标识。 */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-white/85 via-white/25 to-transparent"
+          className="pointer-events-none absolute inset-x-0 top-0 z-10 h-[3px] bg-[#0B162C]"
         />
 
         <div className="relative p-6 sm:p-7">
@@ -309,14 +314,14 @@ export function EpisodeDiagnosticModal({
               onClick={() => finish(true)}
               aria-label={tk("diag.close")}
               title={tk("diag.close")}
-              className="shrink-0 rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-900/[0.06] hover:text-slate-700"
+              className="shrink-0 rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
             >
               <X size={16} strokeWidth={2.2} />
             </button>
           </div>
 
           {/* ── 本集信息 + 进度点 ── */}
-          <div className="mb-5 flex items-center gap-3 rounded-xl border border-blue-900/[0.08] bg-blue-50/55 px-3.5 py-2.5">
+          <div className="mb-5 flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5">
             <div className="min-w-0 flex-1">
               <p className="truncate text-[11px] text-slate-500">
                 {courseTitle}
@@ -385,12 +390,12 @@ export function EpisodeDiagnosticModal({
           </div>
 
           {/* ── 底部动作 ── */}
-          <div className="mt-6 flex items-center justify-between gap-3 border-t border-slate-900/[0.08] pt-4">
+          <div className="mt-6 flex items-center justify-between gap-3 border-t border-slate-200 pt-4">
             <div className="flex items-center gap-3">
               <button
                 type="button"
                 onClick={() => finish(true)}
-                className="rounded-lg px-2.5 py-1.5 text-[12.5px] text-slate-500 transition-colors hover:text-slate-800"
+                className="rounded-lg px-2.5 py-1.5 text-[12.5px] font-medium text-slate-600 transition-colors hover:text-slate-900"
               >
                 {tk("diag.skip")}
               </button>
@@ -398,7 +403,7 @@ export function EpisodeDiagnosticModal({
                 <button
                   type="button"
                   onClick={back}
-                  className="rounded-lg px-2.5 py-1.5 text-[12.5px] text-slate-400 transition-colors hover:text-slate-700"
+                  className="rounded-lg px-2.5 py-1.5 text-[12.5px] font-medium text-slate-500 transition-colors hover:text-slate-900"
                 >
                   {tk("action.back")}
                 </button>
@@ -413,8 +418,8 @@ export function EpisodeDiagnosticModal({
                 "inline-flex items-center gap-1.5 px-4 py-2 text-[13px] font-medium transition-all",
                 style.radius,
                 answers[cursor] === null
-                  ? "cursor-not-allowed bg-slate-200 text-slate-400"
-                  : "bg-blue-700 text-white shadow-[0_1px_2px_rgba(15,23,42,0.16)] hover:bg-blue-800",
+                  ? "cursor-not-allowed border border-slate-200 bg-slate-100 text-slate-400"
+                  : "border border-[#0B162C] bg-[#122344] text-white shadow-[0_1px_2px_rgba(15,23,42,0.20)] hover:bg-[#0B162C]",
               )}
             >
               {isLast ? tk("diag.defaultStart") : tk("action.continue")}
@@ -457,7 +462,7 @@ function QuestionBlock({
         <span>
           {question.question}
           {question.isBackground ? (
-            <span className="ml-2 rounded-full bg-slate-900/[0.06] px-2 py-0.5 align-middle text-[11px] font-normal text-slate-500">
+            <span className="ml-2 rounded-full bg-slate-100 px-2 py-0.5 align-middle text-[11px] font-normal text-slate-600">
               {tk("diag.background")}
             </span>
           ) : null}
@@ -481,8 +486,8 @@ function QuestionBlock({
                   playful && "seek-press",
                   !playful && "transition-all",
                   selected
-                    ? "border-blue-700/50 bg-blue-600/[0.10] font-medium text-slate-900"
-                    : "border-slate-900/[0.10] bg-white/70 text-slate-800 hover:border-slate-900/[0.20] hover:bg-white",
+                    ? "border-blue-700 bg-blue-50 font-medium text-slate-900"
+                    : "border-slate-200 bg-slate-50 text-slate-800 hover:border-blue-700 hover:bg-blue-50",
                 )}
               >
                 {/* 答对时的彩星迸射（仅小学部）。 */}
@@ -531,7 +536,7 @@ function BilingualChoice({
   const { tk } = useLocale();
 
   return (
-    <div className="mt-4 rounded-xl border border-slate-900/[0.08] bg-slate-50/80 px-3.5 py-3">
+    <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-3">
       <p className="mb-2 flex items-center gap-1.5 text-[12.5px] font-medium text-slate-700">
         <Globe size={13} strokeWidth={2.2} className="text-slate-500" />
         {tk("diag.bilingual")}
@@ -543,8 +548,8 @@ function BilingualChoice({
           className={cn(
             "rounded-lg border px-3 py-1.5 text-[12.5px] transition-colors",
             value === 0
-              ? "border-blue-700/45 bg-blue-600/10 font-medium text-slate-900"
-              : "border-slate-900/[0.10] bg-white text-slate-700 hover:border-slate-900/[0.20]",
+              ? "border-blue-700 bg-blue-50 font-medium text-slate-900"
+              : "border-slate-200 bg-white text-slate-700 hover:border-blue-700 hover:bg-blue-50",
           )}
         >
           {tk("diag.bilingualYes")}
@@ -555,8 +560,8 @@ function BilingualChoice({
           className={cn(
             "rounded-lg border px-3 py-1.5 text-[12.5px] transition-colors",
             value === 1
-              ? "border-blue-700/45 bg-blue-600/10 font-medium text-slate-900"
-              : "border-slate-900/[0.10] bg-white text-slate-700 hover:border-slate-900/[0.20]",
+              ? "border-blue-700 bg-blue-50 font-medium text-slate-900"
+              : "border-slate-200 bg-white text-slate-700 hover:border-blue-700 hover:bg-blue-50",
           )}
         >
           {tk("diag.bilingualNo")}

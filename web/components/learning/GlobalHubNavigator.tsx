@@ -136,7 +136,7 @@ export function GlobalHubNavigator({
               // 所以这里只留一点点暖调的暗示，不铺实色。
               isActiveCategory
                 ? "border-[var(--seek-bean-soft-border)] bg-[rgba(243,214,210,0.3)]"
-                : "border-[var(--seek-divider)] bg-white/60",
+                : "border-slate-200 bg-white",
             )}
           >
             {/* ── 分类标题（手风琴把手） ── */}
