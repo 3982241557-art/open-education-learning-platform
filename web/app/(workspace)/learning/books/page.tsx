@@ -171,7 +171,17 @@ export default function ProgressCenterPage() {
             正在汇总学情…
           </p>
         ) : courses.length === 0 ? (
-          <EmptyDashboard />
+          <>
+            {/* ── 零状态也要给 K12 的真实数据 ──
+             *
+             * 「中台课程为空」不代表「用户什么都没学」——K12 的 24 套
+             * 年级系列是**独立**的一套进度账本，它从 localStorage 实时
+             * 汇总。所以这里**不能**只丢一句空状态就完事。
+             */}
+            <CertificateWall className="mb-7" />
+            <K12Section className="mb-7" />
+            <EmptyDashboard />
+          </>
         ) : (
           <>
             {/* 汇总条 */}
@@ -202,7 +212,6 @@ export default function ProgressCenterPage() {
                 </div>
               </Section>
             )}
-
             {/* 已掌握 */}
             {groups.mastered.length > 0 && (
               <Section title="已掌握" count={groups.mastered.length}>
