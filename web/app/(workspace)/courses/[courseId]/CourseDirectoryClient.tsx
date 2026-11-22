@@ -31,6 +31,7 @@ import {
 } from "@/components/learning/CertificateModal";
 import { CertificateModal } from "@/components/learning/CertificateModal";
 import { cn } from "@/lib/cn";
+import { useLocale } from "@/context/LocaleContext";
 
 /**
  * 第一层 · 课程目录页
@@ -53,6 +54,7 @@ export default function CourseDirectoryClient({
 }: {
   params: Promise<{ courseId: string }>;
 }) {
+  const { tk } = useLocale();
   const { courseId } = use(params);
   const [bundle, setBundle] = useState<CourseBundle | null>(null);
   const [loading, setLoading] = useState(true);
@@ -228,7 +230,7 @@ export default function CourseDirectoryClient({
       <header className="shrink-0 border-b border-[var(--border)] px-4 py-2.5">
         <div className="mx-auto flex max-w-[880px] items-center gap-3">
           <Link
-            href="/k12"
+            href="/courses"
             title="返回课程大厅"
             aria-label="返回课程大厅"
             className="seek-key inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--card)] text-[var(--foreground)] transition-colors hover:bg-[var(--muted)]"
@@ -276,10 +278,10 @@ export default function CourseDirectoryClient({
             <div className="mt-3">
               <div className="mb-1.5 flex items-baseline justify-between gap-2">
                 <span className="text-[11.5px] font-medium text-[var(--muted-foreground)]">
-                  总体进度
+                  {tk("course.overview")}
                 </span>
                 <span className="text-[11.5px] tabular-nums text-[var(--muted-foreground)]">
-                  {progress.done} / {progress.total} 讲（{progress.percent}%）
+                  {progress.done} / {progress.total} · {tk("k12.lessons")}（{progress.percent}%）
                 </span>
               </div>
               <div className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--muted)]">
@@ -296,7 +298,7 @@ export default function CourseDirectoryClient({
                 href={`/courses/${encodeURIComponent(bundle.id)}/${encodeURIComponent(nextEpisode.ep_id)}`}
                 className="mt-3.5 inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-4 py-2 text-[12.5px] font-medium text-white transition-colors hover:opacity-90"
               >
-                {progress.done > 0 ? "继续学习" : "开始第 1 讲"}
+                {progress.done > 0 ? tk("action.continue") : tk("course.startFirst")}
                 <span className="opacity-70">· {nextEpisode.title}</span>
               </Link>
             ) : (
@@ -326,7 +328,7 @@ export default function CourseDirectoryClient({
             <div className="mb-2 flex items-center gap-1.5">
               <ListVideo size={13} strokeWidth={2.2} className="text-[var(--primary)]" />
               <h2 className="text-[13px] font-medium text-[var(--foreground)]">
-                分集目录
+                {tk("course.episodes")}
               </h2>
               <span className="text-[11.5px] text-[var(--muted-foreground)]">
                 {bundle.episodes.length} 讲

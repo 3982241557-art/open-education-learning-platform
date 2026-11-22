@@ -44,6 +44,11 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { SERIES } from "./k12-series-spec.mjs";
+import {
+  animationKeywords,
+  isAnimationCandidate,
+  MAX_DURATION,
+} from "./k12-animation-spec.mjs";
 import { GRADES, SUBJECTS, gradeOf, subjectOf, stageOf } from "./k12-skeleton.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -67,6 +72,22 @@ const ONLY = (() => {
 
 /** 搜索结果数上限——够用且不慢。 */
 const SEARCH_LIMIT = 20;
+
+/**
+ * 动画关键词表 —— ``seriesId → 关键词数组``。
+ *
+ * 方案 C：优先用**动画短课**；找不到再回落长课。
+ */
+const ANIMATION_KEYWORDS = new Map(
+  animationKeywords().map((item) => [item.id, item.keywords]),
+);
+
+/**
+ * 拿一套系列的**动画关键词**（可能为空）。
+ */
+function animationKeywordsFor(seriesId) {
+  return ANIMATION_KEYWORDS.get(seriesId) ?? [];
+}
 
 // ── B 站 ────────────────────────────────────────────────────────────
 
@@ -621,6 +642,40 @@ async function harvestSeries(spec) {
   const candidates = [];
   const seen = new Set();
 
+  // ── ①a 动画短课优先（方案 C）──
+  //
+  // 先用**动画关键词**搜一遍，命中「动画 + 时长在短课区间内」的
+  // 候选**额外加分**——它们会被排到最前面。
+  //
+  // ⚠️ 动画源**不是硬性要求**：很多年级 B 站上根本没有成套动画课。
+  //    所以这一步只是「加权」，不通过也照样往下走。
+  const stage = gradeOf(spec.grade).stage;
+  const animationKeywords = animationKeywordsFor(spec.id);
+
+  for (const keyword of animationKeywords) {
+    const results = await bilibiliSearch(keyword);
+    for (const item of results) {
+      if (seen.has(item.bvid)) continue;
+      seen.add(item.bvid);
+
+      const score = scoreCandidate(item, spec, { relaxed: true });
+      if (score === null) continue;
+
+      const animation = isAnimationCandidate(
+        item.title,
+        item.duration,
+        stage,
+      );
+      if (animation) {
+        // 动画短课：**重加权**，让它排在长课前面。
+        candidates.push({ ...item, score: score + 0.5, animation: true });
+      } else {
+        candidates.push({ ...item, score, animation: false });
+      }
+    }
+  }
+
+  // ── ①b 长课兜底 ──
   for (const keyword of spec.keywords) {
     const results = await bilibiliSearch(keyword);
     for (const item of results) {
@@ -635,7 +690,7 @@ async function harvestSeries(spec) {
         });
         continue;
       }
-      candidates.push({ ...item, score });
+      candidates.push({ ...item, score, animation: false });
     }
   }
 
@@ -734,7 +789,11 @@ async function harvestSeries(spec) {
   // ── ② 逐个尝试拆分 ──
   //
   // 顺序很重要：**先试分 P 多的**（播放体验最好），再试章节可切的。
-  candidates.sort((a, b) => b.score - a.score);
+  // 动画源优先，其次按分数。
+  candidates.sort((a, b) => {
+    if (a.animation !== b.animation) return a.animation ? -1 : 1;
+    return b.score - a.score;
+  });
 
   for (const candidate of candidates) {
     const pages = await fetchBilibiliPages(candidate.bvid);

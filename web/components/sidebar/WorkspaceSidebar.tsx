@@ -7,7 +7,6 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  Github,
   MoreHorizontal,
 } from "lucide-react";
 import { PRIMARY_NAV, SECONDARY_NAV, DEVELOPER_NAV, type NavEntry } from "./nav-entries";
@@ -16,6 +15,8 @@ import { cn } from "@/lib/cn";
 import { PLATFORM_SHORT_NAME, HQ_LABEL } from "@/lib/branding";
 import { UserAvatar } from "@/components/profile/UserAvatar";
 import { useProfile } from "@/context/ProfileContext";
+import { useGrade } from "@/context/GradeContext";
+import { useLocale } from "@/context/LocaleContext";
 import { ProfileDrawer } from "@/components/profile/ProfileDrawer";
 
 /**
@@ -34,11 +35,15 @@ function NavLink({
   entry,
   collapsed,
   onNavigate,
+  label,
 }: {
   entry: NavEntry;
   collapsed: boolean;
   onNavigate?: () => void;
+  /** 已翻译的标签。 */
+  label?: string;
 }) {
+  const text = label ?? entry.label;
   const pathname = usePathname();
   const active =
     entry.href === "/"
@@ -52,8 +57,8 @@ function NavLink({
       <Link
         href={entry.href}
         onClick={onNavigate}
-        title={entry.tooltipKey ?? entry.label}
-        aria-label={entry.label}
+        title={entry.tooltipKey ?? text}
+        aria-label={text}
         aria-current={active ? "page" : undefined}
         className={cn(
           "seek-rail-item flex h-9 w-9 items-center justify-center rounded-lg",
@@ -79,10 +84,26 @@ function NavLink({
       data-active={active ? "true" : "false"}
     >
       <Icon size={16} strokeWidth={1.8} className="shrink-0" />
-      <span className="min-w-0 flex-1 truncate">{entry.label}</span>
+      <span className="min-w-0 flex-1 truncate">{text}</span>
     </Link>
   );
 }
+
+/**
+ * 导航项 → 字典 key 的映射。
+ *
+ * 只有**界面骨架**进字典——「首页」「课程」「计划」「学情中心」
+ * 这些必须三语都正确。
+ */
+const NAV_LABELS: Record<string, [string] | undefined> = {
+  "/": ["nav.home"],
+  "/courses": ["nav.courses"],
+  "/plan": ["nav.plan"],
+  "/learning/books": ["nav.progress"],
+  "/ask": ["nav.ask"],
+  "/space/skills": ["nav.skills"],
+  "/settings": ["nav.settings"],
+};
 
 /**
  * 工作区侧边栏。
@@ -97,6 +118,8 @@ export default function WorkspaceSidebar() {
   const reading = isReadingRoute(pathname);
   const { actions: shellActions } = useShellActions();
   const { displayName, profile } = useProfile();
+  const { option: gradeMeta } = useGrade();
+  const { tk } = useLocale();
 
   /** 个人档案抽屉是否打开。 */
   const [profileOpen, setProfileOpen] = useState(false);
@@ -183,10 +206,20 @@ export default function WorkspaceSidebar() {
               <span className="block truncate text-[12.5px] font-medium text-white">
                 {displayName}
               </span>
-              {/* 所在地区小标签——一眼知道自己「在哪」。 */}
-              <span className="mt-0.5 block truncate text-[9.5px] leading-tight text-white/50">
-                {regionName}
+              {/*
+                当前年级 + 地区。
+                年级排前面——它比地区更能决定「我该看哪门课」。
+              */}
+              <span className="mt-0.5 block truncate text-[9.5px] leading-tight text-white/55">
+                {gradeMeta
+                  ? `学习者 · ${gradeMeta.name} (${gradeMeta.ageRange[0]}–${gradeMeta.ageRange[1]}岁)`
+                  : `学习者 · ${regionName}`}
               </span>
+              {gradeMeta ? (
+                <span className="mt-0.5 block truncate text-[9.5px] leading-tight text-white/40">
+                  {regionName}
+                </span>
+              ) : null}
             </span>
           ) : null}
         </button>
@@ -244,6 +277,7 @@ export default function WorkspaceSidebar() {
               key={entry.href}
               entry={entry}
               collapsed={collapsed}
+              label={NAV_LABELS[entry.href]?.[0] ? tk(NAV_LABELS[entry.href]![0]) : entry.label}
             />
           ))}
         </div>
@@ -257,6 +291,7 @@ export default function WorkspaceSidebar() {
                   key={entry.href}
                   entry={entry}
                   collapsed
+                  label={NAV_LABELS[entry.href]?.[0] ? tk(NAV_LABELS[entry.href]![0]) : entry.label}
                 />
               ))}
               {/* 收起态下开发者入口用一个「更多」按钮带出来。 */}
@@ -284,7 +319,12 @@ export default function WorkspaceSidebar() {
             <div className="my-3 border-t border-white/10" />
             <div className="space-y-0.5">
               {SECONDARY_NAV.map((entry) => (
-                <NavLink key={entry.href} entry={entry} collapsed={false} />
+                <NavLink
+                  key={entry.href}
+                  entry={entry}
+                  collapsed={false}
+                  label={NAV_LABELS[entry.href]?.[0] ? tk(NAV_LABELS[entry.href]![0]) : entry.label}
+                />
               ))}
             </div>
 
@@ -303,7 +343,7 @@ export default function WorkspaceSidebar() {
                 className="seek-rail-item flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-[12px]"
               >
                 <MoreHorizontal size={14} strokeWidth={1.8} />
-                开发者入口
+                {tk("nav.developer")}
                 <ChevronDown
                   size={12}
                   strokeWidth={2}
@@ -316,7 +356,12 @@ export default function WorkspaceSidebar() {
               {devOpen && (
                 <div className="mt-1 space-y-0.5">
                   {DEVELOPER_NAV.map((entry) => (
-                    <NavLink key={entry.href} entry={entry} collapsed={false} />
+                    <NavLink
+                      key={entry.href}
+                      entry={entry}
+                      collapsed={false}
+                      label={NAV_LABELS[entry.href]?.[0] ? tk(NAV_LABELS[entry.href]![0]) : entry.label}
+                    />
                   ))}
                 </div>
               )}
@@ -325,24 +370,18 @@ export default function WorkspaceSidebar() {
         )}
       </nav>
 
-      {/* ── 底部极简入口 ──
-       *
-       * 「开源资源审核」是**低频但重要**的运营入口——它不该挤进主
-       * 导航（那里只有 4 项），但也绝不能藏到看不见的地方。
-       *
-       * 所以放在底部：一个 24px 的小图标 + 悬停说明。
-       */}
-      <div className="shrink-0 border-t border-white/10 px-2 pt-1.5">
-        <Link
-          href="/review/github"
-          title="开源资源审核台"
-          aria-label="开源资源审核台"
-          className="seek-rail-item flex items-center gap-2 rounded-lg px-1.5 py-1.5 text-[11.5px] text-white/60 transition-colors hover:text-white"
-        >
-          <Github size={14} strokeWidth={1.8} />
-          {!collapsed ? <span>开源资源审核</span> : null}
-        </Link>
-      </div>
+      {/*
+        「开源资源审核」已**彻底移除**普通用户界面。
+
+        它是**运营后台**，不是学习入口——任何访客看到它都会困惑
+        「我要审核什么？」。所以：
+
+        - 侧边栏不再有任何入口；
+        - 路由迁到 ``/admin/review``，只有手动在地址栏输入网址
+          才能访问（运营者自己知道这个路径）。
+
+        详见 ``app/(workspace)/admin/review/``。
+      */}
 
       {/* 展开 / 收起切换 */}
       <div

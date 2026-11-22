@@ -20,6 +20,7 @@ import { useChat, type ChatMessage } from "@/context/ChatContext";
 import { useReader } from "@/context/ReaderContext";
 import { sanitizeModelText } from "@/lib/ai-sanitize";
 import { cn } from "@/lib/cn";
+import { useLocale } from "@/context/LocaleContext";
 
 /**
  * AI 指导一：课程专属执行官（主对话区）。
@@ -51,6 +52,7 @@ export function MainAiPanel({
   masteryLabel?: string;
   className?: string;
 }) {
+  const { tk } = useLocale();
   const {
     messages,
     busy,
@@ -155,10 +157,10 @@ export function MainAiPanel({
                 new CustomEvent("seek:retest-diagnostic"),
               )
             }
-            title="重新诊断，助手会按新的水平讲解"
+            title={tk("diag.retest")}
             className="shrink-0 rounded-full border border-[var(--seek-bean-soft-border)] bg-[var(--seek-bean-soft)] px-2 py-0.5 text-[10.5px] font-medium text-[var(--primary)] transition-opacity hover:opacity-75"
           >
-            已适配：{masteryLabel}
+            {tk("diag.adapted", { label: masteryLabel })}
           </button>
         ) : null}
         {/* 已划线的段落会自动进入助教的上下文——这里告诉用户
@@ -181,7 +183,7 @@ export function MainAiPanel({
       >
         {messages.length === 0 ? (
           <p className="py-6 text-center text-[12.5px] font-medium leading-relaxed text-[var(--muted-foreground)]">
-            问我一个具体概念，或点上方「知识向导」的提问灵感。
+            {tk("ai.placeholder")}
           </p>
         ) : (
           messages.map((message) =>

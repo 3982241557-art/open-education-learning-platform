@@ -15,6 +15,7 @@ import {
 } from "@/lib/progress-api";
 import { CertificateDialog } from "@/components/progress/CertificateSheet";
 import { cn } from "@/lib/cn";
+import { useLocale } from "@/context/LocaleContext";
 
 /**
  * 我的证书墙
@@ -41,6 +42,7 @@ export function CertificateWall({
 }: {
   className?: string;
 }) {
+  const { tk } = useLocale();
   const [certificates, setCertificates] = useState<Certificate[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -67,7 +69,7 @@ export function CertificateWall({
       <div className="mb-3 flex items-center gap-2">
         <Award size={15} strokeWidth={2.2} className="text-[#c9a227]" />
         <h2 className="text-[15px] font-semibold tracking-[-0.01em]">
-          我的证书墙
+          {tk("cert.wall")}
         </h2>
         <span className="text-[11px] tabular-nums text-[var(--muted-foreground)]">
           {certificates.length}
@@ -81,7 +83,7 @@ export function CertificateWall({
       ) : loading ? (
         <p className="flex items-center gap-1.5 py-6 text-[12px] text-[var(--muted-foreground)]">
           <Loader2 size={13} className="animate-spin" />
-          正在加载证书…
+          {tk("common.loading")}
         </p>
       ) : certificates.length === 0 ? (
         <EmptyCertificateWall />

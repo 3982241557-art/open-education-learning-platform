@@ -23,6 +23,7 @@ import { listCourses } from "@/lib/courses-api";
 import { CalendarToolbar, type CalendarCursor, type CalendarScope } from "@/components/plan/CalendarToolbar";
 import { CalendarView } from "@/components/plan/CalendarView";
 import { cn } from "@/lib/cn";
+import { useLocale } from "@/context/LocaleContext";
 
 /**
  * 学习计划页面 —— 四级可缩放日历
@@ -54,6 +55,7 @@ import { cn } from "@/lib/cn";
  *   正确的格子里——用户不用手动挪。
  */
 export default function PlanPage() {
+  const { tk } = useLocale();
   const searchParams = useSearchParams();
   /** 从学情中心「调整计划」跳过来时带的课程 id。 */
   const boundCourseId = searchParams.get("course") ?? "";
@@ -290,10 +292,9 @@ export default function PlanPage() {
     <div className="flex h-full min-h-0 flex-col">
       <div className="mx-auto flex w-full max-w-[1180px] flex-1 min-h-0 flex-col px-6 py-6 lg:px-9">
         <header className="mb-4">
-          <h1 className="text-[22px] font-semibold tracking-[-0.02em]">学习计划</h1>
+          <h1 className="text-[22px] font-semibold tracking-[-0.02em]">{tk("nav.plan")}</h1>
           <p className="mt-1.5 max-w-2xl text-[12.5px] leading-relaxed text-[var(--muted-foreground)]">
-            四个粒度自由缩放：年度目标挂在年视图，月度战役挂在月视图，
-            每日任务与具体时段挂在日视图与时刻表。AI 制定的计划会自动落进对应的时间槽。
+            {tk("nav.plan")} · {tk("action.save")} · {tk("action.continue")}
           </p>
         </header>
 
@@ -308,7 +309,7 @@ export default function PlanPage() {
           <section className="mb-4 rounded-xl bg-[var(--card)] p-4 ring-1 ring-[var(--border)]">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="text-[13px] font-semibold">
-                {editingId ? "调整计划" : "新建计划"}
+                {editingId ? tk("action.edit") : tk("action.save")}
               </h2>
               {draftAnchor && (
                 <span className="rounded-full bg-[var(--primary)]/10 px-2 py-0.5 text-[10.5px] text-[var(--primary)]">
@@ -358,7 +359,7 @@ export default function PlanPage() {
                   onChange={(event) => setDraftCourseId(event.target.value)}
                   className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--background)] px-2 py-1.5 text-[12px] outline-none focus:border-[var(--foreground)]/25"
                 >
-                  <option value="">（不绑定）</option>
+                  <option value="">—</option>
                   {courseOptions.map((course) => (
                     <option key={course.id} value={course.id}>
                       {course.title}

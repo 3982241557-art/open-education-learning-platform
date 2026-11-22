@@ -6,6 +6,7 @@ import { AiPresenceProvider } from "@/context/AiPresenceContext";
 import WorkspaceNavigation from "@/components/workspaces/WorkspaceNavigation";
 import { PLATFORM_METADATA } from "@/lib/branding";
 import { LocaleProvider } from "@/context/LocaleContext";
+import { GradeProvider } from "@/context/GradeContext";
 import GhPagesRedirect from "@/components/layout/GhPagesRedirect";
 
 export const viewport: Viewport = { interactiveWidget: "resizes-content" };
@@ -56,23 +57,30 @@ export default function RootLayout({
         {/* 语言 / 地区在最外层——品牌栏、页脚、导航都要读它 */}
         <LocaleProvider>
           {/*
-           * GitHub Pages 的 404 回退。
-           *
-           * 静态托管没法在服务端处理「构建期没生成的路径」——
-           * 这个组件在应用启动后把那个路径捡回来，用客户端路由
-           * 导航过去。放在 LocaleProvider 里是因为它必须在**任何**
-           * 页面渲染之前生效。
+           * 年级上下文——课程大厅聚焦、诊断卡难度、AI 助教深浅
+           * 都读它。放在 LocaleProvider 里面（它需要语言来决定
+           * 引导卡里的文案）。
            */}
-          <GhPagesRedirect />
-          <AppShellProvider>
-            {/* 全局只加载一次工作区列表 */}
-            <WorkspaceNavigation />
-            {/* AI 的在场状态跨页面共享：它知道你在读什么、随时能给建议 */}
-            <AiPresenceProvider>
-              {/* 对话状态跨页面共享：课程页问过的问题，回到首页仍在 */}
-              <ChatProvider>{children}</ChatProvider>
-            </AiPresenceProvider>
-          </AppShellProvider>
+          <GradeProvider>
+            {/*
+             * GitHub Pages 的 404 回退。
+             *
+             * 静态托管没法在服务端处理「构建期没生成的路径」——
+             * 这个组件在应用启动后把那个路径捡回来，用客户端路由
+             * 导航过去。放在 LocaleProvider 里是因为它必须在**任何**
+             * 页面渲染之前生效。
+             */}
+            <GhPagesRedirect />
+            <AppShellProvider>
+              {/* 全局只加载一次工作区列表 */}
+              <WorkspaceNavigation />
+              {/* AI 的在场状态跨页面共享：它知道你在读什么、随时能给建议 */}
+              <AiPresenceProvider>
+                {/* 对话状态跨页面共享：课程页问过的问题，回到首页仍在 */}
+                <ChatProvider>{children}</ChatProvider>
+              </AiPresenceProvider>
+            </AppShellProvider>
+          </GradeProvider>
         </LocaleProvider>
       </body>
     </html>

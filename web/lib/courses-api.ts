@@ -6,6 +6,7 @@ import {
   staticFetch,
 } from "@/shared/api/client";
 import { fetchManifest } from "@/lib/static-data";
+import type { InteractiveLab } from "@/lib/interactive-lab";
 
 /**
  * 课程的前端数据客户端。
@@ -287,6 +288,12 @@ export interface Episode {
   key_concepts?: string[];
   /** 拆分方式：`pages` / `playlist` / `chapters` / `single`。 */
   origin?: string;
+  /**
+   * 本集的**互动动画实验室**配置。
+   *
+   * 有它 → 单集学习页显示「✨ 动手玩动画」模块。
+   */
+  interactive_lab?: InteractiveLab | null;
 }
 
 /**

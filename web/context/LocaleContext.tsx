@@ -9,6 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { translateKey } from "@/lib/i18n";
 
 /**
  * 多语言 + 多区适配
@@ -369,8 +370,27 @@ interface LocaleValue {
   region: Region;
   /** 切换地区。 */
   setRegion: (region: Region) => void;
-  /** 翻译一段文本。 */
+  /**
+   * 翻译一段文本（**旧接口**）。
+   *
+   * 保留它是为了兼容那些**还没迁移**到字典的组件——它做的是
+   * 逐词替换。新代码应该用 :attr:`tk`（字典 key）。
+   */
   t: (text: string) => string;
+  /**
+   * 按**字典 key** 取文案。
+   *
+   * 这是新代码应该用的接口：
+   *
+   * .. code-block:: tsx
+   *
+   *    const { tk } = useLocale();
+   *    <button>{tk("nav.courses")}</button>
+   *    <span>{tk("course.lessonOf", { index: 3, total: 64 })}</span>
+   *
+   * 找不到 key 时返回 key 本身——**不会静默显示另一种语言**。
+   */
+  tk: (key: string, vars?: Record<string, string | number>) => string;
   /** 当前地区偏好的视频源。 */
   preferredProvider: "bilibili" | "youtube";
   /** 当前语言的 BCP-47 标签。 */
@@ -461,6 +481,8 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
       region,
       setRegion,
       t: (text: string) => translate(text, locale),
+      tk: (key: string, vars?: Record<string, string | number>) =>
+        translateKey(key, locale, vars),
       preferredProvider: regionMeta?.preferredProvider ?? "bilibili",
       htmlLang: locale,
     };
@@ -484,6 +506,7 @@ export function useLocale(): LocaleValue {
       region: "cn",
       setRegion: () => {},
       t: (text) => text,
+      tk: (key) => key,
       preferredProvider: "bilibili",
       htmlLang: "zh-CN",
     }),

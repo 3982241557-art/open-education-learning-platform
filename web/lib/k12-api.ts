@@ -24,9 +24,10 @@
  * 分片之后，首页只拉几十 KB 的索引；点进哪套课才拉那套课的数据。
  */
 
+import type { InteractiveLab } from "@/lib/interactive-lab";
+
 /** 学段。 */
 export type K12Stage = "primary" | "junior" | "senior";
-
 /** 学科。 */
 export type K12Subject = "chinese" | "math";
 
@@ -63,6 +64,12 @@ export interface K12Episode {
   end_time: number | null;
   key_concepts: string[];
   origin: string;
+  /**
+   * 本集的**互动动画实验室**配置。
+   *
+   * 有它 → 这一集有「✨ 动手玩动画」模块；没有 → 只看视频。
+   */
+  interactive_lab?: InteractiveLab | null;
 }
 
 /** 一套系列的**索引条目**（轻量）。 */
@@ -117,8 +124,7 @@ export interface K12SeriesDetail {
   grade: number;
   subject: K12Subject;
   stage: K12Stage;
-  ageRange: [number, number];
-  edition: string;
+  ageRange: [number, number];  edition: string;
   volumes: string[];
   source: {
     provider: string;

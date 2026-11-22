@@ -25,6 +25,7 @@ import { onLearningEvent, PROGRESS_UPDATED, TRACE_UPDATED } from "@/lib/learning
 import { aggregateLocalProgress } from "@/lib/local-progress";
 import { fetchGlobalHub } from "@/lib/global-hub-api";
 import { cn } from "@/lib/cn";
+import { useLocale } from "@/context/LocaleContext";
 import { CertificateWall } from "@/components/progress/CertificateWall";
 import { K12Section } from "@/components/learning/K12ProgressSection";
 
@@ -48,6 +49,7 @@ import { K12Section } from "@/components/learning/K12ProgressSection";
  * 数据全部来自后端的真实磁盘状态——前端不持有任何预置数字。
  */
 export default function ProgressCenterPage() {
+  const { tk } = useLocale();
   const [courses, setCourses] = useState<CourseProgress[]>([]);
   const [summary, setSummary] = useState<ProgressSummary | null>(null);
   const [loading, setLoading] = useState(true);
@@ -151,11 +153,10 @@ export default function ProgressCenterPage() {
       <div className="mx-auto w-full max-w-[1080px] px-6 py-7 lg:px-9">
         <header className="mb-6">
           <h1 className="text-[22px] font-semibold tracking-[-0.02em]">
-            学情与进度中心
+            {tk("progress.title")}
           </h1>
           <p className="mt-1.5 max-w-2xl text-[12.5px] leading-relaxed text-[var(--muted-foreground)]">
-            这里汇总你在每门课上的阅读进度、笔记与提问、测验正确率，
-            并给出章节级的掌握度判断。带学习计划的课程会一并显示计划目标与进度。
+            {tk("progress.k12Section")} · {tk("progress.lessonsDone")} · {tk("progress.avgMastery")} · {tk("progress.quizAccuracy")}
           </p>
         </header>
 
@@ -168,7 +169,7 @@ export default function ProgressCenterPage() {
         {loading ? (
           <p className="flex items-center gap-1.5 py-8 text-[12.5px] text-[var(--muted-foreground)]">
             <Loader2 size={13} className="animate-spin" />
-            正在汇总学情…
+            {tk("common.loading")}
           </p>
         ) : courses.length === 0 ? (
           <>

@@ -129,6 +129,13 @@ export interface LocalCourseContext {
    * 它被静默拼进 system prompt——用户看不到它，但助手知道该怎么讲。
    */
   learnerProfile?: string;
+  /**
+   * 用户当前的**界面语言**。
+   *
+   * 助教据此用**同样的语言**回答——用户在英文界面里提问，
+   * 助教就该用英文答（除非教材内容需要保留原文）。
+   */
+  locale?: "zh-CN" | "zh-TW" | "en";
 }
 
 /**
@@ -226,13 +233,38 @@ export function buildOfflineAnswer(
 }
 
 /**
+ * 助教的**语言指令**。
+ *
+ * ⚠️ 关键约束：**教材本体不翻译**。
+ *
+ * 国内语文课本的汉字、古诗原文必须保持**原中文**——翻译了就失真，
+ * 那不是学习材料了。所以指令是「解释用你的语言，引用教材保持原文」。
+ */
+const LOCALE_INSTRUCTIONS: Record<
+  "zh-CN" | "zh-TW" | "en",
+  string
+> = {
+  "zh-CN":
+    "用**简体中文**回答，通俗、具体、有条理；引用课文、古诗原文时保持原文，不作翻译。",
+  "zh-TW":
+    "用**繁體中文**回答，通俗、具體、有條理；引用課文、古詩原文時保持原文，不作翻譯。",
+  en:
+    "Answer in **English** (clear, concrete and well-structured). " +
+    "When quoting Chinese textbook passages, classical poems or 生字/生词, " +
+    "keep the **original Chinese characters** and add a brief English explanation " +
+    "afterwards — never replace the original text with a translation.",
+};
+
+/**
  * 系统提示——给 DeepSeek 用的。
  */
 function buildSystemPrompt(context: LocalCourseContext | null): string {
+  const locale = context?.locale ?? "zh-CN";
+
   const base = [
     "你是一位中文学习助教，正在陪一位海外华人学习者看公开课。",
     "回答要求：",
-    "- 用**简体中文**回答，通俗、具体、有条理；",
+    LOCALE_INSTRUCTIONS[locale],
     "- 优先用 Markdown 的小标题和列表，别写长段落；",
     "- 如果问题跟当前课程无关，就诚实地说明这一点，并给出你的建议；",
     "- 不要编造课程里没有的内容。",

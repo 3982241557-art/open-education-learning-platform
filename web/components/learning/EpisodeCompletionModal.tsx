@@ -20,6 +20,7 @@ import {
   styleOf,
 } from "@/components/learning/AdaptiveStage";
 import { cn } from "@/lib/cn";
+import { useLocale } from "@/context/LocaleContext";
 
 /**
  * 单集学完闭环
@@ -281,6 +282,7 @@ export function EpisodeCompletionModal({
   const [submitted, setSubmitted] = useState(false);
   const [noteSaved, setNoteSaved] = useState(false);
 
+  const { tk } = useLocale();
   const playful = stage === "primary";
   const style = styleOf(playful);
 
@@ -373,9 +375,9 @@ export function EpisodeCompletionModal({
   if (!open) return null;
 
   const STEPS = [
-    { id: "quiz", label: "随堂测试" },
-    { id: "summary", label: "核心总结" },
-    { id: "celebrate", label: "达成" },
+    { id: "quiz", label: tk("done.stepQuiz") },
+    { id: "summary", label: tk("done.stepSummary") },
+    { id: "celebrate", label: tk("done.stepCelebrate") },
     { id: "advance", label: "下一步" },
   ] as const;
 
@@ -515,6 +517,7 @@ function QuizStage({
   onSubmit: () => void;
   onNext: () => void;
 }) {
+  const { tk } = useLocale();
   const allAnswered = answers.every(
     (answer, index) => answer !== null && index < questions.length,
   );
@@ -524,7 +527,7 @@ function QuizStage({
     <div>
       <div className="mb-5">
         <h2 className="text-[17px] font-semibold leading-snug tracking-[-0.015em] text-slate-900">
-          本课随堂测试
+          {tk("done.stepQuiz")}
         </h2>
         <p className="mt-1.5 text-[12.5px] leading-relaxed text-slate-600">
           {questions.length} 道题，检验这一讲的关键点有没有真的接住。
@@ -669,13 +672,14 @@ function SummaryStage({
   onSaveNote: () => void;
   onNext: () => void;
 }) {
+  const { tk } = useLocale();
   const style = styleOf(playful);
 
   return (
     <div>
       <div className="mb-5">
         <h2 className="text-[17px] font-semibold leading-snug tracking-[-0.015em] text-slate-900">
-          本课核心总结
+          {tk("done.stepSummary")}
         </h2>
         <p className="mt-1.5 text-[12.5px] leading-relaxed text-slate-600">
           三条结构化的收获——存进笔记，之后随时回看。
@@ -713,7 +717,7 @@ function SummaryStage({
 
       <div className="mt-6 flex items-center justify-between gap-3 border-t border-slate-900/[0.07] pt-4">
         <span className="text-[11.5px] text-slate-500">
-          {noteSaved ? "已存入你的笔记" : "存下来，之后能随时回看"}
+          {noteSaved ? tk("done.saved") : tk("done.saveNote")}
         </span>
         <div className="flex items-center gap-2">
           <button
@@ -733,7 +737,7 @@ function SummaryStage({
             ) : (
               <NotebookPen size={13} strokeWidth={2.2} />
             )}
-            {noteSaved ? "已存入笔记" : "存入我的笔记"}
+            {noteSaved ? tk("done.saved") : tk("done.saveNote")}
           </button>
           <button
             type="button"
@@ -766,6 +770,7 @@ function CelebrateStage({
   total: number;
   playful: boolean;
 }) {
+  const { tk } = useLocale();
   const percent = total > 0 ? Math.round((done / total) * 100) : 0;
 
   /** 环形进度条的周长（半径 34）。 */
@@ -881,6 +886,7 @@ function AdvanceStage({
   playful: boolean;
   onContinue?: () => void;
 }) {
+  const { tk } = useLocale();
   const percent = total > 0 ? Math.round((done / total) * 100) : 0;
   const style = styleOf(playful);
 

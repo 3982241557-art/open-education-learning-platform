@@ -16,6 +16,7 @@ import {
   isStaticRuntime,
 } from "@/shared/api/client";
 import { askLocalAssistant } from "@/lib/local-ai";
+import { useLocale } from "@/context/LocaleContext";
 import { listSkills } from "@/lib/skills-api";
 import type { LocalChatMessage, LocalCourseContext } from "@/lib/local-ai";
 import { sanitizeModelText } from "@/lib/ai-sanitize";
@@ -406,6 +407,13 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const [context, setContext] = useState<LearningContext | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /**
+   * 当前语言——助教据此用同样的语言回答。
+   *
+   * 读的是 Context 而不是 localStorage，这样切换语言后**立即**生效，
+   * 不需要刷新页面。
+   */
+  const { locale } = useLocale();
 
   /**
    * 静态模式下的**降级提示**。
@@ -759,8 +767,12 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
             learnerProfile.epId,
           )
         : "",
+      // ── 当前语言 ──
+      //
+      // 助教据此用**同样的语言**回答。用户切到英文，助教就英文答。
+      locale,
     };
-  }, [context?.courseId, learnerProfile]);
+  }, [context?.courseId, learnerProfile, locale]);
 
   const send = useCallback(
     async (text: string) => {

@@ -15,12 +15,14 @@ import {
 import {
   HOME_EDITORIAL,
   HOME_FINAL_CTA,
+  pickText,
   type AdvantageConfig,
   type EditorialImage,
   type SectionConfig,
   type StepConfig,
 } from "@/data/home-editorial";
 import { BrandBar, LocaleRegionSwitcher } from "@/components/layout/BrandBar";
+import { useLocale, type Locale } from "@/context/LocaleContext";
 import { cn } from "@/lib/cn";
 
 /**
@@ -91,10 +93,12 @@ function EditorialFigure({
   image,
   className = "",
   rounded = "rounded-2xl",
+  locale,
 }: {
   image: EditorialImage;
   className?: string;
   rounded?: string;
+  locale: Locale;
 }) {
   const [failed, setFailed] = React.useState(false);
   const showImage = Boolean(image.src) && !failed;
@@ -111,7 +115,7 @@ function EditorialFigure({
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={image.src}
-          alt={image.alt}
+          alt={pickText(image.alt, locale)}
           onError={() => setFailed(true)}
           className="h-full w-full object-cover"
         />
@@ -151,10 +155,12 @@ function EditorialFigure({
 function EditorialSection({
   section,
   reverse = false,
+  locale,
 }: {
   section: SectionConfig;
   /** 图在左、文在右。 */
   reverse?: boolean;
+  locale: Locale;
 }) {
   return (
     <section
@@ -172,10 +178,10 @@ function EditorialSection({
           <p className="flex items-center gap-2.5 text-[11px] font-medium tracking-[0.22em] text-[var(--primary)] uppercase">
             <span className="tabular-nums">{section.index}</span>
             <span className="h-px w-7 bg-[var(--primary)]/40" />
-            {section.eyebrow}
+            {pickText(section.eyebrow, locale)}
           </p>
           <h2 className="mt-4 text-[26px] font-medium leading-[1.25] tracking-[-0.02em] sm:text-[32px]">
-            {section.title}
+            {pickText(section.title, locale)}
           </h2>
           <div className="mt-5 space-y-4">
             {section.body.map((paragraph, index) => (
@@ -183,7 +189,7 @@ function EditorialSection({
                 key={index}
                 className="text-[14px] leading-[1.9] text-[var(--muted-foreground)]"
               >
-                {paragraph}
+                {pickText(paragraph, locale)}
               </p>
             ))}
           </div>
@@ -193,7 +199,7 @@ function EditorialSection({
             <ul className="mt-7 grid gap-3 sm:grid-cols-2">
               {section.points.map((point) => (
                 <li
-                  key={point.title}
+                  key={typeof point.title === "string" ? point.title : point.title.zhCN}
                   className="rounded-xl border border-[var(--border)] bg-white px-3.5 py-3"
                 >
                   <p className="flex items-start gap-1.5 text-[12.5px] font-medium">
@@ -202,10 +208,10 @@ function EditorialSection({
                       strokeWidth={2}
                       className="mt-0.5 shrink-0 text-[var(--primary)]"
                     />
-                    {point.title}
+                    {pickText(point.title, locale)}
                   </p>
                   <p className="mt-1 pl-[19px] text-[11.5px] leading-relaxed text-[var(--muted-foreground)]">
-                    {point.detail}
+                    {pickText(point.detail, locale)}
                   </p>
                 </li>
               ))}
@@ -216,6 +222,7 @@ function EditorialSection({
         {/* 配图 */}
         <div className="relative">
           <EditorialFigure
+            locale={locale}
             image={section.image}
             className="aspect-[4/3] w-full shadow-[0_24px_70px_-34px_rgba(15,23,42,0.45)]"
           />
@@ -224,10 +231,10 @@ function EditorialSection({
             <div className="absolute -bottom-3 left-4 flex flex-wrap gap-1.5">
               {section.imageTags.map((tag) => (
                 <span
-                  key={tag}
+                  key={pickText(tag, locale)}
                   className="rounded-full border border-[var(--border)] bg-white px-2.5 py-1 text-[10.5px] font-medium text-[var(--muted-foreground)] shadow-sm"
                 >
-                  {tag}
+                  {pickText(tag, locale)}
                 </span>
               ))}
             </div>
@@ -244,7 +251,13 @@ function EditorialSection({
  * 「四宫格」不是平均的四格——**交替上浮下移**，形成错落。
  * 完全等高的四张卡片会显得像一张表格，而表格不传达「四件不同的事」。
  */
-function AdvantageGrid({ advantages }: { advantages: AdvantageConfig[] }) {
+function AdvantageGrid({
+  advantages,
+  locale,
+}: {
+  advantages: AdvantageConfig[];
+  locale: Locale;
+}) {
   return (
     <section className="border-y border-[var(--border)] bg-white">
       <div className="mx-auto w-full max-w-[1120px] px-5 py-16 sm:px-8 sm:py-24">
@@ -272,10 +285,15 @@ function AdvantageGrid({ advantages }: { advantages: AdvantageConfig[] }) {
               >
                 <div className="relative">
                   <EditorialFigure
+                    locale={locale}
                     image={advantage.image ?? {
                       src: "",
                       accent: "from-[#0f172a] to-[#1e3a8a]",
-                      alt: advantage.title,
+                      alt: {
+                        zhCN: advantage.title.zhCN,
+                        zhTW: advantage.title.zhTW,
+                        en: advantage.title.en,
+                      },
                     }}
                     rounded="rounded-none"
                     className="aspect-[16/9] w-full"
@@ -286,10 +304,10 @@ function AdvantageGrid({ advantages }: { advantages: AdvantageConfig[] }) {
                 </div>
                 <div className="p-5">
                   <h3 className="text-[15px] font-medium leading-snug">
-                    {advantage.title}
+                    {pickText(advantage.title, locale)}
                   </h3>
                   <p className="mt-2 text-[12.5px] leading-[1.85] text-[var(--muted-foreground)]">
-                    {advantage.body}
+                    {pickText(advantage.body, locale)}
                   </p>
                 </div>
               </article>
@@ -304,7 +322,13 @@ function AdvantageGrid({ advantages }: { advantages: AdvantageConfig[] }) {
 /**
  * 三步上手。
  */
-function StepsSection({ steps }: { steps: StepConfig[] }) {
+function StepsSection({
+  steps,
+  locale,
+}: {
+  steps: StepConfig[];
+  locale: Locale;
+}) {
   return (
     <section className="mx-auto w-full max-w-[1120px] px-5 py-16 sm:px-8 sm:py-24">
       <p className="flex items-center gap-2.5 text-[11px] font-medium tracking-[0.22em] text-[var(--primary)] uppercase">
@@ -343,9 +367,11 @@ function StepsSection({ steps }: { steps: StepConfig[] }) {
                 />
               ) : null}
             </div>
-            <h3 className="mt-3 text-[15px] font-medium">{step.title}</h3>
+            <h3 className="mt-3 text-[15px] font-medium">
+              {pickText(step.title, locale)}
+            </h3>
             <p className="mt-2 text-[12.5px] leading-[1.85] text-[var(--muted-foreground)]">
-              {step.body}
+              {pickText(step.body, locale)}
             </p>
           </li>
         ))}
@@ -359,6 +385,7 @@ function StepsSection({ steps }: { steps: StepConfig[] }) {
  */
 export default function EditorialHome() {
   const { hero, who, what, advantages, steps } = HOME_EDITORIAL;
+  const { locale } = useLocale();
 
   return (
     <div className="min-h-full bg-[var(--background)]">
@@ -380,13 +407,13 @@ export default function EditorialHome() {
           <div>
             <p className="inline-flex items-center gap-1.5 rounded-full border border-[var(--primary)]/20 bg-[var(--primary)]/6 px-3 py-1 text-[11px] font-medium text-[var(--primary)]">
               <Sparkles size={11} strokeWidth={2.2} />
-              {hero.subtitle}
+              {pickText(hero.subtitle, locale)}
             </p>
             <h1 className="mt-5 text-[38px] font-medium leading-[1.08] tracking-[-0.035em] sm:text-[54px]">
-              {hero.title}
+              {pickText(hero.title, locale)}
             </h1>
             <p className="mt-5 max-w-xl text-[14.5px] leading-[1.95] text-[var(--muted-foreground)]">
-              {hero.lead}
+              {pickText(hero.lead, locale)}
             </p>
 
             <div className="mt-8 flex flex-wrap items-center gap-2.5">
@@ -394,7 +421,7 @@ export default function EditorialHome() {
                 href={hero.primaryCta.href}
                 className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-[var(--primary)] px-5 text-[13px] font-medium text-white transition-opacity hover:opacity-90"
               >
-                {hero.primaryCta.label}
+                {pickText(hero.primaryCta.label, locale)}
                 <ArrowRight size={14} strokeWidth={2.2} />
               </Link>
               {hero.secondaryCta ? (
@@ -402,7 +429,7 @@ export default function EditorialHome() {
                   href={hero.secondaryCta.href}
                   className="inline-flex h-10 items-center rounded-xl border border-[var(--border)] bg-white px-5 text-[13px] font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--muted)]"
                 >
-                  {hero.secondaryCta.label}
+                  {pickText(hero.secondaryCta.label, locale)}
                 </Link>
               ) : null}
             </div>
@@ -410,9 +437,9 @@ export default function EditorialHome() {
             {/* 数字条——建立可信度，但克制到只有一行。 */}
             <dl className="mt-10 grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4">
               {hero.stats.map((stat) => (
-                <div key={stat.label}>
+                <div key={pickText(stat.label, locale)}>
                   <dt className="text-[10.5px] text-[var(--muted-foreground)]">
-                    {stat.label}
+                    {pickText(stat.label, locale)}
                   </dt>
                   <dd className="mt-0.5 text-[20px] font-semibold tracking-[-0.02em] tabular-nums">
                     {stat.value}
@@ -424,6 +451,7 @@ export default function EditorialHome() {
 
           <div className="relative">
             <EditorialFigure
+              locale={locale}
               image={hero.image}
               className="aspect-[4/5] w-full shadow-[0_28px_80px_-36px_rgba(15,23,42,0.55)]"
             />
@@ -432,26 +460,26 @@ export default function EditorialHome() {
       </section>
 
       {/* ── 板块 1 · 我们是谁 ── */}
-      <EditorialSection section={who} />
+      <EditorialSection section={who} locale={locale} />
 
       {/* ── 板块 2 · 我们在做什么（图文左右对调） ── */}
-      <EditorialSection section={what} reverse />
+      <EditorialSection section={what} reverse locale={locale} />
 
       {/* ── 板块 3 · 核心优势 ── */}
-      <AdvantageGrid advantages={advantages} />
+      <AdvantageGrid advantages={advantages} locale={locale} />
 
       {/* ── 板块 4 · 三步上手 ── */}
-      <StepsSection steps={steps} />
+      <StepsSection steps={steps} locale={locale} />
 
       {/* ── 底部 CTA ── */}
       <section className="border-t border-[var(--border)] bg-white">
         <div className="mx-auto flex w-full max-w-[1120px] flex-col items-start gap-6 px-5 py-16 sm:px-8 sm:py-20">
           <div>
             <h2 className="text-[24px] font-medium leading-[1.3] tracking-[-0.02em] sm:text-[30px]">
-              {HOME_FINAL_CTA.title}
+              {pickText(HOME_FINAL_CTA.title, locale)}
             </h2>
             <p className="mt-2 text-[13.5px] leading-relaxed text-[var(--muted-foreground)]">
-              {HOME_FINAL_CTA.body}
+              {pickText(HOME_FINAL_CTA.body, locale)}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2.5">
@@ -459,14 +487,14 @@ export default function EditorialHome() {
               href={HOME_FINAL_CTA.primaryCta.href}
               className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-[var(--primary)] px-5 text-[13px] font-medium text-white transition-opacity hover:opacity-90"
             >
-              {HOME_FINAL_CTA.primaryCta.label}
+              {pickText(HOME_FINAL_CTA.primaryCta.label, locale)}
               <ArrowRight size={14} strokeWidth={2.2} />
             </Link>
             <Link
               href={HOME_FINAL_CTA.secondaryCta.href}
               className="inline-flex h-10 items-center rounded-xl border border-[var(--border)] px-5 text-[13px] font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--muted)]"
             >
-              {HOME_FINAL_CTA.secondaryCta.label}
+              {pickText(HOME_FINAL_CTA.secondaryCta.label, locale)}
             </Link>
           </div>
         </div>

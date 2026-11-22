@@ -34,6 +34,7 @@ import { EpisodeDiagnosticModal } from "@/components/learning/EpisodeDiagnosticM
 import { EpisodeCompletionModal } from "@/components/learning/EpisodeCompletionModal";
 import { BottomAuxPanel } from "@/components/learning/BottomAuxPanel";
 import { InteractiveVideoCanvas } from "@/components/learning/InteractiveVideoCanvas";
+import K12InteractiveLab from "@/components/interactive/K12InteractiveLab";
 import { MainAiPanel } from "@/components/ai/MainAiPanel";
 import { MacroAdvisor } from "@/components/ai/MacroAdvisor";
 import { NodePath } from "@/components/learning/AdaptiveStage";
@@ -41,6 +42,7 @@ import { ReaderProvider, useReader } from "@/context/ReaderContext";
 import { useChat } from "@/context/ChatContext";
 import { emitLearningEvent, RESOURCE_ACTIVATED } from "@/lib/learning-events";
 import { cn } from "@/lib/cn";
+import { useLocale } from "@/context/LocaleContext";
 
 /**
  * 第二层 · 单集沉浸学习页
@@ -91,6 +93,7 @@ function EpisodeLearning({
   courseId: string;
   epId: string;
 }) {
+  const { tk } = useLocale();
   const [bundle, setBundle] = useState<CourseBundle | null>(null);
   const [loading, setLoading] = useState(true);
   const [records, setRecords] = useState<Record<string, EpisodeRecord>>({});
@@ -330,7 +333,7 @@ function EpisodeLearning({
       <div className="flex h-full min-h-0 flex-col items-center justify-center bg-[var(--background)]">
         <Loader2 size={18} className="animate-spin text-[var(--muted-foreground)]" />
         <p className="mt-2 text-[12px] text-[var(--muted-foreground)]">
-          正在载入这一讲…
+          {tk("episode.loading")}
         </p>
       </div>
     );
@@ -471,11 +474,24 @@ function EpisodeLearning({
                     "bg-[var(--primary)]",
                   )}
                 >
-                  学完本集 · 进入检测
+                  {tk("episode.learn")}
                   <ChevronRight size={12} strokeWidth={2.4} />
                 </button>
               </div>
             </div>
+
+            {/* ── ✨ 动手玩动画 ──
+             *
+             * 视频区正下方的醒目交互模块——纯前端 framer-motion +
+             * SVG，零后端依赖。语文课是生字笔顺 / 分句图解，数学课
+             * 是可拖拽的数学玩具。
+             */}
+            {episode.interactive_lab ? (
+              <K12InteractiveLab
+                lab={episode.interactive_lab}
+                stage={stage}
+              />
+            ) : null}
 
             {/* ── 底部辅助区（默认 100% 折叠）──
              *
@@ -487,7 +503,7 @@ function EpisodeLearning({
               sections={[
                 {
                   id: "nodes",
-                  title: "知识节点",
+                  title: tk("episode.nodes"),
                   count: episodeNodes.length || lessonAnalysis.keywords.length,
                   content: (
                     <NodeKnowledgeList
@@ -499,7 +515,7 @@ function EpisodeLearning({
                 },
                 {
                   id: "segments",
-                  title: "段落导读",
+                  title: tk("episode.segments"),
                   count: episodeSegments.length,
                   content: (
                     <SegmentList segments={episodeSegments} />
@@ -507,7 +523,7 @@ function EpisodeLearning({
                 },
                 {
                   id: "captions",
-                  title: "完整字幕",
+                  title: tk("episode.captions"),
                   count: captions.length,
                   content: <CaptionList captions={captions} />,
                 },
@@ -526,7 +542,7 @@ function EpisodeLearning({
                   className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-white px-3 py-1.5 text-[12px] text-[var(--foreground)] transition-colors hover:bg-[var(--muted)]"
                 >
                   <ArrowLeft size={12} strokeWidth={2.4} />
-                  上一讲 · {position.previous.title}
+                  {tk("episode.prev")} · {position.previous.title}
                 </Link>
               ) : (
                 <span />
@@ -536,7 +552,7 @@ function EpisodeLearning({
                   href={`/courses/${encodeURIComponent(courseId)}/${encodeURIComponent(position.next.ep_id)}`}
                   className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-white px-3 py-1.5 text-[12px] text-[var(--foreground)] transition-colors hover:bg-[var(--muted)]"
                 >
-                  下一讲 · {position.next.title}
+                  {tk("episode.next")} · {position.next.title}
                   <ChevronRight size={12} strokeWidth={2.4} />
                 </Link>
               ) : (

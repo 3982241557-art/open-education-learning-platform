@@ -1,5 +1,4 @@
 import {
-  BookOpenCheck,
   CalendarCheck,
   GraduationCap,
   House,
@@ -33,7 +32,17 @@ export interface NavEntry {
   developer?: boolean;
 }
 
-/** 工作区功能，按使用频次排列。 */
+/**
+ * 主导航 —— **只有 4 项**。
+ *
+ * 旧版有 5 项，而且「K12 选课」与「课程」**指向同一件事**：
+ * 用户要按年级找课，先进「K12 选课」；用户要按主题找课，进「课程」。
+ * 两个入口分流了同一种心智，用户每次都得先判断「我该点哪个」。
+ *
+ * 现在合并成唯一的「课程」——它默认聚焦用户所选年级（那里就是
+ * K12 年级同步系列），同时保留「查看全部年级」的下拉项。
+ * 主题型 / 通识型课程仍然能从这里进。
+ */
 export const PRIMARY_NAV: NavEntry[] = [
   {
     href: "/",
@@ -43,20 +52,10 @@ export const PRIMARY_NAV: NavEntry[] = [
     primary: true,
   },
   {
-    // ⚠️ K12 选课大厅是平台的**主体入口**——1–12 年级语文 / 数学
-    //    年级同步系列都在这里。它排在「课程」之前，因为对目标用户
-    //    来说，「按年级选课」才是第一动作。
-    href: "/k12",
-    label: "K12 选课",
-    icon: BookOpenCheck,
-    tooltipKey: "1–12 年级语文 · 数学同步系列",
-    primary: true,
-  },
-  {
-    href: "/learning",
+    href: "/courses",
     label: "课程",
     icon: GraduationCap,
-    tooltipKey: "精选公开课与系统课程",
+    tooltipKey: "1–12 年级语文 · 数学同步系列",
     primary: true,
   },
   {

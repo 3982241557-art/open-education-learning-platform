@@ -10,6 +10,7 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { useLocale } from "@/context/LocaleContext";
 
 /**
  * K12 修习证书
@@ -124,6 +125,7 @@ export function CertificateModal({
   certificate,
   playful = false,
 }: CertificateModalProps) {
+  const { tk } = useLocale();
   const [copied, setCopied] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -273,10 +275,10 @@ export function CertificateModal({
           <div className="mb-4 flex items-start justify-between gap-3">
             <div>
               <h2 className="text-[16px] font-semibold tracking-[-0.015em] text-slate-900">
-                🎓 K12 同步修习证书
+                🎓 {tk("cert.title")}
               </h2>
               <p className="mt-1 text-[12px] text-slate-600">
-                学完一整套年级系列后颁发——已同步归档至学情中心证书墙。
+                {tk("cert.issued")} · {tk("cert.wall")}
               </p>
             </div>
             <button
@@ -335,7 +337,7 @@ export function CertificateModal({
               {/* 电子签章。 */}
               <div className="mt-5 flex items-end justify-between gap-4 border-t border-slate-900/[0.07] pt-4 text-left">
                 <div className="min-w-0">
-                  <p className="text-[10.5px] text-slate-400">防伪编号</p>
+                  <p className="text-[10.5px] text-slate-400">{tk("cert.serial")}</p>
                   <button
                     type="button"
                     onClick={() => void copySerial()}
@@ -350,7 +352,7 @@ export function CertificateModal({
                     )}
                   </button>
                   <p className="mt-1.5 text-[10.5px] text-slate-400">
-                    颁发日期：{new Date(certificate.issuedAt).toLocaleDateString("zh-CN")}
+                    {tk("cert.issued")}：{new Date(certificate.issuedAt).toLocaleDateString("zh-CN")}
                   </p>
                 </div>
 

@@ -2,6 +2,7 @@ import WorkspaceSidebar from "@/components/sidebar/WorkspaceSidebar";
 import AppShell from "@/components/layout/AppShell";
 import { ShellActionsProvider } from "@/context/ShellActionsContext";
 import { ProfileProvider } from "@/context/ProfileContext";
+import { OnboardingGradeModal } from "@/components/onboarding/OnboardingGradeModal";
 
 /**
  * 工作区路由组的外壳：侧边栏 + 内容区。
@@ -26,6 +27,13 @@ export default function WorkspaceLayout({
         <AppShell sidebar={<WorkspaceSidebar />} homeHref="/">
           {children}
         </AppShell>
+        {/*
+          首次进入的年级 / 语言引导。
+          它挂在**工作区**里而不是根布局——因为只有进入学习区的人才
+          需要选年级；而它必须在 ProfileProvider 之下（要用到语言与
+          年级的 Context）。
+        */}
+        <OnboardingGradeModal />
       </ShellActionsProvider>
     </ProfileProvider>
   );

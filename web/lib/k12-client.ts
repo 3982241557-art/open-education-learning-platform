@@ -154,6 +154,9 @@ export async function fetchK12Series(
           ? raw.key_concepts.map((item: unknown) => String(item))
           : [],
         origin: String(raw?.origin ?? "single"),
+        interactive_lab: raw?.interactive_lab
+          ? (raw.interactive_lab as K12SeriesDetail["episodes"][number]["interactive_lab"])
+          : null,
       })),
       interactiveNodes: Array.isArray(data.interactiveNodes)
         ? data.interactiveNodes.map((raw: any) => ({

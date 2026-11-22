@@ -1,13 +1,13 @@
 {
   "hub": {
     "id": "global_resource_hub",
-    "revision": 16,
+    "revision": 32,
     "title": "国内 K12 语文 · 数学年级同步体系",
     "description": "覆盖 1–12 年级的语文与数学教材同步精讲系列，按学段 × 年级 × 年龄组织。",
     "language": "zh-CN",
     "depth": "k12",
     "status": "active",
-    "updated_at": "2026-11-22T01:39:36.810Z",
+    "updated_at": "2026-11-22T11:55:17.631Z",
     "metadata": {
       "pillar": "k12",
       "author": "Open Education Learning Platform",
@@ -15,7 +15,7 @@
       "registry": "k12",
       "resource_count": 24,
       "category_count": 3,
-      "episode_count": 1555
+      "episode_count": 1302
     },
     "exploration_summary": "",
     "categories": [
@@ -31,11 +31,11 @@
             "id": "k12_chinese_g1",
             "resource_type": "video",
             "title": "小学一年级语文（上册+下册）部编版同步精讲",
-            "source": "Bilibili · 学习视频知识点题库",
+            "source": "Bilibili · 爸爸的好涵涵",
             "provider": "Bilibili",
-            "url": "https://www.bilibili.com/video/BV1Vg41147ZK",
-            "fallback_url": "https://www.bilibili.com/video/BV1Vg41147ZK",
-            "ai_context": "这是《小学一年级语文（上册+下册）部编版同步精讲》——语文同步精讲。\n教材版本：国家统编版（部编版）；册次：上册、下册；适用年龄：6–7 岁。\n全系列共 78 课时，当前正在学习其中一课时。\n讲解时请贴合该年级学生的认知水平：小学重直觉与形象，初中重推理与建模，高中重严谨推导与抽象表达。\n如果学习者诊断结果显示基础薄弱，请从生活直觉与具体例子切入，避免直接堆砌高阶公式。",
+            "url": "https://www.bilibili.com/video/BV1xMxd6vEnt",
+            "fallback_url": "https://www.bilibili.com/video/BV1xMxd6vEnt",
+            "ai_context": "这是《小学一年级语文（上册+下册）部编版同步精讲》——语文同步精讲。\n教材版本：国家统编版（部编版）；册次：上册、下册；适用年龄：6–7 岁。\n全系列共 99 课时，当前正在学习其中一课时。\n讲解时请贴合该年级学生的认知水平：小学重直觉与形象，初中重推理与建模，高中重严谨推导与抽象表达。\n如果学习者诊断结果显示基础薄弱，请从生活直觉与具体例子切入，避免直接堆砌高阶公式。",
             "tags": [
               "小学部",
               "第 1 年级",
@@ -53,124 +53,124 @@
                 "上册",
                 "下册"
               ],
-              "episode_count": 78,
-              "author": "学习视频知识点题库",
-              "cover": "https://i1.hdslb.com/bfs/archive/51f1ef181380690cc097b83024208d253898e65e.jpg",
+              "episode_count": 99,
+              "author": "爸爸的好涵涵",
+              "cover": "https://i1.hdslb.com/bfs/archive/1becccb344fd1616d075176ee6b9b794e21918f3.jpg",
               "detail_path": "/data/courses/k12_chinese_g1.json"
             },
             "captions": [],
             "interactive_nodes": [
               {
                 "timestamp": 0,
-                "keyword": "第1单元识字1春夏秋冬1",
+                "keyword": "第1集我是中国人第1集我是中国人",
                 "type": "concept",
-                "context": "本讲的核心概念——第1单元识字1春夏秋冬1。",
-                "hint": "第 1 讲「第1单元 识字1 春夏秋冬1」的关键点。",
+                "context": "本讲的核心概念——第1集我是中国人第1集我是中国人。",
+                "hint": "第 1 讲「01. 第 1集 我是中国人 第 1集 我是中国人」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "第1单元识字1春夏秋冬2",
+                "keyword": "第2集我爱我们的祖国第2集我爱我们的祖国",
                 "type": "concept",
-                "context": "本讲的核心概念——第1单元识字1春夏秋冬2。",
-                "hint": "第 2 讲「第1单元 识字1 春夏秋冬2」的关键点。",
+                "context": "本讲的核心概念——第2集我爱我们的祖国第2集我爱我们的祖国。",
+                "hint": "第 2 讲「02. 第2集我爱我们的祖国 第2集我爱我们的祖国」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "第1单元识字2姓氏歌1",
+                "keyword": "第3集我上学了第3集我上学了",
                 "type": "concept",
-                "context": "本讲的核心概念——第1单元识字2姓氏歌1。",
-                "hint": "第 3 讲「第1单元 识字2 姓氏歌1」的关键点。",
+                "context": "本讲的核心概念——第3集我上学了第3集我上学了。",
+                "hint": "第 3 讲「03. 第3集 《我上学了》 第3集 《我上学了》」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "第1单元识字2姓氏歌2",
+                "keyword": "第4集我爱学语文第4集我爱学语文",
                 "type": "concept",
-                "context": "本讲的核心概念——第1单元识字2姓氏歌2。",
-                "hint": "第 4 讲「第1单元 识字2 姓氏歌2」的关键点。",
+                "context": "本讲的核心概念——第4集我爱学语文第4集我爱学语文。",
+                "hint": "第 4 讲「04. 第4集 《我爱学语文》 第4集 《我爱学语文》」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "第1单元识字3小青蛙1",
+                "keyword": "第5集天地人识字第5集天地人识字",
                 "type": "concept",
-                "context": "本讲的核心概念——第1单元识字3小青蛙1。",
-                "hint": "第 5 讲「第1单元 识字3 小青蛙1」的关键点。",
+                "context": "本讲的核心概念——第5集天地人识字第5集天地人识字。",
+                "hint": "第 5 讲「05. 第5集 《天地人》识字 第5集 《天地人》识字」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "第1单元识字3小青蛙2",
+                "keyword": "第6集天地人识字2第6集天地人识字2",
                 "type": "concept",
-                "context": "本讲的核心概念——第1单元识字3小青蛙2。",
-                "hint": "第 6 讲「第1单元 识字3 小青蛙2」的关键点。",
+                "context": "本讲的核心概念——第6集天地人识字2第6集天地人识字2。",
+                "hint": "第 6 讲「06. 第6集《天地人》识字2 第6集《天地人》识字2」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "第1单元识字4猜字谜1",
+                "keyword": "第7集天地人第7集天地人",
                 "type": "concept",
-                "context": "本讲的核心概念——第1单元识字4猜字谜1。",
-                "hint": "第 7 讲「第1单元 识字4 猜字谜1」的关键点。",
+                "context": "本讲的核心概念——第7集天地人第7集天地人。",
+                "hint": "第 7 讲「07. 第7集 《天地人》 第7集 《天地人》」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "第1单元识字4猜字谜2",
+                "keyword": "第8集他、她它的辨析第8集他、她它的辨析",
                 "type": "concept",
-                "context": "本讲的核心概念——第1单元识字4猜字谜2。",
-                "hint": "第 8 讲「第1单元 识字4 猜字谜2」的关键点。",
+                "context": "本讲的核心概念——第8集他、她它的辨析第8集他、她它的辨析。",
+                "hint": "第 8 讲「08. 第8集 他、她它的辨析 第8集 他、她它的辨析」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "第1单元口语交际：听故事、讲故事",
+                "keyword": "第9集金木水火土1第9集金木水火土1",
                 "type": "concept",
-                "context": "本讲的核心概念——第1单元口语交际：听故事、讲故事。",
-                "hint": "第 9 讲「第1单元 口语交际：听故事、讲故事」的关键点。",
+                "context": "本讲的核心概念——第9集金木水火土1第9集金木水火土1。",
+                "hint": "第 9 讲「09. 第9集 金木水火土1 第9集 金木水火土1」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "第1单元快乐读书吧",
+                "keyword": "第10集金木水火土2第10集金木水火土2",
                 "type": "concept",
-                "context": "本讲的核心概念——第1单元快乐读书吧。",
-                "hint": "第 10 讲「第1单元 快乐读书吧」的关键点。",
+                "context": "本讲的核心概念——第10集金木水火土2第10集金木水火土2。",
+                "hint": "第 10 讲「10. 第 10集金木水火土2 第 10集金木水火土2」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "第1单元语文园地",
+                "keyword": "第11集金木水火土3第11集金木水火土3",
                 "type": "concept",
-                "context": "本讲的核心概念——第1单元语文园地。",
-                "hint": "第 11 讲「第1单元 语文园地」的关键点。",
+                "context": "本讲的核心概念——第11集金木水火土3第11集金木水火土3。",
+                "hint": "第 11 讲「11. 第 11集金木水火土3 第 11集金木水火土3」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "第1单元单元复习",
+                "keyword": "第12集山村第12集山村",
                 "type": "concept",
-                "context": "本讲的核心概念——第1单元单元复习。",
-                "hint": "第 12 讲「第1单元 单元复习」的关键点。",
+                "context": "本讲的核心概念——第12集山村第12集山村。",
+                "hint": "第 12 讲「12. 第 12集 《山村》 第 12集 《山村》」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               }
             ],
             "guided_segments": [],
-            "academic_intro": "本册语文同步课覆盖上册、下册全部教材单元，共 78 课时，按课时逐节精讲，配套课前诊断与随堂检测。",
+            "academic_intro": "本册语文同步课覆盖上册、下册全部教材单元，共 99 课时，按课时逐节精讲，配套课前诊断与随堂检测。",
             "is_structured": true,
             "is_default": false
           },
@@ -356,11 +356,11 @@
             "id": "k12_chinese_g3",
             "resource_type": "video",
             "title": "小学三年级语文（上册+下册）部编版同步精讲",
-            "source": "Bilibili · 清北学霸院",
+            "source": "Bilibili · 牛哥小学作文秀",
             "provider": "Bilibili",
-            "url": "https://www.bilibili.com/video/BV1Rf8k6oErd",
-            "fallback_url": "https://www.bilibili.com/video/BV1Rf8k6oErd",
-            "ai_context": "这是《小学三年级语文（上册+下册）部编版同步精讲》——语文同步精讲。\n教材版本：国家统编版（部编版）；册次：上册、下册；适用年龄：8–9 岁。\n全系列共 38 课时，当前正在学习其中一课时。\n讲解时请贴合该年级学生的认知水平：小学重直觉与形象，初中重推理与建模，高中重严谨推导与抽象表达。\n如果学习者诊断结果显示基础薄弱，请从生活直觉与具体例子切入，避免直接堆砌高阶公式。",
+            "url": "https://www.bilibili.com/video/BV1o7411F7Ek",
+            "fallback_url": "https://www.bilibili.com/video/BV1o7411F7Ek",
+            "ai_context": "这是《小学三年级语文（上册+下册）部编版同步精讲》——语文同步精讲。\n教材版本：国家统编版（部编版）；册次：上册、下册；适用年龄：8–9 岁。\n全系列共 88 课时，当前正在学习其中一课时。\n讲解时请贴合该年级学生的认知水平：小学重直觉与形象，初中重推理与建模，高中重严谨推导与抽象表达。\n如果学习者诊断结果显示基础薄弱，请从生活直觉与具体例子切入，避免直接堆砌高阶公式。",
             "tags": [
               "小学部",
               "第 3 年级",
@@ -378,131 +378,124 @@
                 "上册",
                 "下册"
               ],
-              "episode_count": 38,
-              "author": "清北学霸院",
-              "cover": "https://i0.hdslb.com/bfs/archive/ed3d602bd05b00800babffb5c580972f027a0bd6.jpg",
+              "episode_count": 88,
+              "author": "牛哥小学作文秀",
+              "cover": "https://i2.hdslb.com/bfs/archive/1b7212de488cd8de7ce7501ec4675fc19a4d1f11.jpg",
               "detail_path": "/data/courses/k12_chinese_g3.json"
             },
             "captions": [],
             "interactive_nodes": [
               {
                 "timestamp": 0,
-                "keyword": "第一单元阅读1古诗三首",
+                "keyword": "P1-古诗三首_绝句1",
                 "type": "concept",
-                "context": "本讲的核心概念——第一单元阅读1古诗三首。",
-                "hint": "第 1 讲「第一单元｜阅读｜1 古诗三首｜第一课时」的关键点。",
+                "context": "本讲的核心概念——P1-古诗三首_绝句1。",
+                "hint": "第 1 讲「P1-古诗三首_绝句1」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "第一单元阅读1古诗三首",
+                "keyword": "P2-古诗三首_绝句2",
                 "type": "concept",
-                "context": "本讲的核心概念——第一单元阅读1古诗三首。",
-                "hint": "第 2 讲「第一单元｜阅读｜1 古诗三首｜第二课时」的关键点。",
+                "context": "本讲的核心概念——P2-古诗三首_绝句2。",
+                "hint": "第 2 讲「P2-古诗三首_绝句2」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "第一单元阅读2燕子",
+                "keyword": "P3-古诗三首_绝句3",
                 "type": "concept",
-                "context": "本讲的核心概念——第一单元阅读2燕子。",
-                "hint": "第 3 讲「第一单元｜阅读｜2 燕子｜第一课时」的关键点。",
+                "context": "本讲的核心概念——P3-古诗三首_绝句3。",
+                "hint": "第 3 讲「P3-古诗三首_绝句3」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "第一单元阅读2燕子",
+                "keyword": "P4-古诗三首_绝句4",
                 "type": "concept",
-                "context": "本讲的核心概念——第一单元阅读2燕子。",
-                "hint": "第 4 讲「第一单元｜阅读｜2 燕子｜第二课时」的关键点。",
+                "context": "本讲的核心概念——P4-古诗三首_绝句4。",
+                "hint": "第 4 讲「P4-古诗三首_绝句4」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "第一单元阅读3荷花",
+                "keyword": "P5-古诗三首_惠崇春江晚景1",
                 "type": "concept",
-                "context": "本讲的核心概念——第一单元阅读3荷花。",
-                "hint": "第 5 讲「第一单元｜阅读｜3 荷花｜第一课时」的关键点。",
+                "context": "本讲的核心概念——P5-古诗三首_惠崇春江晚景1。",
+                "hint": "第 5 讲「P5-古诗三首_惠崇春江晚景1」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "第一单元阅读3荷花",
+                "keyword": "P6-古诗三首_惠崇春江晚景2",
                 "type": "concept",
-                "context": "本讲的核心概念——第一单元阅读3荷花。",
-                "hint": "第 6 讲「第一单元｜阅读｜3 荷花｜第二课时」的关键点。",
+                "context": "本讲的核心概念——P6-古诗三首_惠崇春江晚景2。",
+                "hint": "第 6 讲「P6-古诗三首_惠崇春江晚景2」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "第一单元阅读4昆虫备忘录",
+                "keyword": "P7-古诗三首_惠崇春江晚景3",
                 "type": "concept",
-                "context": "本讲的核心概念——第一单元阅读4昆虫备忘录。",
-                "hint": "第 7 讲「第一单元｜阅读｜4 昆虫备忘录」的关键点。",
+                "context": "本讲的核心概念——P7-古诗三首_惠崇春江晚景3。",
+                "hint": "第 7 讲「P7-古诗三首_惠崇春江晚景3」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "第一单元口语交际春游去哪里",
+                "keyword": "P8-古诗三首_惠崇春江晚景4",
                 "type": "concept",
-                "context": "本讲的核心概念——第一单元口语交际春游去哪里。",
-                "hint": "第 8 讲「第一单元｜口语交际｜春游去哪里」的关键点。",
+                "context": "本讲的核心概念——P8-古诗三首_惠崇春江晚景4。",
+                "hint": "第 8 讲「P8-古诗三首_惠崇春江晚景4」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "第一单元习作我的植物朋友",
+                "keyword": "P9-古诗三首_三衢道中1",
                 "type": "concept",
-                "context": "本讲的核心概念——第一单元习作我、植物朋友。",
-                "hint": "第 9 讲「第一单元｜习作｜我的植物朋友」的关键点。",
+                "context": "本讲的核心概念——P9-古诗三首_三衢道中1。",
+                "hint": "第 9 讲「P9-古诗三首_三衢道中1」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "第二单元阅读5守株待兔",
+                "keyword": "P10-古诗三首_三衢道中2",
                 "type": "concept",
-                "context": "本讲的核心概念——第二单元阅读5守株待兔。",
-                "hint": "第 10 讲「第二单元｜阅读｜5 守株待兔｜第一课时」的关键点。",
+                "context": "本讲的核心概念——P10-古诗三首_三衢道中2。",
+                "hint": "第 10 讲「P10-古诗三首_三衢道中2」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "第二单元阅读5守株待兔",
+                "keyword": "P11-古诗三首_三衢道中3",
                 "type": "concept",
-                "context": "本讲的核心概念——第二单元阅读5守株待兔。",
-                "hint": "第 11 讲「第二单元｜阅读｜5 守株待兔｜第二课时」的关键点。",
+                "context": "本讲的核心概念——P11-古诗三首_三衢道中3。",
+                "hint": "第 11 讲「P11-古诗三首_三衢道中3」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "第二单元阅读6会摇尾巴的狼",
+                "keyword": "P12-古诗三首_三衢道中4",
                 "type": "concept",
-                "context": "本讲的核心概念——第二单元阅读6会摇尾巴的狼。",
-                "hint": "第 12 讲「第二单元｜阅读｜6 会摇尾巴的狼｜第一课时」的关键点。",
+                "context": "本讲的核心概念——P12-古诗三首_三衢道中4。",
+                "hint": "第 12 讲「P12-古诗三首_三衢道中4」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               }
             ],
-            "guided_segments": [
-              {
-                "timestamp": 0,
-                "title": "第一单元习作我",
-                "content": "围绕「第一单元习作我的植物朋友」展开的讲解要点。",
-                "origin": "generated"
-              }
-            ],
-            "academic_intro": "本册语文同步课覆盖上册、下册全部教材单元，共 38 课时，按课时逐节精讲，配套课前诊断与随堂检测。",
+            "guided_segments": [],
+            "academic_intro": "本册语文同步课覆盖上册、下册全部教材单元，共 88 课时，按课时逐节精讲，配套课前诊断与随堂检测。",
             "is_structured": true,
             "is_default": false
           },
@@ -1516,11 +1509,11 @@
             "id": "k12_math_g5",
             "resource_type": "video",
             "title": "小学五年级数学（上册+下册）人教版同步精讲",
-            "source": "Bilibili · B站提升学习大讲堂",
+            "source": "Bilibili · 小时光动画课堂",
             "provider": "Bilibili",
-            "url": "https://www.bilibili.com/video/BV1nVTi6RE5N",
-            "fallback_url": "https://www.bilibili.com/video/BV1nVTi6RE5N",
-            "ai_context": "这是《小学五年级数学（上册+下册）人教版同步精讲》——数学同步精讲。\n教材版本：人教版；册次：上册、下册；适用年龄：10–11 岁。\n全系列共 86 课时，当前正在学习其中一课时。\n讲解时请贴合该年级学生的认知水平：小学重直觉与形象，初中重推理与建模，高中重严谨推导与抽象表达。\n如果学习者诊断结果显示基础薄弱，请从生活直觉与具体例子切入，避免直接堆砌高阶公式。",
+            "url": "https://www.bilibili.com/video/BV16EPaeRETk",
+            "fallback_url": "https://www.bilibili.com/video/BV16EPaeRETk",
+            "ai_context": "这是《小学五年级数学（上册+下册）人教版同步精讲》——数学同步精讲。\n教材版本：人教版；册次：上册、下册；适用年龄：10–11 岁。\n全系列共 15 课时，当前正在学习其中一课时。\n讲解时请贴合该年级学生的认知水平：小学重直觉与形象，初中重推理与建模，高中重严谨推导与抽象表达。\n如果学习者诊断结果显示基础薄弱，请从生活直觉与具体例子切入，避免直接堆砌高阶公式。",
             "tags": [
               "小学部",
               "第 5 年级",
@@ -1538,118 +1531,118 @@
                 "上册",
                 "下册"
               ],
-              "episode_count": 86,
-              "author": "B站提升学习大讲堂",
-              "cover": "https://i1.hdslb.com/bfs/archive/451b2c9fc613f175698486ab508d15f29dd7a09b.jpg",
+              "episode_count": 15,
+              "author": "小时光动画课堂",
+              "cover": "https://i0.hdslb.com/bfs/archive/3ca679ba2ec6ec0795e548b239c654eb7141ba10.png",
               "detail_path": "/data/courses/k12_math_g5.json"
             },
             "captions": [],
             "interactive_nodes": [
               {
                 "timestamp": 0,
-                "keyword": "1.0整本书重点分析5下数",
+                "keyword": "第一讲_观察物体",
                 "type": "concept",
-                "context": "本讲的核心概念——1.0整本书重点分析5下数。",
-                "hint": "第 1 讲「01_1.0整本书重点分析（5下数）」的关键点。",
+                "context": "本讲的核心概念——第一讲_观察物体。",
+                "hint": "第 1 讲「1、第一讲_观察物体」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "1.1观察物体例1",
+                "keyword": "第二讲_因数和倍数",
                 "type": "concept",
-                "context": "本讲的核心概念——1.1观察物体例1。",
-                "hint": "第 2 讲「02_1.1观察物体 例1」的关键点。",
+                "context": "本讲的核心概念——第二讲_因数和倍数。",
+                "hint": "第 2 讲「2、第二讲_因数和倍数」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "1.2观察物体例2",
+                "keyword": "第三讲_因数及因数的特征",
                 "type": "concept",
-                "context": "本讲的核心概念——1.2观察物体例2。",
-                "hint": "第 3 讲「03_1.2观察物体例2」的关键点。",
+                "context": "本讲的核心概念——第三讲_因数及因数、特征。",
+                "hint": "第 3 讲「3、第三讲_因数及因数的特征」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "1.3练习一5下数",
+                "keyword": "第四讲_倍数及倍数的特征",
                 "type": "concept",
-                "context": "本讲的核心概念——1.3练习一5下数。",
-                "hint": "第 4 讲「04_1.3练习一（5下数）」的关键点。",
+                "context": "本讲的核心概念——第四讲_倍数及倍数、特征。",
+                "hint": "第 4 讲「4、第四讲_倍数及倍数的特征」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "2.1例1因数和倍数的认识",
+                "keyword": "第五讲_2,5的倍数特征",
                 "type": "concept",
-                "context": "本讲的核心概念——2.1例1因数和倍数的认识。",
-                "hint": "第 5 讲「05_2.1例1 因数和倍数的认识」的关键点。",
+                "context": "本讲的核心概念——第五讲_2,5、倍数特征。",
+                "hint": "第 5 讲「5、第五讲_2,5的倍数特征」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "2.1例2求一个数的因数的方法",
+                "keyword": "第六讲_3的倍数特征",
                 "type": "concept",
-                "context": "本讲的核心概念——2.1例2求一个数、因数的方法。",
-                "hint": "第 6 讲「06_2.1例2 求一个数的因数的方法」的关键点。",
+                "context": "本讲的核心概念——第六讲_3、倍数特征。",
+                "hint": "第 6 讲「6、第六讲_3的倍数特征」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "练习二1-2题",
+                "keyword": "第七讲_质数与合数",
                 "type": "concept",
-                "context": "本讲的核心概念——练习二1-2题。",
-                "hint": "第 7 讲「07_练习二1-2题」的关键点。",
+                "context": "本讲的核心概念——第七讲_质数与合数。",
+                "hint": "第 7 讲「7、第七讲_质数与合数」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "练习二3-8题",
+                "keyword": "第八讲_两数之和奇偶性",
                 "type": "concept",
-                "context": "本讲的核心概念——练习二3-8题。",
-                "hint": "第 8 讲「08_练习二3-8题」的关键点。",
+                "context": "本讲的核心概念——第八讲_两数之和奇偶性。",
+                "hint": "第 8 讲「8、第八讲_两数之和奇偶性」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "2.2例12、5的倍数特征",
+                "keyword": "第九讲_认识长方体",
                 "type": "concept",
-                "context": "本讲的核心概念——2.2例12、5、倍数特征。",
-                "hint": "第 9 讲「09_2.2例1 2、5的倍数特征」的关键点。",
+                "context": "本讲的核心概念——第九讲_认识长方体。",
+                "hint": "第 9 讲「9、第九讲_认识长方体」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "2.2例23的倍数特征",
+                "keyword": "第十讲_认识正方体",
                 "type": "concept",
-                "context": "本讲的核心概念——2.2例23、倍数特征。",
-                "hint": "第 10 讲「10_2.2例2 3的倍数特征」的关键点。",
+                "context": "本讲的核心概念——第十讲_认识正方体。",
+                "hint": "第 10 讲「10、第十讲_认识正方体」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "练习三1-9题",
+                "keyword": "第十一讲_展开图",
                 "type": "concept",
-                "context": "本讲的核心概念——练习三1-9题。",
-                "hint": "第 11 讲「11_练习三1-9题」的关键点。",
+                "context": "本讲的核心概念——第十一讲_展开图。",
+                "hint": "第 11 讲「11、第十一讲_展开图」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "练习三10-思考题重要",
+                "keyword": "第十二讲_表面积",
                 "type": "concept",
-                "context": "本讲的核心概念——练习三10-思考题重要。",
-                "hint": "第 12 讲「12_练习三10-思考题（重要）」的关键点。",
+                "context": "本讲的核心概念——第十二讲_表面积。",
+                "hint": "第 12 讲「12、第十二讲_表面积」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               }
@@ -1657,24 +1650,30 @@
             "guided_segments": [
               {
                 "timestamp": 0,
-                "title": "2.1例2求一个数",
-                "content": "围绕「2.1例2求一个数的因数的方法」展开的讲解要点。",
+                "title": "第三讲_因数及因数",
+                "content": "围绕「第三讲_因数及因数的特征」展开的讲解要点。",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "title": "2.2例12、5",
-                "content": "围绕「2.2例12、5的倍数特征」展开的讲解要点。",
+                "title": "第四讲_倍数及倍数",
+                "content": "围绕「第四讲_倍数及倍数的特征」展开的讲解要点。",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "title": "2.2例23",
-                "content": "围绕「2.2例23的倍数特征」展开的讲解要点。",
+                "title": "第五讲_2,5",
+                "content": "围绕「第五讲_2,5的倍数特征」展开的讲解要点。",
+                "origin": "generated"
+              },
+              {
+                "timestamp": 0,
+                "title": "第六讲_3",
+                "content": "围绕「第六讲_3的倍数特征」展开的讲解要点。",
                 "origin": "generated"
               }
             ],
-            "academic_intro": "本册数学同步课覆盖上册、下册全部教材单元，共 86 课时，按课时逐节精讲，配套课前诊断与随堂检测。",
+            "academic_intro": "本册数学同步课覆盖上册、下册全部教材单元，共 15 课时，按课时逐节精讲，配套课前诊断与随堂检测。",
             "is_structured": true,
             "is_default": false
           },
@@ -2472,11 +2471,11 @@
             "id": "k12_math_g8",
             "resource_type": "video",
             "title": "初中八年级数学（上册+下册）人教版同步精讲",
-            "source": "Bilibili · 名师课堂",
+            "source": "Bilibili · 一数助学课程",
             "provider": "Bilibili",
-            "url": "https://www.bilibili.com/video/BV1SANXzfEkg",
-            "fallback_url": "https://www.bilibili.com/video/BV1SANXzfEkg",
-            "ai_context": "这是《初中八年级数学（上册+下册）人教版同步精讲》——数学同步精讲。\n教材版本：人教版；册次：上册、下册；适用年龄：13–14 岁。\n全系列共 36 课时，当前正在学习其中一课时。\n讲解时请贴合该年级学生的认知水平：小学重直觉与形象，初中重推理与建模，高中重严谨推导与抽象表达。\n如果学习者诊断结果显示基础薄弱，请从生活直觉与具体例子切入，避免直接堆砌高阶公式。",
+            "url": "https://www.bilibili.com/video/BV18KKm6KECy",
+            "fallback_url": "https://www.bilibili.com/video/BV18KKm6KECy",
+            "ai_context": "这是《初中八年级数学（上册+下册）人教版同步精讲》——数学同步精讲。\n教材版本：人教版；册次：上册、下册；适用年龄：13–14 岁。\n全系列共 69 课时，当前正在学习其中一课时。\n讲解时请贴合该年级学生的认知水平：小学重直觉与形象，初中重推理与建模，高中重严谨推导与抽象表达。\n如果学习者诊断结果显示基础薄弱，请从生活直觉与具体例子切入，避免直接堆砌高阶公式。",
             "tags": [
               "初中部",
               "第 8 年级",
@@ -2494,118 +2493,118 @@
                 "上册",
                 "下册"
               ],
-              "episode_count": 36,
-              "author": "名师课堂",
-              "cover": "https://i1.hdslb.com/bfs/archive/796052ab7b6ffc89644c7a8bca607b5139623503.png",
+              "episode_count": 69,
+              "author": "一数助学课程",
+              "cover": "https://i0.hdslb.com/bfs/archive/8882a6a9766fd4e8510ac73cafb0f31fa94aab16.jpg",
               "detail_path": "/data/courses/k12_math_g8.json"
             },
             "captions": [],
             "interactive_nodes": [
               {
                 "timestamp": 0,
-                "keyword": "1三角形的概念",
+                "keyword": "八上L8-1与三角形有关线段一",
                 "type": "concept",
-                "context": "本讲的核心概念——1三角形、概念。",
-                "hint": "第 1 讲「13.1 三角形的概念」的关键点。",
+                "context": "本讲的核心概念——八上L8-1与三角形有关线段一。",
+                "hint": "第 1 讲「【八上】L8-1与三角形有关线段（一）」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "2与三角形有关的线段",
+                "keyword": "八下L8-55分式方程及应用三",
                 "type": "concept",
-                "context": "本讲的核心概念——2与三角形有关、线段。",
-                "hint": "第 2 讲「13.2 与三角形有关的线段」的关键点。",
+                "context": "本讲的核心概念——八下L8-55分式方程及应用三。",
+                "hint": "第 2 讲「【八下】L8-55 分式方程及应用（三）」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "3多边形及其内角和",
+                "keyword": "L8-2与三角形有关线段一",
                 "type": "concept",
-                "context": "本讲的核心概念——3多边形及其内角和。",
-                "hint": "第 3 讲「13.3 多边形及其内角和」的关键点。",
+                "context": "本讲的核心概念——L8-2与三角形有关线段一。",
+                "hint": "第 3 讲「L8-2与三角形有关线段（一）」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "3三角形的内角与外角1",
+                "keyword": "L8-3与三角形有关的线段二",
                 "type": "concept",
-                "context": "本讲的核心概念——3三角形、内角与外角1。",
-                "hint": "第 4 讲「13.3 三角形的内角与外角（1）」的关键点。",
+                "context": "本讲的核心概念——L8-3与三角形有关、线段二。",
+                "hint": "第 4 讲「L8-3与三角形有关的线段（二）」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "3三角形的内角与外角2",
+                "keyword": "L8-4与三角形有关的线段二",
                 "type": "concept",
-                "context": "本讲的核心概念——3三角形、内角与外角2。",
-                "hint": "第 5 讲「13.3 三角形的内角与外角（2）」的关键点。",
+                "context": "本讲的核心概念——L8-4与三角形有关、线段二。",
+                "hint": "第 5 讲「L8-4与三角形有关的线段（二）」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "第十三章三角形的小结与复习",
+                "keyword": "L8-5与三角形有关的角-知识分析",
                 "type": "concept",
-                "context": "本讲的核心概念——第十三章三角形、小结与复习。",
-                "hint": "第 6 讲「第十三章 三角形的小结与复习」的关键点。",
+                "context": "本讲的核心概念——L8-5与三角形有关、角-知识分析。",
+                "hint": "第 6 讲「L8-5与三角形有关的角-知识分析」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "1全等三角形及其性质",
+                "keyword": "L8-6与三角形有关的角-题型精讲",
                 "type": "concept",
-                "context": "本讲的核心概念——1全等三角形及其性质。",
-                "hint": "第 7 讲「14.1 全等三角形及其性质」的关键点。",
+                "context": "本讲的核心概念——L8-6与三角形有关、角-题型精讲。",
+                "hint": "第 7 讲「L8-6与三角形有关的角-题型精讲」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "2三角形全等的判定1",
+                "keyword": "L8-7多边形-知识分析",
                 "type": "concept",
-                "context": "本讲的核心概念——2三角形全等、判定1。",
-                "hint": "第 8 讲「14.2 三角形全等的判定（1）」的关键点。",
+                "context": "本讲的核心概念——L8-7多边形-知识分析。",
+                "hint": "第 8 讲「L8-7多边形-知识分析」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "2三角形全等的判定2",
+                "keyword": "L8-8多边形-题型精讲",
                 "type": "concept",
-                "context": "本讲的核心概念——2三角形全等、判定2。",
-                "hint": "第 9 讲「14.2 三角形全等的判定（2）」的关键点。",
+                "context": "本讲的核心概念——L8-8多边形-题型精讲。",
+                "hint": "第 9 讲「L8-8多边形-题型精讲」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "2三角形全等的判定3",
+                "keyword": "L8-9飞镖模型",
                 "type": "concept",
-                "context": "本讲的核心概念——2三角形全等、判定3。",
-                "hint": "第 10 讲「14.2 三角形全等的判定（3）」的关键点。",
+                "context": "本讲的核心概念——L8-9飞镖模型。",
+                "hint": "第 10 讲「L8-9飞镖模型」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "3角的平分线",
+                "keyword": "L8-10八字模型和星星模型",
                 "type": "concept",
-                "context": "本讲的核心概念——3角、平分线。",
-                "hint": "第 11 讲「14.3 角的平分线」的关键点。",
+                "context": "本讲的核心概念——L8-10八字模型和星星模型。",
+                "hint": "第 11 讲「L8-10八字模型和星星模型」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "第十四章全等三角形的小结与复习",
+                "keyword": "L8-11双角平分线模型",
                 "type": "concept",
-                "context": "本讲的核心概念——第十四章全等三角形、小结与复习。",
-                "hint": "第 12 讲「第十四章 全等三角形的小结与复习」的关键点。",
+                "context": "本讲的核心概念——L8-11双角平分线模型。",
+                "hint": "第 12 讲「L8-11双角平分线模型」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               }
@@ -2613,66 +2612,30 @@
             "guided_segments": [
               {
                 "timestamp": 0,
-                "title": "1三角形",
-                "content": "围绕「1三角形的概念」展开的讲解要点。",
+                "title": "L8-3与三角形有关",
+                "content": "围绕「L8-3与三角形有关的线段二」展开的讲解要点。",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "title": "2与三角形有关",
-                "content": "围绕「2与三角形有关的线段」展开的讲解要点。",
+                "title": "L8-4与三角形有关",
+                "content": "围绕「L8-4与三角形有关的线段二」展开的讲解要点。",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "title": "3三角形",
-                "content": "围绕「3三角形的内角与外角1」展开的讲解要点。",
+                "title": "L8-5与三角形有关",
+                "content": "围绕「L8-5与三角形有关的角-知识分析」展开的讲解要点。",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "title": "3三角形",
-                "content": "围绕「3三角形的内角与外角2」展开的讲解要点。",
-                "origin": "generated"
-              },
-              {
-                "timestamp": 0,
-                "title": "第十三章三角形",
-                "content": "围绕「第十三章三角形的小结与复习」展开的讲解要点。",
-                "origin": "generated"
-              },
-              {
-                "timestamp": 0,
-                "title": "2三角形全等",
-                "content": "围绕「2三角形全等的判定1」展开的讲解要点。",
-                "origin": "generated"
-              },
-              {
-                "timestamp": 0,
-                "title": "2三角形全等",
-                "content": "围绕「2三角形全等的判定2」展开的讲解要点。",
-                "origin": "generated"
-              },
-              {
-                "timestamp": 0,
-                "title": "2三角形全等",
-                "content": "围绕「2三角形全等的判定3」展开的讲解要点。",
-                "origin": "generated"
-              },
-              {
-                "timestamp": 0,
-                "title": "3角",
-                "content": "围绕「3角的平分线」展开的讲解要点。",
-                "origin": "generated"
-              },
-              {
-                "timestamp": 0,
-                "title": "第十四章全等三角形",
-                "content": "围绕「第十四章全等三角形的小结与复习」展开的讲解要点。",
+                "title": "L8-6与三角形有关",
+                "content": "围绕「L8-6与三角形有关的角-题型精讲」展开的讲解要点。",
                 "origin": "generated"
               }
             ],
-            "academic_intro": "本册数学同步课覆盖上册、下册全部教材单元，共 36 课时，按课时逐节精讲，配套课前诊断与随堂检测。",
+            "academic_intro": "本册数学同步课覆盖上册、下册全部教材单元，共 69 课时，按课时逐节精讲，配套课前诊断与随堂检测。",
             "is_structured": true,
             "is_default": false
           },
@@ -2856,11 +2819,11 @@
             "id": "k12_chinese_g10",
             "resource_type": "video",
             "title": "高中高一语文（必修一+必修二）部编版同步精讲",
-            "source": "Bilibili · 脆脆浣熊",
+            "source": "Bilibili · B站提升学习大讲堂",
             "provider": "Bilibili",
-            "url": "https://www.bilibili.com/video/BV1jSeQ68E7v",
-            "fallback_url": "https://www.bilibili.com/video/BV1jSeQ68E7v",
-            "ai_context": "这是《高中高一语文（必修一+必修二）部编版同步精讲》——语文同步精讲。\n教材版本：国家统编版（部编版）；册次：必修一、必修二；适用年龄：15–16 岁。\n全系列共 54 课时，当前正在学习其中一课时。\n讲解时请贴合该年级学生的认知水平：小学重直觉与形象，初中重推理与建模，高中重严谨推导与抽象表达。\n如果学习者诊断结果显示基础薄弱，请从生活直觉与具体例子切入，避免直接堆砌高阶公式。",
+            "url": "https://www.bilibili.com/video/BV1Ecu66TE4H",
+            "fallback_url": "https://www.bilibili.com/video/BV1Ecu66TE4H",
+            "ai_context": "这是《高中高一语文（必修一+必修二）部编版同步精讲》——语文同步精讲。\n教材版本：国家统编版（部编版）；册次：必修一、必修二；适用年龄：15–16 岁。\n全系列共 24 课时，当前正在学习其中一课时。\n讲解时请贴合该年级学生的认知水平：小学重直觉与形象，初中重推理与建模，高中重严谨推导与抽象表达。\n如果学习者诊断结果显示基础薄弱，请从生活直觉与具体例子切入，避免直接堆砌高阶公式。",
             "tags": [
               "高中部",
               "第 10 年级",
@@ -2878,97 +2841,124 @@
                 "必修一",
                 "必修二"
               ],
-              "episode_count": 54,
-              "author": "脆脆浣熊",
-              "cover": "https://i2.hdslb.com/bfs/archive/c97448c42a47dad52b3bae3b491b6d68bcf31e0e.jpg",
+              "episode_count": 24,
+              "author": "B站提升学习大讲堂",
+              "cover": "https://i2.hdslb.com/bfs/archive/df1fe72e50c6875eaa8853a876faaa52494866f1.jpg",
               "detail_path": "/data/courses/k12_chinese_g10.json"
             },
             "captions": [],
             "interactive_nodes": [
               {
                 "timestamp": 0,
-                "keyword": "1.第一单元起始课",
+                "keyword": "1课内诗词精讲高中统编必修上沁园春·长沙",
                 "type": "concept",
-                "context": "本讲的核心概念——1.第一单元起始课。",
-                "hint": "第 1 讲「01.1.第一单元起始课」的关键点。",
+                "context": "本讲的核心概念——1课内诗词精讲高中统编必修上沁园春·长沙。",
+                "hint": "第 1 讲「1.1【课内诗词精讲】高中统编必修上《沁园春·长沙》」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "2.沁园春·长沙——激扬青春当拿云",
+                "keyword": "2课内诗词精讲高中统编必修上芣苢",
                 "type": "concept",
-                "context": "本讲的核心概念——2.沁园春·长沙——激扬青春当拿云。",
-                "hint": "第 2 讲「02.2.沁园春·长沙——激扬青春当拿云」的关键点。",
+                "context": "本讲的核心概念——2课内诗词精讲高中统编必修上芣苢。",
+                "hint": "第 2 讲「2.2【课内诗词精讲】高中统编必修上《芣苢》」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "4.红烛——为理想而献身的青春底色",
+                "keyword": "3课内诗词精讲高中统编必修上插秧歌",
                 "type": "concept",
-                "context": "本讲的核心概念——4.红烛——为理想而献身的青春底色。",
-                "hint": "第 4 讲「04.4.红烛——为理想而献身的青春底色」的关键点。",
+                "context": "本讲的核心概念——3课内诗词精讲高中统编必修上插秧歌。",
+                "hint": "第 3 讲「3.3【课内诗词精讲】高中统编必修上《插秧歌》」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "5.峨日朵雪峰之侧",
+                "keyword": "4课内诗词精讲高中统编选必下离骚",
                 "type": "concept",
-                "context": "本讲的核心概念——5.峨日朵雪峰之侧。",
-                "hint": "第 5 讲「05.5.峨日朵雪峰之侧」的关键点。",
+                "context": "本讲的核心概念——4课内诗词精讲高中统编选必下离骚。",
+                "hint": "第 4 讲「4.4【课内诗词精讲】高中统编选必下《离骚》」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "6.致云雀——一曲追求自由的青春礼赞",
+                "keyword": "5课内诗词精讲高中统编选必下氓",
                 "type": "concept",
-                "context": "本讲的核心概念——6.致云雀——一曲追求自由的青春礼赞。",
-                "hint": "第 6 讲「06.6.致云雀——一曲追求自由的青春礼赞」的关键点。",
+                "context": "本讲的核心概念——5课内诗词精讲高中统编选必下氓。",
+                "hint": "第 5 讲「5.5【课内诗词精讲】高中统编选必下《氓》」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "7.百合花哦，香雪联读",
+                "keyword": "6课内诗词精讲高中统编选必下孔雀东南飞上",
                 "type": "concept",
-                "context": "本讲的核心概念——7.百合花哦，香雪联读。",
-                "hint": "第 7 讲「07.7.《百合花》《哦，香雪》联读（第一课时）」的关键点。",
+                "context": "本讲的核心概念——6课内诗词精讲高中统编选必下孔雀东南飞上。",
+                "hint": "第 6 讲「6.6【课内诗词精讲】高中统编选必下《孔雀东南飞》（上）」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "8.百合花哦，香雪联读",
+                "keyword": "7课内诗词精讲高中统编选必下孔雀东南飞下",
                 "type": "concept",
-                "context": "本讲的核心概念——8.百合花哦，香雪联读。",
-                "hint": "第 8 讲「08.8.《百合花》《哦，香雪》联读（第二课时）」的关键点。",
+                "context": "本讲的核心概念——7课内诗词精讲高中统编选必下孔雀东南飞下。",
+                "hint": "第 7 讲「7.7【课内诗词精讲】高中统编选必下《孔雀东南飞》（下）」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "10.第二单元起始课",
+                "keyword": "8课内诗词精讲高中统编选必下蜀道难",
                 "type": "concept",
-                "context": "本讲的核心概念——10.第二单元起始课。",
-                "hint": "第 10 讲「10.10.第二单元起始课」的关键点。",
+                "context": "本讲的核心概念——8课内诗词精讲高中统编选必下蜀道难。",
+                "hint": "第 8 讲「8.8【课内诗词精讲】高中统编选必下《蜀道难》」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "12.心有一团火，温暖众人心",
+                "keyword": "9课内诗词精讲高中统编选必下蜀相",
                 "type": "concept",
-                "context": "本讲的核心概念——12.心有一团火，温暖众人心。",
-                "hint": "第 12 讲「12.12.心有一团火，温暖众人心」的关键点。",
+                "context": "本讲的核心概念——9课内诗词精讲高中统编选必下蜀相。",
+                "hint": "第 9 讲「9.9【课内诗词精讲】高中统编选必下《蜀相》」的关键点。",
+                "context_label": "知识节点",
+                "origin": "generated"
+              },
+              {
+                "timestamp": 0,
+                "keyword": "10课内诗词精讲高中统编选必下望海潮",
+                "type": "concept",
+                "context": "本讲的核心概念——10课内诗词精讲高中统编选必下望海潮。",
+                "hint": "第 10 讲「10.10【【课内诗词精讲】高中统编选必下《望海潮》」的关键点。",
+                "context_label": "知识节点",
+                "origin": "generated"
+              },
+              {
+                "timestamp": 0,
+                "keyword": "11课内诗词精讲高中统编选必下扬州慢",
+                "type": "concept",
+                "context": "本讲的核心概念——11课内诗词精讲高中统编选必下扬州慢。",
+                "hint": "第 11 讲「11.11【课内诗词精讲】高中统编选必下《扬州慢》」的关键点。",
+                "context_label": "知识节点",
+                "origin": "generated"
+              },
+              {
+                "timestamp": 0,
+                "keyword": "12课内诗词精讲高中统编必修上短歌行",
+                "type": "concept",
+                "context": "本讲的核心概念——12课内诗词精讲高中统编必修上短歌行。",
+                "hint": "第 12 讲「12.12【课内诗词精讲】高中统编必修上《短歌行》」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               }
             ],
             "guided_segments": [],
-            "academic_intro": "本册语文同步课覆盖必修一、必修二全部教材单元，共 54 课时，按课时逐节精讲，配套课前诊断与随堂检测。",
+            "academic_intro": "本册语文同步课覆盖必修一、必修二全部教材单元，共 24 课时，按课时逐节精讲，配套课前诊断与随堂检测。",
             "is_structured": true,
             "is_default": false
           },
@@ -3136,11 +3126,11 @@
             "id": "k12_chinese_g12",
             "resource_type": "video",
             "title": "高中高三语文（一轮复习+二轮专题）部编版同步精讲",
-            "source": "Bilibili · 高中学习之家",
+            "source": "Bilibili · 大晴小汐妈咪",
             "provider": "Bilibili",
-            "url": "https://www.bilibili.com/video/BV1Vg411N7mk",
-            "fallback_url": "https://www.bilibili.com/video/BV1Vg411N7mk",
-            "ai_context": "这是《高中高三语文（一轮复习+二轮专题）部编版同步精讲》——语文同步精讲。\n教材版本：国家统编版（部编版）；册次：一轮复习、二轮专题；适用年龄：17–18 岁。\n全系列共 25 课时，当前正在学习其中一课时。\n讲解时请贴合该年级学生的认知水平：小学重直觉与形象，初中重推理与建模，高中重严谨推导与抽象表达。\n如果学习者诊断结果显示基础薄弱，请从生活直觉与具体例子切入，避免直接堆砌高阶公式。",
+            "url": "https://www.bilibili.com/video/BV1GF4m1L7Ta",
+            "fallback_url": "https://www.bilibili.com/video/BV1GF4m1L7Ta",
+            "ai_context": "这是《高中高三语文（一轮复习+二轮专题）部编版同步精讲》——语文同步精讲。\n教材版本：国家统编版（部编版）；册次：一轮复习、二轮专题；适用年龄：17–18 岁。\n全系列共 6 课时，当前正在学习其中一课时。\n讲解时请贴合该年级学生的认知水平：小学重直觉与形象，初中重推理与建模，高中重严谨推导与抽象表达。\n如果学习者诊断结果显示基础薄弱，请从生活直觉与具体例子切入，避免直接堆砌高阶公式。",
             "tags": [
               "高中部",
               "第 12 年级",
@@ -3158,131 +3148,70 @@
                 "一轮复习",
                 "二轮专题"
               ],
-              "episode_count": 25,
-              "author": "高中学习之家",
-              "cover": "https://i0.hdslb.com/bfs/archive/a060677c1e0a2d788147f43d7e836be8db9caffa.png",
+              "episode_count": 6,
+              "author": "大晴小汐妈咪",
+              "cover": "https://i0.hdslb.com/bfs/archive/5ace6895672493af55aa9a8601e931317f75430a.png",
               "detail_path": "/data/courses/k12_chinese_g12.json"
             },
             "captions": [],
             "interactive_nodes": [
               {
                 "timestamp": 0,
-                "keyword": "论述类现代文阅读",
+                "keyword": "7课1节短歌行1",
                 "type": "concept",
-                "context": "本讲的核心概念——论述类现代文阅读。",
-                "hint": "第 1 讲「论述类现代文阅读」的关键点。",
+                "context": "本讲的核心概念——7课1节短歌行1。",
+                "hint": "第 1 讲「7课1节《短歌行》1」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "实用类现代文阅读",
+                "keyword": "7课2节短歌行2",
                 "type": "concept",
-                "context": "本讲的核心概念——实用类现代文阅读。",
-                "hint": "第 2 讲「实用类现代文阅读」的关键点。",
+                "context": "本讲的核心概念——7课2节短歌行2。",
+                "hint": "第 2 讲「7课2节《短歌行》2」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "文学类文本阅读",
+                "keyword": "7课3节归园田居其一",
                 "type": "concept",
-                "context": "本讲的核心概念——文学类文本阅读。",
-                "hint": "第 3 讲「文学类文本阅读」的关键点。",
+                "context": "本讲的核心概念——7课3节归园田居其一。",
+                "hint": "第 3 讲「7课3节《归园田居》其一」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "文言文阅读",
+                "keyword": "8课1节梦游天姥吟留别1",
                 "type": "concept",
-                "context": "本讲的核心概念——文言文阅读。",
-                "hint": "第 4 讲「文言文阅读」的关键点。",
+                "context": "本讲的核心概念——8课1节梦游天姥吟留别1。",
+                "hint": "第 4 讲「8课1节《梦游天姥吟留别》1」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "古代诗歌阅读",
+                "keyword": "8课2节梦游天姥吟留别2",
                 "type": "concept",
-                "context": "本讲的核心概念——古代诗歌阅读。",
-                "hint": "第 5 讲「古代诗歌阅读」的关键点。",
+                "context": "本讲的核心概念——8课2节梦游天姥吟留别2。",
+                "hint": "第 5 讲「8课2节《梦游天姥吟留别》2」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "语基语用及默写",
+                "keyword": "8课3节梦游天姥吟留别3",
                 "type": "concept",
-                "context": "本讲的核心概念——语基语用及默写。",
-                "hint": "第 6 讲「语基 语用及默写」的关键点。",
-                "context_label": "知识节点",
-                "origin": "generated"
-              },
-              {
-                "timestamp": 0,
-                "keyword": "整本书阅读的技巧",
-                "type": "concept",
-                "context": "本讲的核心概念——整本书阅读、技巧。",
-                "hint": "第 7 讲「整本书阅读的技巧」的关键点。",
-                "context_label": "知识节点",
-                "origin": "generated"
-              },
-              {
-                "timestamp": 0,
-                "keyword": "微写作",
-                "type": "concept",
-                "context": "本讲的核心概念——微写作。",
-                "hint": "第 8 讲「微写作」的关键点。",
-                "context_label": "知识节点",
-                "origin": "generated"
-              },
-              {
-                "timestamp": 0,
-                "keyword": "议论文写作",
-                "type": "concept",
-                "context": "本讲的核心概念——议论文写作。",
-                "hint": "第 9 讲「议论文写作」的关键点。",
-                "context_label": "知识节点",
-                "origin": "generated"
-              },
-              {
-                "timestamp": 0,
-                "keyword": "记叙类写作",
-                "type": "concept",
-                "context": "本讲的核心概念——记叙类写作。",
-                "hint": "第 10 讲「记叙类写作」的关键点。",
-                "context_label": "知识节点",
-                "origin": "generated"
-              },
-              {
-                "timestamp": 0,
-                "keyword": "语言基础运用：2020新增板块备考",
-                "type": "concept",
-                "context": "本讲的核心概念——语言基础运用：2020新增板块备考。",
-                "hint": "第 11 讲「语言基础运用：2020新增板块备考」的关键点。",
-                "context_label": "知识节点",
-                "origin": "generated"
-              },
-              {
-                "timestamp": 0,
-                "keyword": "古诗阅读：读懂文本，读懂考题",
-                "type": "concept",
-                "context": "本讲的核心概念——古诗阅读：读懂文本，读懂考题。",
-                "hint": "第 12 讲「古诗阅读：读懂文本，读懂考题」的关键点。",
+                "context": "本讲的核心概念——8课3节梦游天姥吟留别3。",
+                "hint": "第 6 讲「8课3节《梦游天姥吟留别》3」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               }
             ],
-            "guided_segments": [
-              {
-                "timestamp": 0,
-                "title": "整本书阅读",
-                "content": "围绕「整本书阅读的技巧」展开的讲解要点。",
-                "origin": "generated"
-              }
-            ],
-            "academic_intro": "本册语文同步课覆盖一轮复习、二轮专题全部教材单元，共 25 课时，按课时逐节精讲，配套课前诊断与随堂检测。",
+            "guided_segments": [],
+            "academic_intro": "本册语文同步课覆盖一轮复习、二轮专题全部教材单元，共 6 课时，按课时逐节精讲，配套课前诊断与随堂检测。",
             "is_structured": true,
             "is_default": false
           },
@@ -3290,11 +3219,11 @@
             "id": "k12_math_g10",
             "resource_type": "video",
             "title": "高中高一数学（必修一+必修二）人教 A 版同步精讲",
-            "source": "Bilibili · 初高中网课分享",
+            "source": "Bilibili · 读书拒绝当牛马-_-",
             "provider": "Bilibili",
-            "url": "https://www.bilibili.com/video/BV1eYroBHEU3",
-            "fallback_url": "https://www.bilibili.com/video/BV1eYroBHEU3",
-            "ai_context": "这是《高中高一数学（必修一+必修二）人教 A 版同步精讲》——数学同步精讲。\n教材版本：人教版；册次：必修一、必修二；适用年龄：15–16 岁。\n全系列共 95 课时，当前正在学习其中一课时。\n讲解时请贴合该年级学生的认知水平：小学重直觉与形象，初中重推理与建模，高中重严谨推导与抽象表达。\n如果学习者诊断结果显示基础薄弱，请从生活直觉与具体例子切入，避免直接堆砌高阶公式。",
+            "url": "https://www.bilibili.com/video/BV1vDyhzyEQ8",
+            "fallback_url": "https://www.bilibili.com/video/BV1vDyhzyEQ8",
+            "ai_context": "这是《高中高一数学（必修一+必修二）人教 A 版同步精讲》——数学同步精讲。\n教材版本：人教版；册次：必修一、必修二；适用年龄：15–16 岁。\n全系列共 40 课时，当前正在学习其中一课时。\n讲解时请贴合该年级学生的认知水平：小学重直觉与形象，初中重推理与建模，高中重严谨推导与抽象表达。\n如果学习者诊断结果显示基础薄弱，请从生活直觉与具体例子切入，避免直接堆砌高阶公式。",
             "tags": [
               "高中部",
               "第 10 年级",
@@ -3312,118 +3241,118 @@
                 "必修一",
                 "必修二"
               ],
-              "episode_count": 95,
-              "author": "初高中网课分享",
-              "cover": "https://i2.hdslb.com/bfs/archive/401dedc526747541ac34a65f1298aa04d1ec32d2.jpg",
+              "episode_count": 40,
+              "author": "读书拒绝当牛马-_-",
+              "cover": "https://i0.hdslb.com/bfs/archive/9f617313efcc873cd2730660522351920090aac0.jpg",
               "detail_path": "/data/courses/k12_math_g10.json"
             },
             "captions": [],
             "interactive_nodes": [
               {
                 "timestamp": 0,
-                "keyword": "集合的概念与表示",
+                "keyword": "P1-1_集合的概念与表示",
                 "type": "concept",
-                "context": "本讲的核心概念——集合、概念与表示。",
-                "hint": "第 1 讲「1_【基础篇】集合的概念与表示」的关键点。",
+                "context": "本讲的核心概念——P1-1_集合、概念与表示。",
+                "hint": "第 1 讲「P1-1_【基础篇】集合的概念与表示」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "集合的关系与运算",
+                "keyword": "P2-2_集合的关系与运算",
                 "type": "concept",
-                "context": "本讲的核心概念——集合、关系与运算。",
-                "hint": "第 2 讲「2_【基础篇】集合的关系与运算」的关键点。",
+                "context": "本讲的核心概念——P2-2_集合、关系与运算。",
+                "hint": "第 2 讲「P2-2_【基础篇】集合的关系与运算」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "集合基础练习",
+                "keyword": "P3-3_集合基础练习",
                 "type": "concept",
-                "context": "本讲的核心概念——集合基础练习。",
-                "hint": "第 3 讲「3_【基础篇】集合基础练习」的关键点。",
+                "context": "本讲的核心概念——P3-3_集合基础练习。",
+                "hint": "第 3 讲「P3-3_【基础篇】集合基础练习」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "集合的定义与运算",
+                "keyword": "P4-4_集合的定义与运算",
                 "type": "concept",
-                "context": "本讲的核心概念——集合、定义与运算。",
-                "hint": "第 4 讲「4_【进阶篇】集合的定义与运算」的关键点。",
+                "context": "本讲的核心概念——P4-4_集合、定义与运算。",
+                "hint": "第 4 讲「P4-4_【进阶篇】集合的定义与运算」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "命题与量词",
+                "keyword": "P5-5_命题与量词",
                 "type": "concept",
-                "context": "本讲的核心概念——命题与量词。",
-                "hint": "第 5 讲「5_【基础篇】命题与量词」的关键点。",
+                "context": "本讲的核心概念——P5-5_命题与量词。",
+                "hint": "第 5 讲「P5-5_【基础篇】命题与量词」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "逻辑联结词",
+                "keyword": "P6-6_逻辑联结词",
                 "type": "concept",
-                "context": "本讲的核心概念——逻辑联结词。",
-                "hint": "第 6 讲「6_【基础篇】逻辑联结词」的关键点。",
+                "context": "本讲的核心概念——P6-6_逻辑联结词。",
+                "hint": "第 6 讲「P6-6_【基础篇】逻辑联结词」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "命题的四种形式",
+                "keyword": "P7-7_命题的四种形式",
                 "type": "concept",
-                "context": "本讲的核心概念——命题、四种形式。",
-                "hint": "第 7 讲「7_【基础篇】命题的四种形式」的关键点。",
+                "context": "本讲的核心概念——P7-7_命题、四种形式。",
+                "hint": "第 7 讲「P7-7_【基础篇】命题的四种形式」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "充分必要条件",
+                "keyword": "P8-8_充分必要条件",
                 "type": "concept",
-                "context": "本讲的核心概念——充分必要条件。",
-                "hint": "第 8 讲「8_【基础篇】充分必要条件」的关键点。",
+                "context": "本讲的核心概念——P8-8_充分必要条件。",
+                "hint": "第 8 讲「P8-8_【基础篇】充分必要条件」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "简易逻辑基础练习",
+                "keyword": "P9-9_简易逻辑基础练习",
                 "type": "concept",
-                "context": "本讲的核心概念——简易逻辑基础练习。",
-                "hint": "第 9 讲「9_【基础篇】简易逻辑基础练习」的关键点。",
+                "context": "本讲的核心概念——P9-9_简易逻辑基础练习。",
+                "hint": "第 9 讲「P9-9_【基础篇】简易逻辑基础练习」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "充分条件与必要条件",
+                "keyword": "P10-10_充分条件与必要条件",
                 "type": "concept",
-                "context": "本讲的核心概念——充分条件与必要条件。",
-                "hint": "第 10 讲「10_【进阶篇】充分条件与必要条件」的关键点。",
+                "context": "本讲的核心概念——P10-10_充分条件与必要条件。",
+                "hint": "第 10 讲「P10-10_【进阶篇】充分条件与必要条件」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "全称和存在量词",
+                "keyword": "P11-11_全称和存在量词",
                 "type": "concept",
-                "context": "本讲的核心概念——全称和存在量词。",
-                "hint": "第 11 讲「11_【进阶篇】全称和存在量词」的关键点。",
+                "context": "本讲的核心概念——P11-11_全称和存在量词。",
+                "hint": "第 11 讲「P11-11_【进阶篇】全称和存在量词」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "二次函数",
+                "keyword": "P12-12_二次函数",
                 "type": "concept",
-                "context": "本讲的核心概念——二次函数。",
-                "hint": "第 12 讲「12_【基础篇】二次函数」的关键点。",
+                "context": "本讲的核心概念——P12-12_二次函数。",
+                "hint": "第 12 讲「P12-12_【基础篇】二次函数」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               }
@@ -3431,30 +3360,30 @@
             "guided_segments": [
               {
                 "timestamp": 0,
-                "title": "集合",
-                "content": "围绕「集合的概念与表示」展开的讲解要点。",
+                "title": "P1-1_集合",
+                "content": "围绕「P1-1_集合的概念与表示」展开的讲解要点。",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "title": "集合",
-                "content": "围绕「集合的关系与运算」展开的讲解要点。",
+                "title": "P2-2_集合",
+                "content": "围绕「P2-2_集合的关系与运算」展开的讲解要点。",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "title": "集合",
-                "content": "围绕「集合的定义与运算」展开的讲解要点。",
+                "title": "P4-4_集合",
+                "content": "围绕「P4-4_集合的定义与运算」展开的讲解要点。",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "title": "命题",
-                "content": "围绕「命题的四种形式」展开的讲解要点。",
+                "title": "P7-7_命题",
+                "content": "围绕「P7-7_命题的四种形式」展开的讲解要点。",
                 "origin": "generated"
               }
             ],
-            "academic_intro": "本册数学同步课覆盖必修一、必修二全部教材单元，共 95 课时，按课时逐节精讲，配套课前诊断与随堂检测。",
+            "academic_intro": "本册数学同步课覆盖必修一、必修二全部教材单元，共 40 课时，按课时逐节精讲，配套课前诊断与随堂检测。",
             "is_structured": true,
             "is_default": false
           },
@@ -3462,11 +3391,11 @@
             "id": "k12_math_g11",
             "resource_type": "video",
             "title": "高中高二数学（选择性必修一+选择性必修二）人教 A 版同步精讲",
-            "source": "Bilibili · 小初高网课分享-",
+            "source": "Bilibili · 一般般的小猫爱吃鱼",
             "provider": "Bilibili",
-            "url": "https://www.bilibili.com/video/BV1QRTZ6KE49",
-            "fallback_url": "https://www.bilibili.com/video/BV1QRTZ6KE49",
-            "ai_context": "这是《高中高二数学（选择性必修一+选择性必修二）人教 A 版同步精讲》——数学同步精讲。\n教材版本：人教版；册次：选择性必修一、选择性必修二；适用年龄：16–17 岁。\n全系列共 82 课时，当前正在学习其中一课时。\n讲解时请贴合该年级学生的认知水平：小学重直觉与形象，初中重推理与建模，高中重严谨推导与抽象表达。\n如果学习者诊断结果显示基础薄弱，请从生活直觉与具体例子切入，避免直接堆砌高阶公式。",
+            "url": "https://www.bilibili.com/video/BV1SuGFz8E95",
+            "fallback_url": "https://www.bilibili.com/video/BV1SuGFz8E95",
+            "ai_context": "这是《高中高二数学（选择性必修一+选择性必修二）人教 A 版同步精讲》——数学同步精讲。\n教材版本：人教版；册次：选择性必修一、选择性必修二；适用年龄：16–17 岁。\n全系列共 38 课时，当前正在学习其中一课时。\n讲解时请贴合该年级学生的认知水平：小学重直觉与形象，初中重推理与建模，高中重严谨推导与抽象表达。\n如果学习者诊断结果显示基础薄弱，请从生活直觉与具体例子切入，避免直接堆砌高阶公式。",
             "tags": [
               "高中部",
               "第 11 年级",
@@ -3484,118 +3413,118 @@
                 "选择性必修一",
                 "选择性必修二"
               ],
-              "episode_count": 82,
-              "author": "小初高网课分享-",
-              "cover": "https://i0.hdslb.com/bfs/archive/00884ecac74f8e9aa0681a02d39331219925eed5.jpg",
+              "episode_count": 38,
+              "author": "一般般的小猫爱吃鱼",
+              "cover": "https://i0.hdslb.com/bfs/archive/c9935afa87a8b5993a108a3ff10bfa1dac3dbc24.png",
               "detail_path": "/data/courses/k12_math_g11.json"
             },
             "captions": [],
             "interactive_nodes": [
               {
                 "timestamp": 0,
-                "keyword": "空间向量与运算",
+                "keyword": "高二數學觀念餘弦的和角與差角公式",
                 "type": "concept",
-                "context": "本讲的核心概念——空间向量与运算。",
-                "hint": "第 1 讲「1_【基础篇】空间向量与运算」的关键点。",
+                "context": "本讲的核心概念——高二數學觀念餘弦、和角與差角公式。",
+                "hint": "第 1 讲「1.高二數學｜【觀念】餘弦的和角與差角公式」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "空间向量在立体几何中的应用",
+                "keyword": "高二數學觀念正弦與正切的和角與差角公式",
                 "type": "concept",
-                "context": "本讲的核心概念——空间向量在立体几何中、应用。",
-                "hint": "第 2 讲「2_【基础篇】空间向量在立体几何中的应用」的关键点。",
+                "context": "本讲的核心概念——高二數學觀念正弦與正切的和角與差角公式。",
+                "hint": "第 2 讲「2.高二數學｜【觀念】正弦與正切的和角與差角公式」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "空间向量与立体几何基础练习",
+                "keyword": "高二數學觀念倍角公式",
                 "type": "concept",
-                "context": "本讲的核心概念——空间向量与立体几何基础练习。",
-                "hint": "第 3 讲「3_【基础篇】空间向量与立体几何基础练习」的关键点。",
+                "context": "本讲的核心概念——高二數學觀念倍角公式。",
+                "hint": "第 3 讲「3.高二數學｜【觀念】倍角公式」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "空间向量基础",
+                "keyword": "高二數學觀念半角公式",
                 "type": "concept",
-                "context": "本讲的核心概念——空间向量基础。",
-                "hint": "第 4 讲「4_【进阶篇】空间向量基础」的关键点。",
+                "context": "本讲的核心概念——高二數學觀念半角公式。",
+                "hint": "第 4 讲「4.高二數學｜【觀念】半角公式」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "空间向量在立体几何中的应用",
+                "keyword": "高二數學觀念三角比公式與正餘弦定理",
                 "type": "concept",
-                "context": "本讲的核心概念——空间向量在立体几何中、应用。",
-                "hint": "第 5 讲「5_【进阶篇】空间向量在立体几何中的应用」的关键点。",
+                "context": "本讲的核心概念——高二數學觀念三角比公式與正餘弦定理。",
+                "hint": "第 5 讲「5.高二數學｜【觀念】三角比公式與正餘弦定理」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "空间中的探究性问题",
+                "keyword": "高二數學暖身弧度制",
                 "type": "concept",
-                "context": "本讲的核心概念——空间中、探究性问题。",
-                "hint": "第 6 讲「6_【进阶篇】空间中的探究性问题」的关键点。",
+                "context": "本讲的核心概念——高二數學暖身弧度制。",
+                "hint": "第 6 讲「6.高二數學｜【暖身】弧度制」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "直线的方程",
+                "keyword": "高二數學觀念弧度與三角比",
                 "type": "concept",
-                "context": "本讲的核心概念——直线、方程。",
-                "hint": "第 7 讲「7_【基础篇】直线的方程」的关键点。",
+                "context": "本讲的核心概念——高二數學觀念弧度與三角比。",
+                "hint": "第 7 讲「7.高二數學｜【觀念】弧度與三角比」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "直线的位置关系",
+                "keyword": "高二數學暖身利用計算機計算三角比",
                 "type": "concept",
-                "context": "本讲的核心概念——直线、位置关系。",
-                "hint": "第 8 讲「8_【基础篇】直线的位置关系」的关键点。",
+                "context": "本讲的核心概念——高二數學暖身利用計算機計算三角比。",
+                "hint": "第 8 讲「8.高二數學｜【暖身】利用計算機計算三角比」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "直线的方程基础练习",
+                "keyword": "高二數學觀念扇形的弧長、周長與面積",
                 "type": "concept",
-                "context": "本讲的核心概念——直线、方程基础练习。",
-                "hint": "第 9 讲「9_【基础篇】直线的方程基础练习」的关键点。",
+                "context": "本讲的核心概念——高二數學觀念扇形、弧長、周長與面積。",
+                "hint": "第 9 讲「9.高二數學｜【觀念】扇形的弧長、周長與面積」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "圆的两种方程",
+                "keyword": "高二數學暖身函數圖形",
                 "type": "concept",
-                "context": "本讲的核心概念——圆的两种方程。",
-                "hint": "第 10 讲「10_【基础篇】圆的两种方程」的关键点。",
+                "context": "本讲的核心概念——高二數學暖身函數圖形。",
+                "hint": "第 10 讲「10.高二數學｜【暖身】函數圖形」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "直线和圆的位置关系",
+                "keyword": "高二數學觀念正弦函數的圖形",
                 "type": "concept",
-                "context": "本讲的核心概念——直线和圆、位置关系。",
-                "hint": "第 11 讲「11_【基础篇】直线和圆的位置关系」的关键点。",
+                "context": "本讲的核心概念——高二數學觀念正弦函數的圖形。",
+                "hint": "第 11 讲「11.高二數學｜【觀念】正弦函數的圖形」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "圆的方程真题基础练习",
+                "keyword": "高二數學觀念正弦函數圖形的平移",
                 "type": "concept",
-                "context": "本讲的核心概念——圆的方程真题基础练习。",
-                "hint": "第 12 讲「12_【基础篇】圆的方程真题基础练习」的关键点。",
+                "context": "本讲的核心概念——高二數學觀念正弦函數圖形的平移。",
+                "hint": "第 12 讲「12.高二數學｜【觀念】正弦函數圖形的平移」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               }
@@ -3603,48 +3532,18 @@
             "guided_segments": [
               {
                 "timestamp": 0,
-                "title": "空间向量在立体几何中",
-                "content": "围绕「空间向量在立体几何中的应用」展开的讲解要点。",
+                "title": "高二數學觀念餘弦",
+                "content": "围绕「高二數學觀念餘弦的和角與差角公式」展开的讲解要点。",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "title": "空间向量在立体几何中",
-                "content": "围绕「空间向量在立体几何中的应用」展开的讲解要点。",
-                "origin": "generated"
-              },
-              {
-                "timestamp": 0,
-                "title": "空间中",
-                "content": "围绕「空间中的探究性问题」展开的讲解要点。",
-                "origin": "generated"
-              },
-              {
-                "timestamp": 0,
-                "title": "直线",
-                "content": "围绕「直线的方程」展开的讲解要点。",
-                "origin": "generated"
-              },
-              {
-                "timestamp": 0,
-                "title": "直线",
-                "content": "围绕「直线的位置关系」展开的讲解要点。",
-                "origin": "generated"
-              },
-              {
-                "timestamp": 0,
-                "title": "直线",
-                "content": "围绕「直线的方程基础练习」展开的讲解要点。",
-                "origin": "generated"
-              },
-              {
-                "timestamp": 0,
-                "title": "直线和圆",
-                "content": "围绕「直线和圆的位置关系」展开的讲解要点。",
+                "title": "高二數學觀念扇形",
+                "content": "围绕「高二數學觀念扇形的弧長、周長與面積」展开的讲解要点。",
                 "origin": "generated"
               }
             ],
-            "academic_intro": "本册数学同步课覆盖选择性必修一、选择性必修二全部教材单元，共 82 课时，按课时逐节精讲，配套课前诊断与随堂检测。",
+            "academic_intro": "本册数学同步课覆盖选择性必修一、选择性必修二全部教材单元，共 38 课时，按课时逐节精讲，配套课前诊断与随堂检测。",
             "is_structured": true,
             "is_default": false
           },
@@ -3652,11 +3551,11 @@
             "id": "k12_math_g12",
             "resource_type": "video",
             "title": "高中高三数学（一轮复习+二轮专题）人教 A 版同步精讲",
-            "source": "Bilibili · 高中数学JT老师",
+            "source": "Bilibili · 脑子说它会了-_-",
             "provider": "Bilibili",
-            "url": "https://www.bilibili.com/video/BV1nZ4y1k7Cq",
-            "fallback_url": "https://www.bilibili.com/video/BV1nZ4y1k7Cq",
-            "ai_context": "这是《高中高三数学（一轮复习+二轮专题）人教 A 版同步精讲》——数学同步精讲。\n教材版本：人教版；册次：一轮复习、二轮专题；适用年龄：17–18 岁。\n全系列共 198 课时，当前正在学习其中一课时。\n讲解时请贴合该年级学生的认知水平：小学重直觉与形象，初中重推理与建模，高中重严谨推导与抽象表达。\n如果学习者诊断结果显示基础薄弱，请从生活直觉与具体例子切入，避免直接堆砌高阶公式。",
+            "url": "https://www.bilibili.com/video/BV1P7y3ziE1j",
+            "fallback_url": "https://www.bilibili.com/video/BV1P7y3ziE1j",
+            "ai_context": "这是《高中高三数学（一轮复习+二轮专题）人教 A 版同步精讲》——数学同步精讲。\n教材版本：人教版；册次：一轮复习、二轮专题；适用年龄：17–18 岁。\n全系列共 60 课时，当前正在学习其中一课时。\n讲解时请贴合该年级学生的认知水平：小学重直觉与形象，初中重推理与建模，高中重严谨推导与抽象表达。\n如果学习者诊断结果显示基础薄弱，请从生活直觉与具体例子切入，避免直接堆砌高阶公式。",
             "tags": [
               "高中部",
               "第 12 年级",
@@ -3674,124 +3573,179 @@
                 "一轮复习",
                 "二轮专题"
               ],
-              "episode_count": 198,
-              "author": "高中数学JT老师",
-              "cover": "https://i0.hdslb.com/bfs/archive/5edaa52a4ec92357e0ab4623b69c0e1d5d63ad43.png",
+              "episode_count": 60,
+              "author": "脑子说它会了-_-",
+              "cover": "https://i0.hdslb.com/bfs/archive/1663134458f16a0aa09177c6fe21e8a63d130c47.jpg",
               "detail_path": "/data/courses/k12_math_g12.json"
             },
             "captions": [],
             "interactive_nodes": [
               {
                 "timestamp": 0,
-                "keyword": "二轮专题突破集合",
+                "keyword": "集合与元素",
                 "type": "concept",
-                "context": "本讲的核心概念——二轮专题突破集合。",
-                "hint": "第 1 讲「二轮专题突破（集合）」的关键点。",
+                "context": "本讲的核心概念——集合与元素。",
+                "hint": "第 1 讲「01.集合与元素」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "二轮专题突破集合",
+                "keyword": "集合中的符号学",
                 "type": "concept",
-                "context": "本讲的核心概念——二轮专题突破集合。",
-                "hint": "第 2 讲「二轮专题突破(集合)」的关键点。",
+                "context": "本讲的核心概念——集合中、符号学。",
+                "hint": "第 2 讲「02.集合中的符号学」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "二轮专题突破集合",
+                "keyword": "集合的表示方法",
                 "type": "concept",
-                "context": "本讲的核心概念——二轮专题突破集合。",
-                "hint": "第 3 讲「二轮专题突破(集合)」的关键点。",
+                "context": "本讲的核心概念——集合、表示方法。",
+                "hint": "第 3 讲「03.集合的表示方法」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "二轮专题突破集合",
+                "keyword": "互异性的常见习题",
                 "type": "concept",
-                "context": "本讲的核心概念——二轮专题突破集合。",
-                "hint": "第 4 讲「二轮专题突破(集合)」的关键点。",
+                "context": "本讲的核心概念——互异性、常见习题。",
+                "hint": "第 4 讲「04.互异性的常见习题」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "二轮专题突破集合",
+                "keyword": "读懂描述法表示的集合",
                 "type": "concept",
-                "context": "本讲的核心概念——二轮专题突破集合。",
-                "hint": "第 5 讲「二轮专题突破(集合)」的关键点。",
+                "context": "本讲的核心概念——读懂描述法表示、集合。",
+                "hint": "第 5 讲「05.读懂描述法表示的集合」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "二轮专题突破集合",
+                "keyword": "集合之间的包含与相等关系",
                 "type": "concept",
-                "context": "本讲的核心概念——二轮专题突破集合。",
-                "hint": "第 6 讲「二轮专题突破(集合)」的关键点。",
+                "context": "本讲的核心概念——集合之间、包含与相等关系。",
+                "hint": "第 6 讲「06.集合之间的包含与相等关系」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "二轮专题突破集合",
+                "keyword": "集合概念的辨析",
                 "type": "concept",
-                "context": "本讲的核心概念——二轮专题突破集合。",
-                "hint": "第 7 讲「二轮专题突破(集合)」的关键点。",
+                "context": "本讲的核心概念——集合概念、辨析。",
+                "hint": "第 7 讲「07.集合概念的辨析」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "二轮专题突破集合",
+                "keyword": "根据集合相等求参数",
                 "type": "concept",
-                "context": "本讲的核心概念——二轮专题突破集合。",
-                "hint": "第 8 讲「二轮专题突破(集合)」的关键点。",
+                "context": "本讲的核心概念——根据集合相等求参数。",
+                "hint": "第 8 讲「08.根据集合相等求参数」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "二轮专题突破集合",
+                "keyword": "子集与真子集的个数",
                 "type": "concept",
-                "context": "本讲的核心概念——二轮专题突破集合。",
-                "hint": "第 9 讲「二轮专题突破(集合)」的关键点。",
+                "context": "本讲的核心概念——子集与真子集、个数。",
+                "hint": "第 9 讲「09.子集与真子集的个数」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "二轮专题突破复数",
+                "keyword": "根据包含关系求参数",
                 "type": "concept",
-                "context": "本讲的核心概念——二轮专题突破复数。",
-                "hint": "第 10 讲「二轮专题突破（复数）」的关键点。",
+                "context": "本讲的核心概念——根据包含关系求参数。",
+                "hint": "第 10 讲「010.根据包含关系求参数」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "二轮专题突破复数",
+                "keyword": "集合的基本运算-交集",
                 "type": "concept",
-                "context": "本讲的核心概念——二轮专题突破复数。",
-                "hint": "第 11 讲「二轮专题突破（复数）」的关键点。",
+                "context": "本讲的核心概念——集合、基本运算-交集。",
+                "hint": "第 11 讲「11.集合的基本运算-交集」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               },
               {
                 "timestamp": 0,
-                "keyword": "二轮专题突破复数",
+                "keyword": "集合的基本运算-并集",
                 "type": "concept",
-                "context": "本讲的核心概念——二轮专题突破复数。",
-                "hint": "第 12 讲「二轮专题突破（复数）」的关键点。",
+                "context": "本讲的核心概念——集合、基本运算-并集。",
+                "hint": "第 12 讲「12.集合的基本运算-并集」的关键点。",
                 "context_label": "知识节点",
                 "origin": "generated"
               }
             ],
-            "guided_segments": [],
-            "academic_intro": "本册数学同步课覆盖一轮复习、二轮专题全部教材单元，共 198 课时，按课时逐节精讲，配套课前诊断与随堂检测。",
+            "guided_segments": [
+              {
+                "timestamp": 0,
+                "title": "集合中",
+                "content": "围绕「集合中的符号学」展开的讲解要点。",
+                "origin": "generated"
+              },
+              {
+                "timestamp": 0,
+                "title": "集合",
+                "content": "围绕「集合的表示方法」展开的讲解要点。",
+                "origin": "generated"
+              },
+              {
+                "timestamp": 0,
+                "title": "互异性",
+                "content": "围绕「互异性的常见习题」展开的讲解要点。",
+                "origin": "generated"
+              },
+              {
+                "timestamp": 0,
+                "title": "读懂描述法表示",
+                "content": "围绕「读懂描述法表示的集合」展开的讲解要点。",
+                "origin": "generated"
+              },
+              {
+                "timestamp": 0,
+                "title": "集合之间",
+                "content": "围绕「集合之间的包含与相等关系」展开的讲解要点。",
+                "origin": "generated"
+              },
+              {
+                "timestamp": 0,
+                "title": "集合概念",
+                "content": "围绕「集合概念的辨析」展开的讲解要点。",
+                "origin": "generated"
+              },
+              {
+                "timestamp": 0,
+                "title": "子集与真子集",
+                "content": "围绕「子集与真子集的个数」展开的讲解要点。",
+                "origin": "generated"
+              },
+              {
+                "timestamp": 0,
+                "title": "集合",
+                "content": "围绕「集合的基本运算-交集」展开的讲解要点。",
+                "origin": "generated"
+              },
+              {
+                "timestamp": 0,
+                "title": "集合",
+                "content": "围绕「集合的基本运算-并集」展开的讲解要点。",
+                "origin": "generated"
+              }
+            ],
+            "academic_intro": "本册数学同步课覆盖一轮复习、二轮专题全部教材单元，共 60 课时，按课时逐节精讲，配套课前诊断与随堂检测。",
             "is_structured": true,
             "is_default": false
           }

@@ -1,8 +1,21 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Download, Loader2, Upload, X } from "lucide-react";
+import {
+  ChevronDown,
+  Download,
+  GraduationCap,
+  Loader2,
+  Upload,
+  X,
+} from "lucide-react";
 import { useProfile } from "@/context/ProfileContext";
+import {
+  GRADE_OPTIONS,
+  STAGE_LABELS,
+  useGrade,
+} from "@/context/GradeContext";
+import { useLocale } from "@/context/LocaleContext";
 import { getLocalApiKey, setLocalApiKey, hasAiProxy } from "@/lib/local-ai";
 import { isStaticRuntime } from "@/shared/api/client";
 import type { Region } from "@/context/LocaleContext";
@@ -48,6 +61,8 @@ export function ProfileDrawer({
 }) {
   const { profile, meta, save, saving, exportArchive, importArchive } =
     useProfile();
+  const { grade, setGrade, option: gradeMeta } = useGrade();
+  const { tk } = useLocale();
 
   // 表单草稿——输入时用它，避免每敲一个字就重渲染整棵列表。
   const [nickname, setNickname] = useState(profile.nickname);
@@ -73,6 +88,13 @@ export function ProfileDrawer({
    */
   const proxyReady = hasAiProxy();
   const [avatarUrlDraft, setAvatarUrlDraft] = useState(profile.avatar_url);
+  /**
+   * 「高级设置」是否展开。
+   *
+   * API Key 区域**默认折叠**——它对 99% 的访客是无关信息，
+   * 摆在明面上只会吓退人。折叠成一行轻量入口，需要时点开。
+   */
+  const [advancedOpen, setAdvancedOpen] = useState(false);
   const [flash, setFlash] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const importRef = useRef<HTMLInputElement>(null);
@@ -353,15 +375,68 @@ export function ProfileDrawer({
             </p>
           </Field>
 
-          {/* AI 助教接入 */}
-          <div className="rounded-xl border border-[var(--border)] bg-[var(--muted)]/40 p-3">
-            <p className="text-[12px] font-medium">AI 助教</p>
+          {/* ── 当前年级 / 年龄 ── */}
+          <Field label={tk("profile.grade")}>
+            <div className="space-y-2">
+              {/* 学段分组。 */}
+              {(
+                ["primary", "junior", "senior"] as const
+              ).map((stage) => {
+                const options = GRADE_OPTIONS.filter(
+                  (item) => item.stage === stage,
+                );
+                return (
+                  <div key={stage}>
+                    <p className="mb-1 text-[10.5px] font-medium text-[var(--muted-foreground)]">
+                      {STAGE_LABELS[stage]}
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {options.map((item) => {
+                        const active = grade === item.number;
+                        return (
+                          <button
+                            key={item.number}
+                            type="button"
+                            onClick={() => setGrade(item.number)}
+                            aria-pressed={active}
+                            title={`${item.name} · ${item.ageRange[0]}–${item.ageRange[1]}岁`}
+                            className={cn(
+                              "rounded-lg border px-2 py-1 text-[11.5px] transition-colors",
+                              active
+                                ? "border-[var(--primary)] bg-[var(--primary)]/8 font-medium text-[var(--primary)]"
+                                : "border-[var(--border)] bg-white text-[var(--muted-foreground)] hover:bg-[var(--muted)]",
+                            )}
+                          >
+                            {item.name}
+                            <span className="ml-1 opacity-60">
+                              {item.ageRange[0]}–{item.ageRange[1]}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+              <p className="text-[10.5px] leading-relaxed text-[var(--muted-foreground)]">
+                {tk("profile.gradeHint")}
+              </p>
+            </div>
+          </Field>
 
-            {/* ── 转发代理状态 ──
-             *
-             * 站点配了 ``ai-proxy`` 时，访客**什么都不用填**就能对话。
-             * 这里明确告诉他这件事——否则他看到输入框会以为必须填 Key。
-             */}
+          {/* ── AI 助教接入 ──
+           *
+           * 「零门槛」是这一块的核心：站点配了 ai-proxy 时，访客
+           * **什么都不用填**就能直接聊天。所以主区块只讲这一件事，
+           * 自己的 API Key 收进**折叠的高级设置**里。
+           */}
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--muted)]/40 p-3">
+            <p className="flex items-center gap-1.5 text-[12px] font-medium">
+              <GraduationCap size={13} strokeWidth={2.2} className="text-[var(--primary)]" />
+              {tk("profile.aiTitle")}
+            </p>
+
+            {/* 状态条——只有一行。 */}
             <div
               className={cn(
                 "mt-2 rounded-lg border px-2.5 py-2 text-[11px] leading-relaxed",
@@ -372,93 +447,103 @@ export function ProfileDrawer({
             >
               {proxyReady ? (
                 <>
-                  <span className="font-medium">平台代理已就绪</span>
-                  <span className="ml-1">
-                    ——直接提问即可，无需配置任何 Key。下面这个输入框是
-                    可选的：填了就用你自己的额度，不消耗站点额度。
+                  <span className="font-medium">
+                    {tk("profile.aiProxyReady")}
                   </span>
+                  <span className="ml-1">{tk("profile.aiProxyReadyHint")}</span>
                 </>
               ) : (
-                <>
-                  当前站点未配置 AI 转发服务。填入 DeepSeek API Key 后，
-                  AI 助教就能直接回答你的问题——请求由你的浏览器发出，
-                  Key 只存在这台设备上。
-                </>
+                tk("profile.aiProxyMissing")
               )}
             </div>
 
-            <p className="mt-2 text-[11px] leading-relaxed text-[var(--muted-foreground)]">
-              {staticMode
-                ? "纯静态版本：Key 不会离开你的浏览器，也不会写入本项目的任何代码。"
-                : "留空则使用平台配置的模型。"}
-            </p>
-
-            <div className="mt-2.5">
-              <input
-                type="password"
-                value={apiKey}
-                onChange={(event) => {
-                  setApiKey(event.target.value);
-                  setKeyState("idle");
-                }}
-                placeholder="sk-..."
-                autoComplete="off"
-                spellCheck={false}
+            {/* ── 高级设置：自己的 Key（折叠）── */}
+            <button
+              type="button"
+              onClick={() => setAdvancedOpen((value) => !value)}
+              aria-expanded={advancedOpen}
+              className="mt-2 flex w-full items-center gap-1.5 rounded-lg px-1 py-1 text-[11.5px] text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
+            >
+              <ChevronDown
+                size={12}
+                strokeWidth={2.2}
                 className={cn(
-                  INPUT_CLASS,
-                  "font-mono text-[11px] placeholder:text-[var(--muted-foreground)]/60",
+                  "transition-transform",
+                  advancedOpen && "rotate-180",
                 )}
               />
-            </div>
+              {tk("profile.advanced")}
+            </button>
 
-            <div className="mt-2 flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  const ok = setLocalApiKey(apiKey);
-                  setKeyState(ok ? "saved" : "idle");
-                }}
-                className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3 text-[11.5px] font-medium text-white transition-opacity hover:opacity-90"
-              >
-                保存 Key
-              </button>
-              {apiKey ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setApiKey("");
-                    setLocalApiKey("");
-                    setKeyState("cleared");
+            {advancedOpen ? (
+              <div className="mt-1.5">
+                <input
+                  type="password"
+                  value={apiKey}
+                  onChange={(event) => {
+                    setApiKey(event.target.value);
+                    setKeyState("idle");
                   }}
-                  className="inline-flex h-8 items-center rounded-lg border border-[var(--border)] bg-white px-3 text-[11.5px] transition-colors hover:bg-[var(--muted)]"
-                >
-                  清除
-                </button>
-              ) : null}
-              {keyState === "saved" ? (
-                <span className="text-[11px] text-[var(--muted-foreground)]">
-                  已保存到本机浏览器
-                </span>
-              ) : null}
-              {keyState === "cleared" ? (
-                <span className="text-[11px] text-[var(--muted-foreground)]">
-                  已清除
-                </span>
-              ) : null}
-            </div>
+                  placeholder="sk-..."
+                  autoComplete="off"
+                  spellCheck={false}
+                  className={cn(
+                    INPUT_CLASS,
+                    "font-mono text-[11px] placeholder:text-[var(--muted-foreground)]/60",
+                  )}
+                />
 
-            <p className="mt-2 text-[10.5px] leading-relaxed text-[var(--muted-foreground)]/80">
-              获取地址：platform.deepseek.com/api_keys
-              。Key 不会离开你的浏览器，也不会写入本项目的任何代码。
-            </p>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const ok = setLocalApiKey(apiKey);
+                      setKeyState(ok ? "saved" : "idle");
+                    }}
+                    className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3 text-[11.5px] font-medium text-white transition-opacity hover:opacity-90"
+                  >
+                    {tk("profile.saveKey")}
+                  </button>
+                  {apiKey ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setApiKey("");
+                        setLocalApiKey("");
+                        setKeyState("cleared");
+                      }}
+                      className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-[var(--border)] bg-white px-3 text-[11.5px] transition-colors hover:bg-[var(--muted)]"
+                    >
+                      {tk("profile.clearKey")}
+                    </button>
+                  ) : null}
+                  {keyState === "saved" ? (
+                    <span className="text-[11px] text-[var(--muted-foreground)]">
+                      {tk("profile.keySaved")}
+                    </span>
+                  ) : null}
+                  {keyState === "cleared" ? (
+                    <span className="text-[11px] text-[var(--muted-foreground)]">
+                      {tk("profile.keyCleared")}
+                    </span>
+                  ) : null}
+                </div>
+
+                <p className="mt-2 text-[10.5px] leading-relaxed text-[var(--muted-foreground)]/80">
+                  platform.deepseek.com/api_keys ·{" "}
+                  {staticMode
+                    ? "Key 只存在这台设备上，不进仓库。"
+                    : "Key 只存在这台设备上，不进仓库。"}
+                </p>
+              </div>
+            ) : null}
           </div>
 
           {/* 存档 */}
           <div className="rounded-xl border border-[var(--border)] bg-[var(--muted)]/40 p-3">
-            <p className="text-[12px] font-medium">我的学习档案</p>
+            <p className="text-[12px] font-medium">{tk("profile.archive")}</p>
             <p className="mt-1 text-[11px] leading-relaxed text-[var(--muted-foreground)]">
-              一键导出全部学习痕迹——资料、笔记、观看进度与已获证书，
-              存成一个 JSON 文件。零门槛防丢失。
+              {tk("profile.archiveHint")}
             </p>
             <div className="mt-2.5 flex flex-wrap gap-2">
               <button
@@ -467,7 +552,7 @@ export function ProfileDrawer({
                 className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3 text-[11.5px] font-medium text-white transition-opacity hover:opacity-90"
               >
                 <Download size={11} strokeWidth={2.2} />
-                导出我的学习档案
+                {tk("profile.exportArchive")}
               </button>
               <button
                 type="button"
@@ -475,7 +560,7 @@ export function ProfileDrawer({
                 className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-[var(--border)] bg-white px-3 text-[11.5px] transition-colors hover:bg-[var(--muted)]"
               >
                 <Upload size={11} strokeWidth={2.2} />
-                导入恢复
+                {tk("profile.importArchive")}
               </button>
             </div>
             <input

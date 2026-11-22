@@ -182,6 +182,87 @@ function extractKeywords(raw: string, lesson: string): string[] {
 }
 
 /**
+ * 抽取课时的**核心课文名**。
+ *
+ * 与 :func:`stripNoise` 的区别：那个函数保留**所有有意义的部分**，
+ * 这个函数只取**最后一段像课文名的**。
+ *
+ * .. code-block:: text
+ *
+ *    「第1单元 识字1 春夏秋冬1」→ 「春夏秋冬」
+ *    「第2单元 识字2 姓氏歌1」  → 「姓氏歌」
+ *    「3.观察物体（第1课时）」 → 「观察物体」
+ *
+ * 互动实验室（生字 / 古诗分句）与诊断题都基于它。
+ */
+export function coreLessonTitle(raw: string): string {
+  const cleaned = String(raw ?? "")
+    // 方括号 / 书名号里的内容是**补充说明**（「【新初一语文预习视频课】」）
+    // ——整段丢掉，不要只把括号换成空格（那会把说明留进课文名）。
+    .replace(/【[^】]*】/g, " ")
+    .replace(/\[[^\]]*\]/g, " ")
+    .replace(/（[^）]*）/g, " ")
+    .replace(/《[^》]*》/g, " ")
+    .replace(/「[^」]*」/g, " ")
+    .replace(/[【】[\]（）()《》「」]/g, " ")
+    // ── 序号前缀 ──
+    //
+    // 「01. 第 1集 我是中国人」→ 「我是中国人」
+    //
+    // 这些前缀是**采集器**加的（保证目录有稳定排序），不是课文名。
+    // 不去掉的话，生字卡会变成「我 / 是 / 中 / 国」——虽然碰巧还对，
+    // 但分句图解会把「第 1集 我是中国人 第 1集 我是中国人」当诗句。
+    .replace(/^\s*\d{1,3}\s*[.、,，:：]\s*/g, " ")
+    .replace(/第\s*[一二三四五六七八九十\d]{1,3}\s*集/g, " ")
+    .replace(/第\s*[一二三四五六七八九十\d]{1,3}\s*单元/g, " ")
+    .replace(/第\s*[一二三四五六七八九十\d]{1,3}\s*[课讲]/g, " ")
+    .replace(/单元\s*\d{1,3}/g, " ")
+    .replace(/(\p{Script=Han})\s*\d{1,3}(?![\u4e00-\u9fa5])/gu, "$1")
+    .replace(
+      /讲解|精讲|微课|同步课|同步|复习|导读|分析|赏析|背诵|朗读/g,
+      " ",
+    )
+    .replace(/\s+/g, " ")
+    .trim();
+
+  const parts = cleaned
+    .split(" ")
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  // ── 去重 ──
+  //
+  // 采集器有时把标题写两遍：「第 1集 我是中国人 第 1集 我是中国人」。
+  // 判断方式：整串能否**一分为二且两半相同**。
+  if (parts.length >= 2) {
+    for (let half = 1; half <= Math.floor(parts.length / 2); half += 1) {
+      const front = parts.slice(0, half).join("");
+      const back = parts.slice(half).join("");
+      if (front && front === back) {
+        return parts[half - 1] ?? cleaned;
+      }
+    }
+  }
+
+  // 从后往前找第一段「像课文名」的（≥2 汉字，且不是教材栏目名）。
+  for (let index = parts.length - 1; index >= 0; index -= 1) {
+    const part = parts[index];
+    const hanCount = (part.match(/[\u4e00-\u9fa5]/g) ?? []).length;
+    if (hanCount < 2) continue;
+    if (
+      /^(识字|课文|生字|练习|口语|习作|语文园地|日积月累|快乐读书吧|口语交际|园地|单元|复习|测试|检测)/.test(
+        part,
+      )
+    ) {
+      continue;
+    }
+    return part;
+  }
+
+  return parts[parts.length - 1] ?? cleaned;
+}
+
+/**
  * 解析一个课时标题。
  *
  * @param raw 原始标题（可能含单元号、课时标记、课型标记）

@@ -14,6 +14,7 @@ import {
   type K12ProgressSummary,
 } from "@/lib/k12-progress";
 import { STAGE_NAMES } from "@/lib/k12-api";
+import { useLocale } from "@/context/LocaleContext";
 import { cn } from "@/lib/cn";
 
 /**
@@ -48,6 +49,7 @@ export interface K12SectionProps {
 export function K12Section({ className }: K12SectionProps) {
   const [summary, setSummary] = useState<K12ProgressSummary | null>(null);
   const [loading, setLoading] = useState(true);
+  const { tk } = useLocale();
 
   useEffect(() => {
     let alive = true;
@@ -82,7 +84,7 @@ export function K12Section({ className }: K12SectionProps) {
     return (
       <p className="flex items-center gap-1.5 py-6 text-[12.5px] text-[var(--muted-foreground)]">
         <Loader2 size={13} className="animate-spin" />
-        正在汇总 K12 学习情况…
+        {tk("progress.k12Section")}…
       </p>
     );
   }
@@ -94,7 +96,7 @@ export function K12Section({ className }: K12SectionProps) {
       {/* ── 区块头 ── */}
       <div className="mb-2.5 flex items-center gap-1.5">
         <BookOpenCheck size={14} strokeWidth={2.1} className="text-[var(--primary)]" />
-        <h2 className="text-[13.5px] font-semibold">K12 年级同步系列</h2>
+        <h2 className="text-[13.5px] font-semibold">{tk("progress.k12Section")}</h2>
         <span className="text-[11.5px] text-[var(--muted-foreground)]">
           {summary?.courses.length ?? 0} 套
         </span>
@@ -109,25 +111,25 @@ export function K12Section({ className }: K12SectionProps) {
         <div className="mb-4 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-6">
           <K12Stat
             icon={GraduationCap}
-            label="在学年级"
+            label={tk("progress.gradesLearned")}
             value={String(totals.gradesLearned)}
             suffix="/ 12"
           />
           <K12Stat
             icon={BookOpenCheck}
-            label="完成课时"
+            label={tk("progress.lessonsDone")}
             value={String(totals.lessonsDone)}
             suffix={`/ ${totals.lessonsTotal}`}
           />
           <K12Stat
             icon={Award}
-            label="平均掌握度"
+            label={tk("progress.avgMastery")}
             value={`${Math.round(totals.averageMastery * 100)}`}
             suffix="%"
           />
           <K12Stat
             icon={Award}
-            label="测验正确率"
+            label={tk("progress.quizAccuracy")}
             value={
               totals.quizAccuracy === null
                 ? "—"
@@ -137,12 +139,12 @@ export function K12Section({ className }: K12SectionProps) {
           />
           <K12Stat
             icon={BookOpenCheck}
-            label="笔记条数"
+            label={tk("progress.notes")}
             value={String(totals.notes)}
           />
           <K12Stat
             icon={Award}
-            label="K12 证书"
+            label={tk("progress.certificates")}
             value={String(totals.certificates)}
             suffix=" 张"
           />
@@ -228,6 +230,7 @@ function K12Stat({
 /** 一套系列的进度行。 */
 function K12CourseRow({ course }: { course: K12CourseProgress }) {
   const percent = Math.round(course.coverage * 100);
+  const { tk } = useLocale();
 
   return (
     <Link
@@ -236,7 +239,7 @@ function K12CourseRow({ course }: { course: K12CourseProgress }) {
     >
       <div className="flex items-center gap-2">
         <span className="text-[12px] font-medium text-[var(--foreground)]">
-          {course.subject === "chinese" ? "语文" : "数学"}
+          {course.subject === "chinese" ? tk("k12.subjectChinese") : tk("k12.subjectMath")}
         </span>
         <span
           className={cn(
@@ -253,7 +256,7 @@ function K12CourseRow({ course }: { course: K12CourseProgress }) {
           {course.status}
         </span>
         <span className="ml-auto text-[11px] tabular-nums text-[var(--muted-foreground)]">
-          {course.done} / {course.total} 讲
+          {course.done} / {course.total} · {tk("k12.lessons")}
         </span>
       </div>
 

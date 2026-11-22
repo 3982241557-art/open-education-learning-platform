@@ -17,6 +17,7 @@ import {
   isStaticRuntime,
 } from "@/shared/api/client";
 import { useLocale, type Locale, type Region } from "@/context/LocaleContext";
+import { exportAllLocal, importAllLocal } from "@/lib/local-store";
 
 /**
  * 用户个人档案
@@ -187,6 +188,60 @@ function writeLocal(profile: UserProfile): void {
   }
 }
 
+/**
+ * 静态模式下的**本地档案**。
+ *
+ * 形状跟后端 ``/api/profile/archive`` 返回的一致——这样导入逻辑
+ * 只需要处理一种格式。
+ */
+async function buildLocalArchive(): Promise<{
+  version: number;
+  exportedAt: string;
+  profile: UserProfile;
+  local: Record<string, unknown>;
+}> {
+  const profile = readLocal();
+  return {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    profile,
+    local: exportAllLocal(),
+  };
+}
+
+/**
+ * 静态模式下**从档案恢复**。
+ *
+ * @returns 给用户看的一句话结果
+ */
+function restoreLocalArchive(parsed: unknown): string {
+  if (!parsed || typeof parsed !== "object") {
+    return "文件格式不正确——应该是一个学习档案 JSON。";
+  }
+
+  const payload = parsed as {
+    profile?: Partial<UserProfile>;
+    local?: Record<string, unknown>;
+  };
+
+  // ① 恢复个人资料。
+  if (payload.profile && typeof payload.profile === "object") {
+    const merged = { ...DEFAULT_PROFILE, ...payload.profile };
+    writeLocal(merged);
+  }
+
+  // ② 恢复所有学习记录。
+  let count = 0;
+  if (payload.local && typeof payload.local === "object") {
+    count = importAllLocal(payload.local);
+  }
+
+  if (count === 0 && !payload.profile) {
+    return "这个档案里没有可恢复的内容。";
+  }
+  return `已恢复 ${count} 项学习记录。`;
+}
+
 export function ProfileProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<UserProfile>(DEFAULT_PROFILE);
   const [saving, setSaving] = useState(false);
@@ -329,12 +384,29 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  /** 导出完整档案——下载一个 JSON 文件。 */
+  /**
+   * 导出完整档案——下载一个 JSON 文件。
+   *
+   * 静态模式下**没有后端**，所以本地组装一份：
+   *
+   * - 个人资料；
+   * - 所有学习记录（进度 / 笔记 / 测验 / 诊断）；
+   * - 已获证书。
+   *
+   * ⚠️ 档案里**不包含** API Key——那是用户自己的，不该被导出。
+   */
   const exportArchive = useCallback(async () => {
-    const response = await apiFetch(apiUrl("/api/profile/archive"), {
-      cache: "no-store",
-    });
-    const data = await asJsonOrThrow(response);
+    let data: unknown;
+
+    if (await isStaticRuntime()) {
+      data = await buildLocalArchive();
+    } else {
+      const response = await apiFetch(apiUrl("/api/profile/archive"), {
+        cache: "no-store",
+      });
+      data = await asJsonOrThrow(response);
+    }
+
     const blob = new Blob([JSON.stringify(data, null, 2)], {
       type: "application/json",
     });
@@ -359,6 +431,17 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       }
       if (!parsed || typeof parsed !== "object") {
         return "文件格式不正确——应该是一个学习档案 JSON。";
+      }
+
+      // ── 静态模式：本地恢复 ──
+      //
+      // GitHub Pages 上没有后端，API 调用必然失败。但档案里的**资料**
+      // 本来就存在 localStorage 里——直接写回去就行。
+      if (await isStaticRuntime()) {
+        const message = restoreLocalArchive(parsed);
+        // 资料变了 → 重新读一遍，界面立刻同步。
+        setProfile(readLocal());
+        return message;
       }
 
       const response = await apiFetch(

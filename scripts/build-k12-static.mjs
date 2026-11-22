@@ -31,6 +31,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { GRADES, SUBJECTS, gradeOf, seriesTitle, subjectOf } from "./k12-skeleton.mjs";
+import { autoPickLab } from "./interactive-lab-spec.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -88,6 +89,19 @@ function main() {
     // 因为中台是首页级资源，不能膨胀）。
     const { nodes, segments } = buildFullCourseNodes(item.episodes ?? []);
 
+    // ── 互动动画实验室 ──
+    //
+    // 每一集都装配一个「动手玩」模块——参数从课时标题推导，
+    // 保证**点开任意一集都有动画可玩**。
+    const episodes = (item.episodes ?? []).map((episode) => ({
+      ...episode,
+      interactive_lab: autoPickLab(
+        episode.title,
+        item.subject,
+        grade.stage,
+      ),
+    }));
+
     const detail = {
       id: item.id,
       title: fullTitle,
@@ -101,7 +115,7 @@ function main() {
       source: item.source ?? null,
       interactiveNodes: nodes,
       guidedSegments: segments,
-      episodes: item.episodes ?? [],
+      episodes,
     };
 
     fs.writeFileSync(
