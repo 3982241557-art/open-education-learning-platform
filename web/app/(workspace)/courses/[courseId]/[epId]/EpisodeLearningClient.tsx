@@ -282,6 +282,39 @@ function EpisodeLearning({
     };
   }, [bundle, records]);
 
+  /**
+   * 本集专属的知识节点与段落导读。
+   *
+   * 一条长视频切成多集之后，资源上的节点是**整条视频**的。直接全量
+   * 渲染会让用户在第 3 讲看到第 11 讲的知识点——所以要按本集的时间
+   * 区间过滤。
+   *
+   * ⚠️ 这些 hook **必须**留在所有 early return 之前——SSR 渲染的是
+   * 「载入中」分支（hook 少），客户端拿到数据后渲染完整分支（hook 多），
+   * 数量对不上 React 就会抛 "Rendered more hooks than during the previous render"。
+   */
+  const episodeNodes = useMemo(
+    () => filterNodesForEpisode(bundle?.interactiveNodes ?? [], episode),
+    [bundle, episode],
+  );
+  const episodeSegments = useMemo(
+    () => filterSegmentsForEpisode(bundle?.guidedSegments ?? [], episode),
+    [bundle, episode],
+  );
+
+  /** 本课的知识要点——从课时标题解析出来的。 */
+  const lessonAnalysis = useMemo(
+    () => analyzeLessonTitle(episode?.title ?? ""),
+    [episode?.title],
+  );
+
+  /** 字幕轨。 */
+  const captions = bundle?.resource.captions ?? [];
+
+  /** 学段——决定整套页面的动效语言。 */
+  const stage = bundle?.stage ?? "junior";
+  const playful = stage === "primary";
+
   if (loading) {
     return (
       <div className="flex h-full min-h-0 flex-col items-center justify-center bg-[var(--background)]">
@@ -311,35 +344,6 @@ function EpisodeLearning({
   }
 
   const diagnosticRecord = readDiagnostic(courseId, epId);
-
-  /**
-   * 本集专属的知识节点与段落导读。
-   *
-   * 一条长视频切成多集之后，资源上的节点是**整条视频**的。直接全量
-   * 渲染会让用户在第 3 讲看到第 11 讲的知识点——所以要按本集的时间
-   * 区间过滤。
-   */
-  const episodeNodes = useMemo(
-    () => filterNodesForEpisode(bundle?.interactiveNodes ?? [], episode),
-    [bundle, episode],
-  );
-  const episodeSegments = useMemo(
-    () => filterSegmentsForEpisode(bundle?.guidedSegments ?? [], episode),
-    [bundle, episode],
-  );
-
-  /** 本课的知识要点——从课时标题解析出来的。 */
-  const lessonAnalysis = useMemo(
-    () => analyzeLessonTitle(episode.title),
-    [episode.title],
-  );
-
-  /** 学段——决定整套页面的动效语言。 */
-  const stage = bundle.stage ?? "junior";
-  const playful = stage === "primary";
-
-  /** 字幕轨。 */
-  const captions = bundle.resource.captions ?? [];
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-[var(--background)]">

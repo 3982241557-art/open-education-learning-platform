@@ -221,8 +221,10 @@ export function formatEpisodeSlice(
  */
 export function filterNodesForEpisode<T extends { timestamp: number }>(
   nodes: T[],
-  episode: Episode,
+  episode: Episode | null,
 ): T[] {
+  // 本集还没解析出来——先给全量，避免空白。
+  if (!episode) return nodes;
   const start = Number(episode.start_time ?? 0) || 0;
   const end = Number(episode.end_time ?? 0) || 0;
 
@@ -242,7 +244,7 @@ export function filterNodesForEpisode<T extends { timestamp: number }>(
  */
 export function filterSegmentsForEpisode<
   T extends { timestamp: number },
->(segments: T[], episode: Episode): T[] {
+>(segments: T[], episode: Episode | null): T[] {
   return filterNodesForEpisode(segments, episode);
 }
 

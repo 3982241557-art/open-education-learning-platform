@@ -100,6 +100,20 @@ export default function K12HallPage() {
     return [...map.entries()].sort((a, b) => a[0] - b[0]);
   }, [series]);
 
+  /**
+   * 年级分组标题——「小学四年级」。
+   *
+   * ⚠️ 不能用 ``replace(/[语文数学]$/, "")``——那会把「小学一年级语」
+   *    的「文」去掉、留下「语」。学科名是两个字，得**整个**去掉。
+   */
+  const gradeHeading = useCallback((entry: K12IndexEntry | undefined) => {
+    if (!entry) return "";
+    const subjectName = entry.subject === "chinese" ? "语文" : "数学";
+    return entry.shortTitle.endsWith(subjectName)
+      ? entry.shortTitle.slice(0, -subjectName.length)
+      : entry.shortTitle;
+  }, []);
+
   if (loading) {
     return (
       <div className="flex h-full min-h-0 flex-col items-center justify-center bg-[var(--background)]">
@@ -229,10 +243,7 @@ export default function K12HallPage() {
                   {/* 分组标题——一个年级一栏。 */}
                   <div className="mb-2.5 flex items-baseline gap-2">
                     <h2 className="text-[13.5px] font-semibold tracking-[-0.01em] text-[var(--foreground)]">
-                      {entries[0]?.shortTitle.replace(
-                        /[语文数学]$/,
-                        "",
-                      ) ?? `第 ${gradeNumber} 年级`}
+                      {gradeHeading(entries[0])}
                     </h2>
                     <span className="text-[11.5px] text-[var(--muted-foreground)]">
                       {entries[0]?.ageRange[0]}–{entries[0]?.ageRange[1]} 岁 ·{" "}
