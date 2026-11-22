@@ -189,7 +189,7 @@ export function SetupStatusCard() {
         className={
           ready
             ? "flex items-start gap-2.5 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4"
-            : "flex items-start gap-2.5 rounded-xl border border-amber-500/25 bg-amber-500/5 p-4"
+            : "flex items-start gap-2.5 rounded-xl border border-amber-500/25 bg-amber-50 p-4"
         }
       >
         {ready ? (

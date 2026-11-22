@@ -19,6 +19,14 @@ import {
   MATH_TOPICS_GEOM_MODELS,
 } from "./k12-knowledge-math-ext.mjs";
 import { matchAliasKey } from "./k12-math-aliases.mjs";
+import { getMathConceptBank } from "./k12-math-concept-bank.mjs";
+import {
+  buildPoemLineQuestion,
+  buildWordInContextQuestion,
+  buildDeviceQuestion,
+  buildTransferQuestion,
+  buildClassicReadingQuestion,
+} from "./k12-chinese-question-builder.mjs";
 import { matchLessonPoint } from "./k12-knowledge-lessons.mjs";
 import { matchStructPoint } from "./k12-knowledge-struct.mjs";
 import { SENIOR_POINTS } from "./k12-knowledge-senior.mjs";
@@ -448,6 +456,14 @@ export function buildChineseContent({ coreTitle, fullTitle, stage }) {
   if (diagnostics.length < 2 && activePoint) {
     // 第二道诊断题：同一课文的**另一个角度**——从「记住了什么」转到
     // 「能不能迁移」。仍然紧扣这一课，不落到通用模板。
+    //
+    // ⛔ 旧版干扰项是「课文一共分几段」「课文有几个生字」这种废话。
+    //    现在干扰项是**真实的误读**——望文生义、不懂修辞、把手法张冠李戴。
+    const misreads = [
+      "只是普通的字面意思，作者并没有特别的用意",
+      "指代文中提到的另一个人或物，与全文的情感走向无关",
+      "大量使用数字与计算，作者是在说明一个数据问题",
+    ];
     diagnostics.push(
       makeQuestion({
         question: `读《${cnTitle}》时，下面哪一句**最准确**地概括了「${activePoint.concept}」？（　　）`,
@@ -455,9 +471,8 @@ export function buildChineseContent({ coreTitle, fullTitle, stage }) {
           activePoint.explanation.length > 70
             ? `${activePoint.explanation.slice(0, 70)}……`
             : activePoint.explanation,
-          "课文一共分几段",
-          "作者写于哪一年",
-          "课文有几个生字",
+          misreads[0],
+          misreads[1],
         ],
         correctIndex: 0,
         explanation: `${activePoint.explanation}\n\n**讲得清楚，才算真懂了。** 这一题考的不是记忆，是理解。`,
@@ -502,94 +517,145 @@ export function buildChineseContent({ coreTitle, fullTitle, stage }) {
   }
 
   /* ── 随堂测试题 ── */
-  if (point) {
+  //
+  // ⛔ 旧版本这里是模板题（「记住课文的段落划分」「课文有几个生字」
+  //    这种毫无信息量的干扰项）。现在改成**从原文生成的真实题**：
+  //    锁定具体的词、具体的句子，问它在语境里的含义与手法。
+  if (poem && poem.lines.length > 0) {
+    // ① 锁定**具体的某一句**问表达效果——而不是泛泛地问「全诗主旨」。
+    const lineIndex = poem.lines.length > 1 ? 1 : 0;
+    const lineQuestion = buildPoemLineQuestion(
+      poem.title,
+      poem.lines,
+      poem.plain,
+      lineIndex,
+    );
     quizzes.push(
       makeQuestion({
-        question: `再练一练：《${cnTitle}》中，${activePoint.concept}的把握，关键在于（　　）`,
-        options: [
-          "能说出作者为什么这样写，而不只是记住了课文内容",
-          "记住课文的段落划分",
-          "记住课文里的生字个数",
-          "记住课文一共多少字",
-        ],
-        correctIndex: 0,
-        explanation: `${activePoint.explanation}\n\n迁移检验：能说清「为什么这样写」，才算真的读懂了这一篇。`,
-        concept: `${activePoint.concept}·迁移`,
+        ...lineQuestion,
+        source: "poem",
+      }),
+    );
+
+    // ② 字词在语境中的含义——**词与解析必须来自同一句**。
+    const wordQuestion = buildWordInContextQuestion(
+      poem.title,
+      poem.lines[lineIndex],
+      poem.plain[lineIndex] ?? "",
+      poem.plain[lineIndex] ?? "",
+      `${poem.title}·词句理解`,
+    );
+    if (wordQuestion) {
+      quizzes.push(
+        makeQuestion({
+          ...wordQuestion,
+          source: "poem",
+        }),
+      );
+    }
+
+    // ③ 迁移——把本诗的写法放到别的作品里比较。
+    quizzes.push(
+      makeQuestion({
+        ...buildTransferQuestion(
+          poem.title,
+          `${poem.title}的意象与情感`,
+          `把「${poem.lines[lineIndex]}」这一句连同它的赏析读一遍，说清作者用了什么手法`,
+        ),
+        source: "poem",
+      }),
+    );
+  } else if (activePoint) {
+    // 非古诗课文 → 用**本课考点**生成语境题。
+    const contextual = buildWordInContextQuestion(
+      cnTitle,
+      activePoint.question,
+      activePoint.explanation,
+      activePoint.explanation,
+      activePoint.concept,
+    );
+    if (contextual) {
+      quizzes.push(
+        makeQuestion({
+          ...contextual,
+          source: "textbook",
+        }),
+      );
+    }
+
+    // 手法辨析——锁定**本课考点里真实出现**的词，问它的表达效果。
+    quizzes.push(
+      makeQuestion({
+        ...buildDeviceQuestion(
+          cnTitle,
+          activePoint.concept,
+          cnTitle.replace(/[（(].*?[）)]/g, "").slice(0, 6) || cnTitle.slice(0, 6),
+          activePoint.explanation,
+          activePoint.concept,
+        ),
+        source: "textbook",
+      }),
+    );
+
+    quizzes.push(
+      makeQuestion({
+        ...buildTransferQuestion(
+          cnTitle,
+          activePoint.concept,
+          `合上课本，用自己的话把「${activePoint.concept}」讲一遍，再回到课文核对`,
+        ),
         source: "textbook",
       }),
     );
   }
 
-  if (poem) {
-    const last = poem.lines.length - 1;
-    quizzes.push(
-      makeQuestion({
-        question: `《${poem.title}》的最后一句「${poem.lines[last]}」，理解最恰当的一项是（　　）`,
-        options: [
-          poem.plain[last],
-          "与首句意思完全相同，重复了一遍",
-          "只是写景，没有言外之意",
-        ],
-        correctIndex: 0,
-        explanation: `${poem.plain[last]}\n\n英文对照：${poem.en[last]}`,
-        concept: `${poem.title}·结句赏析`,
-        source: "poem",
-      }),
-    );
-    quizzes.push(
-      makeQuestion({
-        question: `把《${poem.title}》翻译成英文时，最容易出问题的地方是（　　）`,
-        options: [
-          `「${poem.lines[0]}」里的意象与情感——直译会丢掉原文的味道`,
-          "作者姓名的拼写",
-          "朝代的英文名称",
-          "诗有几个字",
-        ],
-        correctIndex: 0,
-        explanation:
-          "古诗的难处从来不是字面，是意象背后的情感。例如「" +
-          poem.lines[0] +
-          "」译成英文后，中文读者感到的那层惆怅就消失了——这正是需要「意译加注」的地方。",
-        concept: `${poem.title}·英译要点`,
-        source: "poem",
-      }),
-    );
-  }
-
   if (classic) {
+    // 名篇精读题——锁定**具体的关键词**，问它与全文主旨的关系。
+    const kw = classic.keywords[0];
+    const reading = buildClassicReadingQuestion(
+      classic.title,
+      classic.excerpt,
+      kw.term,
+      kw.meaning,
+      kw.plain,
+      kw.device,
+    );
+    if (reading) {
+      quizzes.push(
+        makeQuestion({
+          ...reading,
+          source: "classic",
+        }),
+      );
+    }
+
+    // 手法辨析题——锁定名篇里真实出现的关键词。
     quizzes.push(
       makeQuestion({
-        question: classic.question,
-        options: [
-          "与文本无关的个人经历",
-          classic.answer.length > 60
-            ? `${classic.answer.slice(0, 60)}……`
-            : classic.answer,
-          "作者的家庭背景",
-        ],
-        correctIndex: 1,
-        explanation: classic.answer,
-        concept: `${classic.title}·文本细读`,
+        ...buildDeviceQuestion(
+          classic.title,
+          kw.device,
+          kw.term,
+          kw.meaning,
+          kw.device,
+        ),
         source: "classic",
       }),
     );
+
     quizzes.push(
       makeQuestion({
-        question: `要读懂《${classic.title}》，最应该抓住的是（　　）`,
-        options: [
-          "作者写作的时代背景",
-          "作者反复强调或着力描写的那个「点」——它就是文本的核心",
-          "课文的长度",
-        ],
-        correctIndex: 1,
-        explanation: `任何一篇文本都有它的「着力点」。《${classic.title}》里，${classic.keywords[0].term}正是作者用力最多的地方——抓住它，全文就通了。`,
-        concept: `${classic.title}·核心抓手`,
+        ...buildTransferQuestion(
+          classic.title,
+          `${classic.title}的「${kw.term}」`,
+          `合上课本，用自己的话讲清「${kw.term}」为什么是作者着力最多的地方，再回到原文核对`,
+        ),
         source: "classic",
       }),
     );
   }
 
-  if (quizzes.length < 3 && activePoint) {
+  if (quizzes.length < 3 && activePoint && !poem && !classic) {
     // 随堂测试要有**梯度**：
     //   第 1 题 —— 记住「是什么」（识记）；
     //   第 2 题 —— 理解「为什么」（分析）；
@@ -614,29 +680,11 @@ export function buildChineseContent({ coreTitle, fullTitle, stage }) {
     );
     quizzes.push(
       makeQuestion({
-        question: `如果要把《${cnTitle}》里的「${activePoint.concept}」讲给别人听，最容易讲错的地方是（　　）`,
-        options: [
-          "只背结论，不理解作者为什么这样写",
-          "讲得太长，超过了五分钟",
-          "用了太多成语",
-        ],
-        correctIndex: 0,
-        explanation: `「${activePoint.concept}」的关键在于**为什么**。${activePoint.explanation}\n\n讲清楚「为什么」，才算读懂；只背结论，遇到变式就会懵。`,
-        concept: `${activePoint.concept}·理解`,
-        source: "textbook",
-      }),
-    );
-    quizzes.push(
-      makeQuestion({
-        question: `读《${cnTitle}》时，哪一个做法最能帮你真正掌握「${activePoint.concept}」？（　　）`,
-        options: [
-          "合上课本，用自己的话复述一遍，再回到课文核对",
-          "把课文抄三遍",
-          "只背课后题的答案",
-        ],
-        correctIndex: 0,
-        explanation: `**「先输出、再核对」**是最高效的读法。复述时卡住的地方，就是你没读懂的地方——回去精读那一段，比通读十遍都管用。`,
-        concept: `${activePoint.concept}·方法`,
+        ...buildTransferQuestion(
+          cnTitle,
+          activePoint.concept,
+          `合上课本，用自己的话把「${activePoint.concept}」讲一遍，再回到课文核对`,
+        ),
         source: "textbook",
       }),
     );
@@ -740,80 +788,71 @@ export function buildMathContent({ coreTitle, fullTitle }) {
     });
     diagnostics.push(d);
     quizzes.push(q);
-    // 第 2 道诊断题——**概念辨析**，不是第 1 题的复读。
+    // 第 2 道诊断题与随堂题 2、3 ——**真实概念题**，不是模板复读。
     //
     // ⛔ 复读同一道题是敷衍：学生答对一次不代表会了。
-    //    这里改问「这个概念**是什么**」——
-    //    逼学生把定义说清楚，而不是碰巧算对。
-    diagnostics.push(
-      makeQuestion({
-        question: `关于「${topic.title}」，下面哪一句**准确**地复述了它的规则？（　　）`,
-        options: [
-          topic.definition.length > 78
-            ? `${topic.definition.slice(0, 78)}……`
-            : topic.definition,
-          "记住几道例题的答案就够了",
-          "考试只考计算，不考概念",
-        ],
-        correctIndex: 0,
-        explanation:
-          `${topic.definition}\n\n**概念清楚了，题目自然简单。**`,
-        concept: `${topic.title}·概念辨析`,
-        source: "math",
-      }),
-    );
-    // 随堂题 2——**换个角度再考一次**迁移应用。
+    //    旧版本这里用的是「下面哪一句准确地复述了它的规则？」+ 定义截断，
+    //    三个选项里正确项永远是定义的前半截——不是检测，是抄答案。
     //
-    // ⛔ 不复读同一道 transfer 题：那只是抄答案，不是检测。
-    //    这里改成「换个说法问同一个知识点」——
-    //    学生必须真的理解，才能答对。
-    quizzes.push(
-      makeQuestion({
-        question: `换一种问法：关于「${topic.title}」，下列做法**正确**的是（　　）`,
-        options: [
-          topic.transfer.explanation.length > 78
-            ? `${topic.transfer.explanation.slice(0, 78)}……`
-            : topic.transfer.explanation,
-          "先套公式，套不进去再想别的",
-          "记住答案步骤，不管题目怎么变",
-        ],
-        correctIndex: 0,
-        explanation:
-          `${topic.transfer.explanation}\n\n**换个问法还能做对，才说明是真的会了。**`,
-        concept: `${topic.title}·迁移应用（换问法）`,
-        source: "math",
-      }),
-    );
-    quizzes.push(
-      makeQuestion({
-        question: `本讲「${topic.title}」的核心是什么？（　　）`,
-        options: [
-          topic.definition.length > 76
-            ? `${topic.definition.slice(0, 76)}……`
-            : topic.definition,
-          "记住几道例题的答案就够了",
-          "考试只考计算，不考概念",
-        ],
-        correctIndex: 0,
-        explanation: `${topic.definition}\n\n**概念清楚了，题目自然简单。**`,
-        concept: `${topic.title}·概念`,
-        source: "math",
-      }),
-    );
-    quizzes.push(
-      makeQuestion({
-        question: `做「${topic.title}」的题时，最该先想清楚的是（　　）`,
-        options: [
-          "这一步用的是什么依据（定义 / 公式 / 运算律）",
-          "先看答案是哪个选项",
-          "先写完所有步骤再说",
-        ],
-        correctIndex: 0,
-        explanation: `**依据先行**：先说清「凭什么」，再动笔算。${topic.definition}\n\n这样做的好处是——换一道数字不同的题，你依然会。`,
-        concept: `${topic.title}·解题思路`,
-        source: "math",
-      }),
-    );
+    // ✅ 现在从 :mod:`k12-math-concept-bank` 取该知识点**专属**的
+    //    概念辨析题 / 迁移应用题 / 变式题，每一道都有具体的数字与情境。
+    const bank = getMathConceptBank(topic.title);
+
+    if (bank) {
+      diagnostics.push(
+        makeQuestion({
+          question: bank.concept.question,
+          options: bank.concept.options,
+          correctIndex: bank.concept.correctIndex,
+          explanation: bank.concept.explanation,
+          concept: `${topic.title}·概念辨析`,
+          source: "math",
+        }),
+      );
+      quizzes.push(
+        makeQuestion({
+          question: bank.transfer.question,
+          options: bank.transfer.options,
+          correctIndex: bank.transfer.correctIndex,
+          explanation: bank.transfer.explanation,
+          concept: `${topic.title}·迁移应用`,
+          source: "math",
+        }),
+      );
+      quizzes.push(
+        makeQuestion({
+          question: bank.variant.question,
+          options: bank.variant.options,
+          correctIndex: bank.variant.correctIndex,
+          explanation: bank.variant.explanation,
+          concept: `${topic.title}·变式应用`,
+          source: "math",
+        }),
+      );
+    } else {
+      // 题库里还没有这个知识点——用**知识点自带**的前置题与迁移题，
+      // 而不是拼凑模板。
+      diagnostics.push(
+        makeQuestion({
+          question: topic.prerequisite.question,
+          options: topic.prerequisite.options,
+          correctIndex: topic.prerequisite.correctIndex,
+          explanation: topic.prerequisite.explanation,
+          concept: `${topic.title}·前置基础`,
+          source: "math",
+        }),
+      );
+      quizzes.push(
+        makeQuestion({
+          question: topic.transfer.question,
+          options: topic.transfer.options,
+          correctIndex: topic.transfer.correctIndex,
+          explanation: topic.transfer.explanation,
+          concept: `${topic.title}·迁移应用`,
+          source: "math",
+        }),
+      );
+    }
     summary.push(`本讲核心：${topic.title}。${topic.definition}`);
     summary.push(
       `前置检验：${topic.prerequisite.question}（答案：${topic.prerequisite.options[topic.prerequisite.correctIndex]}）`,

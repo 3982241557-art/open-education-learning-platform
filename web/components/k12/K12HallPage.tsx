@@ -7,7 +7,6 @@ import {
   ArrowRight,
   BookOpen,
   CheckCircle2,
-  ChevronDown,
   Circle,
   GraduationCap,
   Loader2,
@@ -16,7 +15,6 @@ import {
 } from "lucide-react";
 import { fetchK12Index, fetchK12Series } from "@/lib/k12-client";
 import {
-  STAGE_NAMES,
   isPlayfulStage,
   type K12Index,
   type K12IndexEntry,
@@ -24,6 +22,7 @@ import {
 } from "@/lib/k12-api";
 import { readEpisodeRecords } from "@/lib/episode-records";
 import { useGrade } from "@/context/GradeContext";
+import GradeSelector from "@/components/common/GradeSelector";
 import { useLocale } from "@/context/LocaleContext";
 import { cn } from "@/lib/cn";
 
@@ -86,19 +85,58 @@ const MATH_GOALS: Record<number, string> = {
   12: "导数与圆锥曲线，学会用参数与最优化建模。",
 };
 
+/**
+ * 教具徽标。
+ *
+ * 把互动实验室的 ``kind`` 翻成一句人能读懂的话——「含动态量角器」比
+ * 「geometry」有信息量得多。用户看到徽标就知道点进去能玩什么。
+ */
+function toolBadge(
+  kind?: string | null,
+): string | null {
+  switch (kind) {
+    case "hanzi":
+      return "含汉字笔顺";
+    case "poem":
+      return "含古诗图解";
+    case "literary":
+      return "含名篇精读台";
+    case "blocks":
+      return "含凑十方块";
+    case "numberline":
+      return "含数轴跳格";
+    case "fraction":
+      return "含分数圆盘";
+    case "area":
+      return "含面积方格";
+    case "transform":
+      return "含平移对称";
+    case "ratio":
+      return "含比例天平";
+    case "function":
+      return "含函数实验室";
+    case "geometry":
+      return "含动态量角器";
+    case "algebra":
+      return "含方程天平";
+    case "probability":
+      return "含概率模拟";
+    default:
+      return null;
+  }
+}
+
 /** 组件。 */
 export default function K12HallPage() {
   const [index, setIndex] = useState<K12Index | null>(null);
   const [loading, setLoading] = useState(true);
-  const { grade, setGrade, option: gradeMeta } = useGrade();
+  const { grade } = useGrade();
   const { tk } = useLocale();
 
   /** 当前选中的年级（``0`` = 全部年级）。 */
   const [activeGrade, setActiveGrade] = useState<number>(0);
   /** 搜索词。 */
   const [query, setQuery] = useState("");
-  /** 年级下拉是否展开。 */
-  const [gradeOpen, setGradeOpen] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -123,13 +161,6 @@ export default function K12HallPage() {
     if (manuallySwitched) return;
     if (grade > 0) setActiveGrade(grade);
   }, [grade, manuallySwitched]);
-
-  /** 切换年级（手动）。 */
-  const pickGrade = useCallback((next: number) => {
-    setManuallySwitched(true);
-    setActiveGrade(next);
-    setGradeOpen(false);
-  }, []);
 
   /** 当前年级系列的索引条目。 */
   const currentEntries = useMemo(() => {
@@ -156,14 +187,6 @@ export default function K12HallPage() {
         entry.author.toLowerCase().includes(keyword),
     );
   }, [index, query]);
-
-  /** 当前年级按钮上的文字。 */
-  const gradeLabel = useMemo(() => {
-    if (activeGrade === 0) return tk("k12.allGrades");
-    const entry = index?.grades?.find((item) => item.number === activeGrade);
-    if (!entry) return tk("k12.allGrades");
-    return `${entry.name} (${entry.ageRange[0]}–${entry.ageRange[1]}岁)`;
-  }, [activeGrade, index, tk]);
 
   if (loading) {
     return (
@@ -204,93 +227,41 @@ export default function K12HallPage() {
             className="shrink-0 text-[#0b162c]"
           />
 
-          {/* 年级下拉胶囊。 */}
-          <div className="relative shrink-0">
-            <button
-              type="button"
-              onClick={() => setGradeOpen((value) => !value)}
-              aria-expanded={gradeOpen}
-              aria-haspopup="listbox"
-              className="inline-flex h-8 items-center gap-1.5 rounded-full border border-[#cbd5e1] bg-white pl-3 pr-2.5 text-[12.5px] font-medium text-[#0f172a] transition-colors hover:border-[#1d4ed8]"
-            >
-              <span className="text-[#55606e]">
-                {tk("k12.currentGrade")}：
-              </span>
-              <span>{gradeLabel}</span>
-              <ChevronDown
-                size={13}
-                strokeWidth={2.2}
-                className={cn(
-                  "text-[#55606e] transition-transform",
-                  gradeOpen && "rotate-180",
-                )}
-              />
-            </button>
+          {/*
+            年级下拉胶囊。
 
-            {gradeOpen ? (
-              <>
-                {/* 遮罩——点外面关闭。 */}
-                <div
-                  className="fixed inset-0 z-10"
-                  onClick={() => setGradeOpen(false)}
-                />
-                {/* 下拉面板——100% 实心纯白（禁止半透明）。 */}
-                <div
-                  role="listbox"
-                  className="absolute left-0 top-full z-20 mt-1.5 max-h-[380px] w-[248px] overflow-y-auto rounded-xl border border-[#cbd5e1] bg-white p-1.5 shadow-[0_16px_40px_-10px_rgba(11,22,44,0.24)]"
-                >
-                  <button
-                    type="button"
-                    role="option"
-                    aria-selected={activeGrade === 0}
-                    onClick={() => pickGrade(0)}
-                    className={cn(
-                      "mb-1 flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-left text-[12.5px] transition-colors",
-                      activeGrade === 0
-                        ? "bg-[#eff6ff] font-medium text-[#1d4ed8]"
-                        : "text-[#0f172a] hover:bg-[#f1f0ec]",
-                    )}
-                  >
-                    {tk("k12.allGrades")}
-                  </button>
+            ⚠️ 用**共享的** ``GradeSelector``（而不是这一页自己写一个）——
+            这样「顶栏 / 课程页 / 个人主页」三处的年级选择是**同一份
+            状态**（同一个 localStorage key），在任何一处选了，另外
+            两处立刻同步。
 
-                  {(["primary", "junior", "senior"] as const).map((stage) => {
-                    const grades = index.grades.filter(
-                      (item) => item.stage === stage,
-                    );
-                    if (grades.length === 0) return null;
-                    return (
-                      <div key={stage} className="mb-1 last:mb-0">
-                        <p className="px-2.5 py-1 text-[10px] font-medium tracking-[0.08em] text-[#55606e]">
-                          {STAGE_NAMES[stage]}
-                        </p>
-                        {grades.map((item) => (
-                          <button
-                            key={item.number}
-                            type="button"
-                            role="option"
-                            aria-selected={activeGrade === item.number}
-                            onClick={() => pickGrade(item.number)}
-                            className={cn(
-                              "flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-left text-[12.5px] transition-colors",
-                              activeGrade === item.number
-                                ? "bg-[#eff6ff] font-medium text-[#1d4ed8]"
-                                : "text-[#0f172a] hover:bg-[#f1f0ec]",
-                            )}
-                          >
-                            <span>{item.name}</span>
-                            <span className="text-[11px] text-[#55606e]">
-                              {item.ageRange[0]}–{item.ageRange[1]} 岁
-                            </span>
-                          </button>
-                        ))}
-                      </div>
-                    );
-                  })}
-                </div>
-              </>
-            ) : null}
-          </div>
+            这个页面额外保留了一个「全部年级」选项——它只影响本页的
+            展示范围，不写入全局档案。
+          */}
+          <GradeSelector
+            compact
+            className="shrink-0"
+            onChange={(next) => {
+              setManuallySwitched(true);
+              setActiveGrade(next);
+            }}
+          />
+
+          <button
+            type="button"
+            onClick={() => {
+              setManuallySwitched(true);
+              setActiveGrade(0);
+            }}
+            className={cn(
+              "shrink-0 rounded-full border px-3 py-1.5 text-[12px] font-medium transition-colors",
+              activeGrade === 0
+                ? "border-[#0B162C] bg-[#0B162C] text-white"
+                : "border-[#CBD5E1] bg-white text-[#0F172A] hover:border-[#1D4ED8]",
+            )}
+          >
+            {tk("k12.allGrades")}
+          </button>
 
           <div className="flex-1" />
 
@@ -399,9 +370,16 @@ function SubjectBanner({
 
   /** 前 3 讲真实课名——点开直接进课。 */
   const [preview, setPreview] = useState<
-    Array<{ ep_id: string; title: string; index: number }>
+    Array<{
+      ep_id: string;
+      title: string;
+      index: number;
+      tool: string | null;
+    }>
   >([]);
   const [doneIds, setDoneIds] = useState<Set<string>>(new Set());
+  /** 整册已完成讲数——进度条要用。 */
+  const [doneTotal, setDoneTotal] = useState(0);
 
   useEffect(() => {
     if (!entry) {
@@ -418,6 +396,7 @@ function SubjectBanner({
           ep_id: item.ep_id,
           title: item.title,
           index: item.index,
+          tool: toolBadge(item.interactive_lab?.kind),
         })),
       );
       const records = readEpisodeRecords(entry.id);
@@ -426,6 +405,12 @@ function SubjectBanner({
         if (records[item.ep_id]?.completed) done.add(item.ep_id);
       }
       setDoneIds(done);
+      // 整册完成数——进度条的分母是**整册**，不是前 3 讲。
+      let total = 0;
+      for (const item of detail?.episodes ?? []) {
+        if (records[item.ep_id]?.completed) total += 1;
+      }
+      setDoneTotal(total);
     })();
     return () => {
       cancelled = true;
@@ -590,6 +575,19 @@ function SubjectBanner({
                       >
                         {item.title}
                       </span>
+                      {/* 教具徽标——数学巨幕上尤其重要。 */}
+                      {item.tool ? (
+                        <span
+                          className={cn(
+                            "hidden shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-medium sm:inline-block",
+                            isChinese
+                              ? "border-[rgba(184,155,94,0.4)] bg-[#FFFEFA] text-[#8a7340]"
+                              : "border-[#bfdbfe] bg-[#eff6ff] text-[#1d4ed8]",
+                          )}
+                        >
+                          {item.tool}
+                        </span>
+                      ) : null}
                       <ArrowRight
                         size={12}
                         strokeWidth={2.2}
@@ -608,7 +606,7 @@ function SubjectBanner({
           <div className="mb-1.5 flex items-baseline justify-between gap-2">
             <span className="text-[11px] text-[#55606e]">本学科学习进度</span>
             <span className="text-[11px] tabular-nums text-[#55606e]">
-              {doneIds.size} / {entry.episodeCount} 讲
+              {doneTotal} / {entry.episodeCount} 讲
             </span>
           </div>
           <div
@@ -625,7 +623,7 @@ function SubjectBanner({
               style={{
                 width: `${Math.min(
                   100,
-                  (doneIds.size / Math.max(1, entry.episodeCount)) * 100,
+                  (doneTotal / Math.max(1, entry.episodeCount)) * 100,
                 )}%`,
               }}
             />
@@ -640,8 +638,8 @@ function SubjectBanner({
                 : "bg-[#1d4ed8] text-white hover:bg-[#1e40af]",
             )}
           >
-            {doneIds.size > 0
-              ? `继续第 ${doneIds.size + 1} 讲 →`
+            {doneTotal > 0
+              ? `继续第 ${doneTotal + 1} 讲 →`
               : `进入${isChinese ? "语文" : "数学"}课程目录 →`}
           </Link>
         </div>

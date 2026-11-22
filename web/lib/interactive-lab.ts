@@ -57,7 +57,22 @@ export type InteractiveLabKind =
   /** 统计 · 概率模拟（初高中数学）。 */
   | "probability"
   /** 对称与平移（旧 kind，保留兼容）。 */
-  | "symmetry";
+  | "symmetry"
+  /* ── Module 5 · GitHub 开源教具 ── */
+  /** 动态量角器 + 动态三角形（几何与测量）。 */
+  | "protractor"
+  /** 实时函数坐标系实验室（mafs 范式）。 */
+  | "functionLab"
+  /** 互动统计图表台（recharts）。 */
+  | "chartLab"
+  /** 十进制凑十积木块（Mathigon Polypad 范式）。 */
+  | "decimalBlocks"
+  /** 分数圆盘。 */
+  | "fractionDisc"
+  /** 方程天平。 */
+  | "balanceScale"
+  /** 语文真实文化互动台（小学 = 笔顺字源；初高中 = 经典精读）。 */
+  | "culture";
 
 /** 一个词句的注释。 */
 export interface LabNote {
@@ -194,6 +209,64 @@ export interface InteractiveLab {
   radicals?: number[];
   /** 对称轴（旧字段，保留兼容）。 */
   axis?: number;
+  /* ── Module 5 · GitHub 开源教具配置 ── */
+  /** 数学动态教具配置。 */
+  manipulative?: {
+    /** 教具类型。 */
+    kind:
+      | "protractor"
+      | "functionLab"
+      | "chartLab"
+      | "decimalBlocks"
+      | "fractionDisc"
+      | "numberLine"
+      | "balanceScale";
+    /** 初始角度。 */
+    angle?: number;
+    /** 初始斜率。 */
+    slope?: number;
+    /** 初始截距。 */
+    intercept?: number;
+    /** 函数类型。 */
+    fnType?: "linear" | "quadratic" | "inverse";
+    /** 初始数据集。 */
+    data?: Array<{ label: string; value: number }>;
+    /** 凑十目标。 */
+    target?: number;
+    /** 等分份数。 */
+    parts?: number;
+    /** 数轴起点。 */
+    start?: number;
+    /** 数轴步长。 */
+    step?: number;
+    /** 天平左侧砝码。 */
+    leftWeights?: number[];
+    /** 天平右侧砝码。 */
+    rightWeights?: number[];
+  };
+  /** 语文文化互动台配置。 */
+  culture?: {
+    /** 学段。 */
+    stage: "primary" | "junior" | "senior";
+    /** 篇名。 */
+    workTitle?: string;
+    /** 作者。 */
+    author?: string;
+    /** 朝代。 */
+    dynasty?: string;
+    /** 经典选段 / 诗词原文。 */
+    excerpt?: string;
+    /** 可点击高亮词句。 */
+    keywords?: Array<{
+      term: string;
+      device: string;
+      meaning: string;
+      plain: string;
+      en?: string;
+    }>;
+    /** 字源演变。 */
+    etymology?: Array<{ char: string; glyph: string; story: string }>;
+  };
 }
 
 /**

@@ -498,7 +498,7 @@ export function CertificateDialog({
                 className={cn(
                   "mb-3 rounded-lg px-3 py-2 text-[11.5px]",
                   verifyResult.valid
-                    ? "bg-emerald-500/8 text-emerald-700"
+                    ? "bg-emerald-50 text-emerald-700"
                     : "bg-[var(--destructive)]/8 text-[var(--destructive)]",
                 )}
               >

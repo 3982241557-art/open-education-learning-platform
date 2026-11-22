@@ -421,7 +421,7 @@ export function EpisodeCompletionModal({
                     done
                       ? "bg-blue-700 text-white"
                       : active
-                        ? "bg-blue-700/12 text-blue-800 ring-1 ring-blue-700/35"
+                        ? "bg-blue-50 text-blue-800 ring-1 ring-blue-700/35"
                         : "bg-slate-900/[0.06] text-slate-400",
                   )}
                   style={{ height: 18, width: 18 }}
@@ -562,9 +562,9 @@ function QuizStage({
                         playful && !submitted && "seek-press",
                         !playful && "transition-all",
                         submitted && isCorrect
-                          ? "border-emerald-600/40 bg-emerald-50/70 text-slate-900"
+                          ? "border-emerald-600/40 bg-emerald-50 text-slate-900"
                           : submitted && selected
-                            ? "border-rose-500/40 bg-rose-50/60 text-slate-900"
+                            ? "border-rose-500/40 bg-rose-50 text-slate-900"
                             : selected
                               ? "border-blue-700/45 bg-blue-600/[0.09] text-slate-900"
                               : "border-slate-200 bg-white text-slate-700 hover:border-blue-700 hover:bg-blue-50",
@@ -603,8 +603,8 @@ function QuizStage({
                     "ml-6 mt-2 border px-3 py-2 text-[11.5px] leading-relaxed",
                     style.radius,
                     correct
-                      ? "border-emerald-600/25 bg-emerald-50/50 text-slate-700"
-                      : "border-amber-500/30 bg-amber-50/55 text-slate-700",
+                      ? "border-emerald-600/25 bg-emerald-50 text-slate-700"
+                      : "border-amber-500/30 bg-amber-50 text-slate-700",
                   )}
                 >
                   <span className="font-medium">
@@ -728,7 +728,7 @@ function SummaryStage({
               "inline-flex items-center gap-1.5 border px-3 py-2 text-[12px] font-medium transition-all",
               style.radius,
               noteSaved
-                ? "cursor-default border-emerald-600/30 bg-emerald-50/60 text-emerald-700"
+                ? "cursor-default border-emerald-600/30 bg-emerald-50 text-emerald-700"
                 : "border-slate-200 bg-white text-slate-700 hover:border-blue-700 hover:bg-blue-50",
             )}
           >

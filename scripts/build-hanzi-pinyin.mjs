@@ -141,7 +141,7 @@ const PINYIN = {
   好朋友: "hǎo péng yǒu", 不好看: "bù hǎo kàn",
 };
 
-function main() {
+async function main() {
   if (!fs.existsSync(CHARS_FILE)) {
     console.error("❌ 找不到字表，请先运行 scripts/build-hanzi-data.mjs");
     process.exit(1);
@@ -169,14 +169,80 @@ function main() {
     }
   }
 
+  /**
+   * 用 ``pinyin-pro`` 兜底。
+   *
+   * 补表是**手工维护**的 400 字常用表——但课程数据里的生字已经
+   * 扩到 760 个（真实教材写字表），总有新字不在补表里。
+   *
+   * 与其让这些字的读音是空字符串（朗读功能静默失效），不如用
+   * ``pinyin-pro`` 现算。这是**构建期**的一次性计算，运行时
+   * 零依赖。
+   */
+  const missingBefore = chars.filter((char) => !table[char]);
+  if (missingBefore.length > 0) {
+    // ``pinyin-pro`` 装在 ``web/`` 下（Next.js 应用的依赖目录），
+    // 而脚本跑在仓库根——所以要显式指到那个路径。
+    const pinyinModule = await import(
+      path.join(ROOT, "web", "node_modules", "pinyin-pro", "dist", "index.js")
+    );
+    const pinyin = pinyinModule.default?.pinyin ?? pinyinModule.pinyin;
+    if (typeof pinyin !== "function") {
+      throw new Error("pinyin-pro 导出格式异常——无法取得 pinyin() 函数");
+    }
+    for (const char of missingBefore) {
+      const result = pinyin(char, { toneType: "symbol", type: "array" });
+      const value = Array.isArray(result) ? result[0] : result;
+      if (value) table[char] = value;
+    }
+    console.log(
+      `   ↻ pinyin-pro 补齐 ${missingBefore.length - chars.filter((c) => !table[c]).length} 个字的读音`,
+    );
+  }
+
   const missing = chars.filter((char) => !table[char]);
   fs.writeFileSync(OUT_FILE, `${JSON.stringify(table, null, 0)}\n`, "utf8");
 
+  /**
+   * 同步生成**构建期用的静态表**。
+   *
+   * ``scripts/k12-hanzi-pinyin-table.mjs`` 是构建脚本直接 import 的
+   * 那个 ``.mjs`` 字面量表。运行时（前端）读 JSON，构建期（脚本）读
+   * 这个 ``.mjs``——两者必须**始终一致**，否则课程数据里的拼音会
+   * 和运行时读到的对不上。
+   */
+  const tableModule = path.join(__dirname, "k12-hanzi-pinyin-table.mjs");
+  const entries = Object.entries(table)
+    .filter(([, value]) => value)
+    .sort(([a], [b]) => a.localeCompare(b, "zh-Hans-CN"))
+    .map(([char, value]) => `  "${char}": "${value}",`)
+    .join("\n");
+  fs.writeFileSync(
+    tableModule,
+    `/**
+ * 生字读音表（构建期使用）
+ * ========================
+ *
+ * 由 scripts/build-hanzi-pinyin.mjs 生成，
+ * 与 web/public/data/hanzi-pinyin.json 保持一致。
+ *
+ * 运行 node scripts/build-hanzi-pinyin.mjs 可重新生成。
+ */
+
+/** 字 → 拼音。 */
+export const PINYIN_TABLE = {
+${entries}
+};
+`,
+    "utf8",
+  );
+
   console.log(`✅ 拼音表已生成：${Object.keys(table).length} 字`);
   console.log(`   → ${path.relative(ROOT, OUT_FILE)}`);
+  console.log(`   → ${path.relative(ROOT, tableModule)}`);
   if (missing.length) {
     console.log(`   ⚠️  ${missing.length} 个字暂无读音：${missing.join("")}`);
   }
 }
 
-main();
+await main();

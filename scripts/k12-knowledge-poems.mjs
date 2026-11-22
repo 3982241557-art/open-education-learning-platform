@@ -868,6 +868,44 @@ export const POEMS = [
       "one red apricot branch reaches past the wall.",
     ],
   },
+  {
+    // ⛔ **合辑条目**——教材里《古诗二首》是一课两首。
+    //    这里把《村居》与《咏柳》合成一课，**逐句对应**，
+    //    保证题目问到的每一句都是**这一课真实会学的**那一句。
+    title: "古诗二首",
+    author: "高鼎 · 贺知章",
+    dynasty: "清 · 唐",
+    lines: [
+      "草长莺飞二月天",
+      "拂堤杨柳醉春烟",
+      "儿童散学归来早",
+      "忙趁东风放纸鸢",
+      "碧玉妆成一树高",
+      "万条垂下绿丝绦",
+      "不知细叶谁裁出",
+      "二月春风似剪刀",
+    ],
+    plain: [
+      "《村居》——农历二月，青草生长、黄莺飞舞，一句话交代时令与景致。",
+      "《村居》——杨柳的枝条拂过堤岸，像沉醉在春天的雾气里；「醉」字把柳写活了。",
+      "《村居》——孩子们放学回来得早，「散学」是古词，指放学。",
+      "《村居》——赶紧趁着东风把风筝放起来；全诗写的是童年生活的鲜活与自由。",
+      "《咏柳》——整棵柳树像用碧玉装扮成的，「碧玉」既写颜色，也写那份润泽的光泽。",
+      "《咏柳》——千万条柳枝垂下来，像绿色的丝带；「绿丝绦」三个字把柳条比作丝绸。",
+      "《咏柳》——问这些细细的叶子是谁裁出来的？一句问，把咏物变成对话。",
+      "《咏柳》——答：二月的春风就像一把剪刀。这是全诗最著名的想象——把无形的春风写成有形的工具。",
+    ],
+    en: [
+      "In the second month of spring, grass grows and orioles fly.",
+      "Willows by the bank, drunk in the spring haze.",
+      "Children come back from school early today —",
+      "hurrying to fly their kites in the east wind.",
+      "A tall tree dressed in jade and green.",
+      "Ten thousand drooping strands of green silk.",
+      "Who cut these slender leaves so fine?",
+      "The spring breeze of the second month — a pair of scissors.",
+    ],
+  },
 ];
 
 /** 按课文中出现顺序做一次「包含」匹配。 */

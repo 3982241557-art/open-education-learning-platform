@@ -26,6 +26,7 @@ import { editionOf } from "@/lib/k12-api";
 import type {
   K12Index,
   K12IndexEntry,
+  K12Question,
   K12SeriesDetail,
 } from "@/lib/k12-api";
 
@@ -99,6 +100,33 @@ function normalizeEntry(raw: any): K12IndexEntry {
   };
 }
 
+/** 归一化一组题目——过滤掉结构不完整的项。 */
+function normalizeQuestions(raw: unknown): K12Question[] {
+  if (!Array.isArray(raw)) return [];
+  const out: K12Question[] = [];
+  for (const item of raw) {
+    const options = Array.isArray((item as any)?.options)
+      ? ((item as any).options as unknown[]).map((opt) => String(opt))
+      : [];
+    // 结构不完整的题直接丢掉——宁可少一道，也不要渲染出一张残卡。
+    if (!item || !Array.isArray((item as any).options)) continue;
+    if (options.length < 2) continue;
+    const question = String((item as any).question ?? "");
+    if (!question) continue;
+    const correctIndex = Number((item as any).correctIndex ?? 0) || 0;
+    out.push({
+      question,
+      options,
+      correctIndex:
+        correctIndex >= 0 && correctIndex < options.length ? correctIndex : 0,
+      explanation: String((item as any).explanation ?? ""),
+      concept: String((item as any).concept ?? ""),
+      source: (item as any).source ? String((item as any).source) : undefined,
+    });
+  }
+  return out;
+}
+
 /**
  * 拉一套系列的详情。
  *
@@ -157,6 +185,12 @@ export async function fetchK12Series(
         interactive_lab: raw?.interactive_lab
           ? (raw.interactive_lab as K12SeriesDetail["episodes"][number]["interactive_lab"])
           : null,
+        diagnostics: normalizeQuestions(raw?.diagnostics),
+        quizzes: normalizeQuestions(raw?.quizzes),
+        summary: Array.isArray(raw?.summary)
+          ? raw.summary.map((item: unknown) => String(item))
+          : [],
+        core_title: raw?.core_title ? String(raw.core_title) : undefined,
       })),
       interactiveNodes: Array.isArray(data.interactiveNodes)
         ? data.interactiveNodes.map((raw: any) => ({

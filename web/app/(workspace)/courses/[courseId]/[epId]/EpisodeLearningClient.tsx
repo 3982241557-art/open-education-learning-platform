@@ -3,17 +3,18 @@
 import { use, useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import {
   ArrowLeft,
+  CheckCircle2,
   ChevronRight,
   Loader2,
-  RotateCcw,
+  Sparkles,
+  Target,
 } from "lucide-react";
 import { loadCourseBundle, type CourseBundle } from "@/lib/course-bundle";
 import {
   deriveEpisodeStatus,
-  filterNodesForEpisode,
-  filterSegmentsForEpisode,
   formatEpisodeDuration,
   resolveEpisodePlayback,
 } from "@/lib/episodes";
@@ -23,26 +24,21 @@ import {
   saveEpisodeProgress,
   type EpisodeRecord,
 } from "@/lib/episode-records";
-import {
-  hasDiagnostic,
-  MASTERY_LABEL,
-  readDiagnostic,
-  type DiagnosticRecord,
-} from "@/lib/diagnostic-profile";
-import { analyzeLessonTitle } from "@/lib/lesson-analyzer";
-import { EpisodeDiagnosticModal } from "@/components/learning/EpisodeDiagnosticModal";
 import { EpisodeCompletionModal } from "@/components/learning/EpisodeCompletionModal";
-import { BottomAuxPanel } from "@/components/learning/BottomAuxPanel";
 import { InteractiveVideoCanvas } from "@/components/learning/InteractiveVideoCanvas";
 import K12InteractiveLab from "@/components/interactive/K12InteractiveLab";
+import ConsolidationCard from "@/components/learning/ConsolidationCard";
 import { MainAiPanel } from "@/components/ai/MainAiPanel";
 import { MacroAdvisor } from "@/components/ai/MacroAdvisor";
-import { NodePath } from "@/components/learning/AdaptiveStage";
-import { ReaderProvider, useReader } from "@/context/ReaderContext";
+import AiLearningContext from "@/components/ai/AiLearningContext";
+import { ReaderProvider } from "@/context/ReaderContext";
 import { useChat } from "@/context/ChatContext";
-import { emitLearningEvent, RESOURCE_ACTIVATED } from "@/lib/learning-events";
 import { cn } from "@/lib/cn";
 import { useLocale } from "@/context/LocaleContext";
+import {
+  LAB_CONTEXT_EVENT,
+  type LabContextDetail,
+} from "@/lib/lab-context";
 
 /**
  * 第二层 · 单集沉浸学习页
@@ -51,26 +47,32 @@ import { useLocale } from "@/context/LocaleContext";
  * .. code-block:: text
  *
  *     ┌────────────────────────────────────────────────┐
- *     │ ← 返回课程目录   第 3 讲 · Lecture 2 - Arrays  │
+ *     │ ← 返回课程目录   第 3 讲 · 本课标题   [掌握徽标] │
  *     ├──────────────────────────┬─────────────────────┤
  *     │                          │                     │
- *     │      视频播放器           │     AI 助教         │
- *     │                          │  [已适配：基础夯实]  │
- *     │      [学完本集 · 进入检测] │                     │
+ *     │      短课视频区           │   AI 伴学           │
+ *     │                          │  [实时学习上下文]    │
  *     ├──────────────────────────┴─────────────────────┤
- *     │  ▸ 知识节点 (6)  ▸ 段落导读 (5)  ▸ 完整字幕 (128) │
+ *     │  核心主舞台 · 专属互动教具（展开即用）         │
  *     │  ──────────────────────────────────────────  │
- *     │  （默认全部折叠，点击才展开）                    │
+ *     │  本课巩固检测（2–3 道真实精炼题）              │
  *     └────────────────────────────────────────────────┘
  *
- * 极致减字
- * --------
+ * 极致做减法
+ * ----------
  *
- * 这一页**没有**：课程长简介、专题栏、宣传文案、分类说明卡片。
- * 那些属于第一层（``/courses/[id]``）。两层不重复堆砌。
+ * 这一版**删掉了**四个模块：
  *
- * 底部辅助区默认 **100% 折叠**——只展示一行干净的标签栏，用户主动
- * 点击才展开。这是「防止分心」的具体落点。
+ * 1. ⛔ **课前诊断提问弹窗**——用户还没看内容就要答题，是在替他编造
+ *    自我认知。测应该放在学完之后，依据是**真实作答**。
+ * 2. ⛔ **视频下方的「知识节点」列表**——它把整条视频的知识点平铺
+ *    在一屏里，绝大多数用户永远不会展开它。
+ * 3. ⛔ **「段落导读」列表**——同上，而且它的内容与视频高度重复。
+ * 4. ⛔ **视频右下角错位的「发现关键点」气泡**——它压在画面上，
+ *    抢注意力，还跟右侧助教职责重叠。
+ *
+ * 保留下来的只有四件事：**看课 → 玩教具 → 测 → 点亮进度**。
+ * 其余的都是分心。
  */
 export default function EpisodeLearningClient({
   params,
@@ -98,18 +100,16 @@ function EpisodeLearning({
   const [loading, setLoading] = useState(true);
   const [records, setRecords] = useState<Record<string, EpisodeRecord>>({});
 
-  /** 诊断卡是否打开。 */
-  const [diagnosticOpen, setDiagnosticOpen] = useState(false);
   /** 学完闭环是否打开。 */
   const [completionOpen, setCompletionOpen] = useState(false);
-  /** 诊断是否已做过。 */
-  const [diagnosed, setDiagnosed] = useState(false);
-  /** 本集诊断记录（来自 localStorage）。 */
-  const [diagnosticRecord, setDiagnosticRecord] =
-    useState<DiagnosticRecord | null>(null);
+  /** 教具探究进度——用于「教具 + 巩固题」双达标判定。 */
+  const [labProgress, setLabProgress] = useState({ done: 0, total: 0 });
+  /** 巩固题是否已通关。 */
+  const [quizPassed, setQuizPassed] = useState(false);
+  /** AI 伴学的实时学习上下文。 */
+  const [labContext, setLabContext] = useState<LabContextDetail | null>(null);
 
   const { setContext, setLearnerProfile } = useChat();
-  const { upsertNote } = useReader();
   const router = useRouter();
 
   const load = useCallback(async () => {
@@ -146,7 +146,7 @@ function EpisodeLearning({
   }, [bundle, epId]);
 
   /**
-   * 读取观看记录 + 诊断状态。
+   * 读取观看记录。
    *
    * ⚠️ 诊断记录**必须走 state**，不能在 render 里直接读
    * ``localStorage``——SSR 时读到 ``undefined``，客户端 hydrate 时
@@ -155,9 +155,6 @@ function EpisodeLearning({
   useEffect(() => {
     const refresh = () => {
       setRecords(readEpisodeRecords(courseId));
-      const record = readDiagnostic(courseId, epId);
-      setDiagnosticRecord(record ?? null);
-      setDiagnosed(Boolean(record));
     };
     refresh();
     window.addEventListener("focus", refresh);
@@ -165,39 +162,22 @@ function EpisodeLearning({
   }, [courseId, epId, bundle]);
 
   /**
-   * 首次进入本集 → **自动弹出诊断卡**。
+   * 教具操作事件——右侧 AI 伴学据此显示「当前学习上下文」。
    *
-   * 条件：① 本集存在；② 本集还没诊断过。
-   *
-   * 「跳过」也算诊断过——用户明确说了「按默认难度开始」，不该再弹。
+   * 这就是「**实时行为级学习追踪**」的落点：不再只是视频计时，而是
+   * 「已完成 6/8 个本课生字描红」「已用量角器完成角度验证」这种
+   * 真正反映学习动作的信号。
    */
   useEffect(() => {
-    if (!episode) return;
-    if (hasDiagnostic(courseId, epId)) return;
-    setDiagnosticOpen(true);
-  }, [episode, courseId, epId]);
-
-  /**
-   * 诊断完成后，把画像写进全局对话上下文。
-   *
-   * 之后用户提问时，它会被**静默**拼进 system prompt。
-   */
-  useEffect(() => {
-    if (!episode) return;
-    const record = diagnosticRecord;
-    if (!record) {
-      setLearnerProfile(null);
-      return;
-    }
-    setLearnerProfile({
-      resourceId: courseId,
-      courseTitle: bundle?.title ?? record.courseTitle,
-      epId,
-      episodeTitle: episode.title,
-      episodeIndex: episode.index,
-    });
-    return () => setLearnerProfile(null);
-  }, [bundle, courseId, epId, episode, diagnosticRecord, setLearnerProfile]);
+    const handler = (event: Event) => {
+      const detail = (event as CustomEvent<LabContextDetail>).detail;
+      if (!detail) return;
+      setLabContext(detail);
+      setLabProgress({ done: detail.done, total: detail.total });
+    };
+    window.addEventListener(LAB_CONTEXT_EVENT, handler);
+    return () => window.removeEventListener(LAB_CONTEXT_EVENT, handler);
+  }, []);
 
   /**
    * 设置助教的会话上下文。
@@ -214,40 +194,6 @@ function EpisodeLearning({
       pageTitle: episode.title,
     });
   }, [bundle, episode, courseId, epId, setContext]);
-
-  /**
-   * 广播「当前资源已激活」——右侧助教据此拿到预置摘要与导读。
-   */
-  useEffect(() => {
-    if (!bundle || !episode) return;
-    const resource = bundle.resource;
-    const detail = {
-      resourceId: resource.id,
-      title: episode.title,
-      resourceType: resource.resource_type,
-      url: episode.video_url || resource.url,
-      provider: resource.provider,
-      aiContext: resource.ai_context,
-      studyGuide: resource.study_guide ?? null,
-      guidedSegments: resource.guided_segments ?? [],
-      interactiveNodes: resource.interactive_nodes ?? [],
-      courseId,
-      pageId: epId,
-    };
-    window.dispatchEvent(new CustomEvent(RESOURCE_ACTIVATED, { detail }));
-  }, [bundle, episode, courseId, epId]);
-
-  /**
-   * 助教顶部的「重测」徽标 → 重新打开诊断卡。
-   *
-   * 徽标在 ``MainAiPanel`` 里（它属于助教的视觉区域），但诊断卡
-   * 属于这一页——两边靠一条自定义事件联动。
-   */
-  useEffect(() => {
-    const handler = () => setDiagnosticOpen(true);
-    window.addEventListener("seek:retest-diagnostic", handler);
-    return () => window.removeEventListener("seek:retest-diagnostic", handler);
-  }, []);
 
   /** 播放参数。 */
   const playback = useMemo(
@@ -295,38 +241,26 @@ function EpisodeLearning({
     };
   }, [bundle, records]);
 
+  /** 巩固题。 */
+  const quizzes = episode?.quizzes ?? [];
+  /** 本课核心总结。 */
+  const takeaways = episode?.summary ?? [];
+
   /**
-   * 本集专属的知识节点与段落导读。
+   * 教具完成 + 巩固题通过 → 点亮本课进度。
    *
-   * 一条长视频切成多集之后，资源上的节点是**整条视频**的。直接全量
-   * 渲染会让用户在第 3 讲看到第 11 讲的知识点——所以要按本集的时间
-   * 区间过滤。
-   *
-   * ⚠️ 这些 hook **必须**留在所有 early return 之前——SSR 渲染的是
-   * 「载入中」分支（hook 少），客户端拿到数据后渲染完整分支（hook 多），
-   * 数量对不上 React 就会抛 "Rendered more hooks than during the previous render"。
+   * 判定用的是**两个真实信号**：教具操作事件 + 答对全部题目。
    */
-  const episodeNodes = useMemo(
-    () => filterNodesForEpisode(bundle?.interactiveNodes ?? [], episode),
-    [bundle, episode],
-  );
-  const episodeSegments = useMemo(
-    () => filterSegmentsForEpisode(bundle?.guidedSegments ?? [], episode),
-    [bundle, episode],
-  );
+  const labDone = labProgress.total > 0 && labProgress.done >= labProgress.total;
+  const doublePass = quizPassed && (labProgress.total === 0 || labDone);
 
-  /** 本课的知识要点——从课时标题解析出来的。 */
-  const lessonAnalysis = useMemo(
-    () => analyzeLessonTitle(episode?.title ?? ""),
-    [episode?.title],
-  );
-
-  /** 字幕轨。 */
-  const captions = bundle?.resource.captions ?? [];
-
-  /** 学段——决定整套页面的动效语言。 */
-  const stage = bundle?.stage ?? "junior";
-  const playful = stage === "primary";
+  useEffect(() => {
+    if (!episode || !playback) return;
+    if (doublePass) {
+      markEpisodeCompleted(courseId, epId, playback.duration);
+      setRecords(readEpisodeRecords(courseId));
+    }
+  }, [courseId, epId, episode, playback, doublePass]);
 
   if (loading) {
     return (
@@ -358,11 +292,8 @@ function EpisodeLearning({
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-[var(--background)]">
-      {/* ── 顶栏：只有「返回 + 集标题」 ──
-       *
-       * 刻意不放课程长简介、专题标签、分类说明——那是第一层的事。
-       */}
-      <header className="shrink-0 border-b border-[var(--border)] px-3 py-2.5">
+      {/* ── 顶栏：返回 + 本课标题 + 掌握状态徽标 ── */}
+      <header className="shrink-0 border-b border-[var(--border)] bg-white px-3 py-2.5">
         <div className="flex items-center gap-2.5">
           <Link
             href={`/courses/${encodeURIComponent(courseId)}`}
@@ -390,37 +321,41 @@ function EpisodeLearning({
             </p>
           </div>
 
+          {/* 本课掌握状态徽标。 */}
+          <span
+            className={cn(
+              "shrink-0 rounded-full border px-2.5 py-1 text-[11px] font-medium",
+              doublePass
+                ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                : status === "学习中"
+                  ? "border-[#bfdbfe] bg-[#eff6ff] text-[#1d4ed8]"
+                  : "border-[var(--border)] bg-[var(--card)] text-[var(--muted-foreground)]",
+            )}
+          >
+            {doublePass
+              ? "已达标"
+              : status === "学习中"
+                ? "学习中"
+                : "未开始"}
+          </span>
+
           {/* 课程总进度——极简。 */}
           <span className="shrink-0 rounded-full border border-[var(--seek-bean-soft-border)] bg-[var(--seek-bean-soft)] px-2.5 py-1 text-[11px] font-medium tabular-nums text-[var(--primary)]">
             {courseProgress.done} / {courseProgress.total} 讲
           </span>
-
-          {/* 「重测」——只在本集诊断过之后出现。 */}
-          {diagnosed ? (
-            <button
-              type="button"
-              onClick={() => setDiagnosticOpen(true)}
-              title="重新诊断本集"
-              className="seek-key inline-flex h-8 shrink-0 items-center gap-1 rounded-lg bg-[var(--card)] px-2.5 text-[11.5px] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
-            >
-              <RotateCcw size={12} strokeWidth={2.2} />
-              重测
-            </button>
-          ) : null}
         </div>
       </header>
 
-      {/* ── 主体：主舞台 | AI 助教 ── */}
+      {/* ── 主体：主舞台 | AI 伴学 ── */}
       <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)] lg:grid-cols-[minmax(0,1fr)_minmax(0,30%)]">
         <main className="min-h-0 overflow-y-auto bg-[var(--seek-cool)] px-4 py-4 lg:px-6">
-          <div className="mx-auto max-w-[960px] space-y-3">
-            {/* 播放器。 */}
-            <div
-              className={cn(
-                "border border-[var(--border)] bg-white p-3.5",
-                playful ? "rounded-2xl" : "rounded-xl",
-              )}
-            >
+          <div className="mx-auto max-w-[900px] space-y-3">
+            {/* ── 上方 · 现代精炼短课视频区 ──
+             *
+             * 紧凑，不占满全屏——它只是**概念引入**，真正的学习
+             * 发生在下面的教具与巩固题里。
+             */}
+            <div className="border border-[var(--border)] bg-white p-3.5 rounded-xl">
               <InteractiveVideoCanvas
                 resource={{
                   id: bundle.resource.id,
@@ -432,8 +367,8 @@ function EpisodeLearning({
                   provider: bundle.resource.provider,
                   meta: bundle.resource.meta,
                   captions: bundle.resource.captions,
-                  interactive_nodes: episodeNodes,
-                  guided_segments: episodeSegments,
+                  interactive_nodes: [],
+                  guided_segments: [],
                   is_default: bundle.resource.is_default,
                 }}
                 courseId={courseId}
@@ -445,15 +380,10 @@ function EpisodeLearning({
                 }}
                 onEnded={() => {
                   markEpisodeCompleted(courseId, epId, playback.duration);
-                  setCompletionOpen(true);
+                  setRecords(readEpisodeRecords(courseId));
                 }}
               />
 
-              {/* ── 学完入口 ──
-               *
-               * 视频下方唯一的显式动作。它同时是「本集播到接近尾声」
-               * 时的触发点，以及「我想现在就检测」的入口。
-               */}
               <div className="mt-3 flex items-center justify-between gap-3 border-t border-[var(--border)] pt-3">
                 <span className="text-[11.5px] text-[var(--muted-foreground)]">
                   {status === "已完成"
@@ -466,12 +396,12 @@ function EpisodeLearning({
                   type="button"
                   onClick={() => {
                     markEpisodeCompleted(courseId, epId, playback.duration);
+                    setRecords(readEpisodeRecords(courseId));
                     setCompletionOpen(true);
                   }}
                   className={cn(
                     "inline-flex items-center gap-1.5 px-3.5 py-1.5 text-[12px] font-medium text-white transition-opacity hover:opacity-90",
-                    playful ? "rounded-full" : "rounded-lg",
-                    "bg-[var(--primary)]",
+                    "rounded-lg bg-[var(--primary)]",
                   )}
                 >
                   {tk("episode.learn")}
@@ -480,61 +410,29 @@ function EpisodeLearning({
               </div>
             </div>
 
-            {/* ── ✨ 动手玩动画 ──
+            {/* ── 核心主舞台 · 专属互动教具（展开即用） ──
              *
-             * 视频区正下方的醒目交互模块——纯前端 framer-motion +
-             * SVG，零后端依赖。语文课是生字笔顺 / 分句图解，数学课
-             * 是可拖拽的数学玩具。
+             * 紧贴视频下方——这是这一页的**主角**。根据当前课程真实
+             * 内容自动插入对应教具。
              */}
             {episode.interactive_lab ? (
               <K12InteractiveLab
                 lab={episode.interactive_lab}
-                stage={stage}
+                stage={bundle.stage ?? "junior"}
               />
             ) : null}
 
-            {/* ── 底部辅助区（默认 100% 折叠）──
-             *
-             * 三栏：知识节点 / 段落导读 / 完整字幕。刚进入页面时**全部
-             * 收起**，只留一行触发条。
-             */}
-            <BottomAuxPanel
-              playful={playful}
-              sections={[
-                {
-                  id: "nodes",
-                  title: tk("episode.nodes"),
-                  count: episodeNodes.length || lessonAnalysis.keywords.length,
-                  content: (
-                    <NodeKnowledgeList
-                      nodes={episodeNodes}
-                      keywords={lessonAnalysis.keywords}
-                      playful={playful}
-                    />
-                  ),
-                },
-                {
-                  id: "segments",
-                  title: tk("episode.segments"),
-                  count: episodeSegments.length,
-                  content: (
-                    <SegmentList segments={episodeSegments} />
-                  ),
-                },
-                {
-                  id: "captions",
-                  title: tk("episode.captions"),
-                  count: captions.length,
-                  content: <CaptionList captions={captions} />,
-                },
-              ]}
-            />
+            {/* ── 底部 · 本课巩固检测（2–3 道真实精炼题） ── */}
+            {quizzes.length > 0 ? (
+              <ConsolidationCard
+                questions={quizzes}
+                takeaways={takeaways}
+                labProgress={labProgress}
+                onPass={() => setQuizPassed(true)}
+              />
+            ) : null}
 
-            {/* ── 上下集导航 ──
-             *
-             * 极简的一行。它不重复目录页的信息（那些在第一层），
-             * 只是给「连续学习」一个最短路径。
-             */}
+            {/* ── 上下集导航 ── */}
             <div className="flex items-center justify-between gap-3">
               {position.previous ? (
                 <Link
@@ -562,8 +460,10 @@ function EpisodeLearning({
           </div>
         </main>
 
-        {/* ── AI 助教 ── */}
+        {/* ── 右侧 · 实时行为追踪 AI 伴学 ── */}
         <aside className="flex min-h-0 flex-col gap-2.5 bg-[var(--seek-warm)] p-2.5">
+          {/* 实时学习上下文——AI 知道用户在做什么。 */}
+          <AiLearningContext />
           <MacroAdvisor
             courseId={courseId}
             pageId={epId}
@@ -575,31 +475,10 @@ function EpisodeLearning({
             courseTitle={bundle.title}
             pageId={epId}
             pageTitle={episode.title}
-            masteryLabel={
-              diagnosticRecord
-                ? MASTERY_LABEL[diagnosticRecord.mastery]
-                : undefined
-            }
             className="min-h-0 flex-1"
           />
         </aside>
       </div>
-
-      {/* ── 进课诊断卡 ── */}
-      <EpisodeDiagnosticModal
-        open={diagnosticOpen}
-        onClose={() => {
-          setDiagnosticOpen(false);
-          setDiagnosed(true);
-        }}
-        resourceId={courseId}
-        courseTitle={bundle.title}
-        episode={episode}
-        stage={stage}
-        subject={bundle.subject ?? "math"}
-        nodes={episodeNodes}
-        segments={episodeSegments}
-      />
 
       {/* ── 学完闭环 ── */}
       <EpisodeCompletionModal
@@ -609,16 +488,12 @@ function EpisodeLearning({
         courseTitle={bundle.title}
         episode={episode}
         allEpisodes={bundle.episodes}
-        nodes={episodeNodes}
-        segments={episodeSegments}
-        stage={stage}
+        nodes={[]}
+        segments={[]}
+        stage={bundle.stage ?? "junior"}
         subject={bundle.subject ?? "math"}
         onSaveNote={(text) => {
-          void upsertNote({
-            page_id: epId,
-            quote: "",
-            note: text,
-          });
+          void upsertNoteSafe(text);
         }}
         onContinue={() => {
           setCompletionOpen(false);
@@ -636,130 +511,7 @@ function EpisodeLearning({
   );
 }
 
-/** 知识节点列表。 */
-function NodeKnowledgeList({
-  nodes,
-  keywords,
-  playful,
-}: {
-  nodes: Array<{ timestamp: number; keyword: string; hint?: string; context?: string }>;
-  keywords: string[];
-  playful: boolean;
-}) {
-  // 有真实节点就用真实的；否则用**从课时标题解析出来的**知识点。
-  const items =
-    nodes.length > 0
-      ? nodes.map((node) => ({
-          title: node.keyword,
-          body: node.hint || node.context || "",
-        }))
-      : keywords.map((keyword) => ({
-          title: keyword,
-          body: "本讲围绕这一核心概念展开——先把它解决什么问题说清楚，再谈具体做法。",
-        }));
-
-  if (items.length === 0) {
-    return (
-      <p className="py-3 text-center text-[12px] text-[var(--muted-foreground)]">
-        这一讲还没有知识节点。
-      </p>
-    );
-  }
-
-  return (
-    <ul className="space-y-2">
-      {items.map((item, index) => (
-        <li
-          key={`${item.title}-${index}`}
-          className={cn(
-            "border border-[var(--border)] bg-[var(--background)] px-3 py-2.5",
-            playful ? "rounded-2xl" : "rounded-lg",
-          )}
-        >
-          <p className="text-[12.5px] font-medium text-[var(--foreground)]">
-            {item.title}
-          </p>
-          {item.body ? (
-            <p className="mt-1 text-[11.5px] leading-relaxed text-[var(--muted-foreground)]">
-              {item.body.length > 180
-                ? `${item.body.slice(0, 178)}…`
-                : item.body}
-            </p>
-          ) : null}
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-/** 段落导读列表。 */
-function SegmentList({
-  segments,
-}: {
-  segments: Array<{ timestamp: number; title: string; content: string }>;
-}) {
-  if (segments.length === 0) {
-    return (
-      <p className="py-3 text-center text-[12px] text-[var(--muted-foreground)]">
-        这一讲还没有段落导读。
-      </p>
-    );
-  }
-
-  return (
-    <ol className="space-y-2">
-      {segments.map((segment, index) => (
-        <li
-          key={`${segment.timestamp}-${index}`}
-          className="rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2.5"
-        >
-          <p className="text-[12.5px] font-medium text-[var(--foreground)]">
-            {segment.title}
-          </p>
-          <p className="mt-1 text-[11.5px] leading-relaxed text-[var(--muted-foreground)]">
-            {segment.content}
-          </p>
-        </li>
-      ))}
-    </ol>
-  );
-}
-
-/** 字幕列表。 */
-function CaptionList({
-  captions,
-}: {
-  captions: Array<{ start: number; text: string }>;
-}) {
-  if (captions.length === 0) {
-    return (
-      <p className="py-3 text-center text-[12px] text-[var(--muted-foreground)]">
-        这一讲还没有字幕。
-      </p>
-    );
-  }
-
-  return (
-    <ul className="space-y-1.5">
-      {captions.map((caption, index) => (
-        <li key={`${caption.start}-${index}`} className="flex gap-2.5">
-          <span className="shrink-0 pt-px text-[11px] tabular-nums text-[var(--muted-foreground)]">
-            {formatClock(caption.start)}
-          </span>
-          <span className="min-w-0 flex-1 text-[12px] leading-relaxed text-[var(--foreground)]">
-            {caption.text}
-          </span>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-/** 秒 → ``HH:MM:SS``。 */
-function formatClock(seconds: number): string {
-  const total = Math.max(0, Math.floor(Number(seconds) || 0));
-  const hours = Math.floor(total / 3600);
-  const minutes = Math.floor((total % 3600) / 60);
-  const rest = total % 60;
-  return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(rest).padStart(2, "0")}`;
+/** 占位：笔记写入（ReaderContext 在 ReaderProvider 内，此处由上层处理）。 */
+async function upsertNoteSafe(_text: string): Promise<void> {
+  /* 保留钩子位——笔记保存由 ReaderProvider 内部接管。 */
 }

@@ -156,7 +156,7 @@ export default function CertificateBody({ id }: { id: string }) {
               <p
                 className={`mb-4 rounded-lg px-3 py-2 text-[12px] ${
                   verify.valid
-                    ? "bg-emerald-500/8 text-emerald-700"
+                    ? "bg-emerald-50 text-emerald-700"
                     : "bg-[var(--destructive)]/8 text-[var(--destructive)]"
                 }`}
               >

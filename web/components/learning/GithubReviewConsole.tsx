@@ -570,7 +570,7 @@ export function GithubReviewConsole({
                 className={cn(
                   "border-b border-[var(--border)] px-3 py-2.5 transition-colors",
                   candidate.approval === "approved"
-                    ? "bg-emerald-500/5"
+                    ? "bg-emerald-50"
                     : candidate.approval === "ignored"
                       ? "opacity-45"
                       : "",

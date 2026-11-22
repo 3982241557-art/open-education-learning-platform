@@ -60,6 +60,19 @@ export function buildInteractiveLab({ subject, stage, coreTitle, fullTitle, grad
               en: poem.en,
             }
           : null,
+        // Module 5 · 语文真实文化互动台（小学段 = 笔顺 + 字源）。
+        culture: {
+          stage: "primary",
+          workTitle: poem?.title,
+          author: poem?.author,
+          dynasty: poem?.dynasty,
+          excerpt: poem?.plain?.join("") ?? "",
+          etymology: chars.map((char) => ({
+            char,
+            glyph: `「${char}」的甲骨文字形`,
+            story: `「${char}」在甲骨文中多以象形手法描摹其本义；进入金文与小篆后，字形逐渐规整为线条，隶楷之间进一步定型为今天的样子。形在变，而它承载的语义线索被保留了下来。`,
+          })),
+        },
       };
     }
 
@@ -125,46 +138,165 @@ export function buildInteractiveLab({ subject, stage, coreTitle, fullTitle, grad
             explanation: point.explanation,
           }
         : null,
+      // Module 5 · 语文真实文化互动台（初高中段 = 经典精读，**无描红**）。
+      culture: {
+        stage,
+        workTitle: classic?.title ?? cnTitle2,
+        author: classic?.author ?? "本讲课文",
+        dynasty: classic?.dynasty,
+        excerpt: classic?.excerpt ?? fallbackExcerpt,
+        keywords: classic?.keywords?.length
+          ? classic.keywords
+          : fallbackKeywords,
+      },
     };
   }
 
   // 数学。
   const topic = findMathTopic(stripPageSuffix(coreTitle), fullTitle);
   const kind = pickMathLabKind(topic, coreTitle);
+  const params = mathLabParams(kind, topic);
+
   return {
     kind,
     title: topic ? `${topic.title}·互动教具` : `${coreTitle}·互动教具`,
     mathTopic: topic
       ? { key: topic.key, title: topic.title, definition: topic.definition }
       : null,
-    params: mathLabParams(kind, topic),
+    params,
+    // Module 5 · GitHub 开源教具的配置。
+    ...(MANIPULATIVE_KINDS.has(kind)
+      ? {
+          manipulative: {
+            kind,
+            angle: params.angle,
+            slope: params.slope,
+            intercept: params.intercept,
+            fnType: params.fnType,
+            data: params.data,
+            target: params.target,
+            parts: params.parts,
+            start: params.start,
+            step: params.step,
+            leftWeights: params.leftWeights,
+            rightWeights: params.rightWeights,
+          },
+        }
+      : {}),
   };
 }
+
+/** Module 5 的七类数学教具。 */
+const MANIPULATIVE_KINDS = new Set([
+  "protractor",
+  "functionLab",
+  "chartLab",
+  "decimalBlocks",
+  "fractionDisc",
+  "numberLine",
+  "balanceScale",
+]);
 
 /** 数学实验室的教具类型——按真实知识点分派。 */
 export function pickMathLabKind(topic, coreTitle) {
   if (topic) {
     const key = topic.key;
+
+    /* ── Module 5 · 精确匹配到 GitHub 开源教具 ── */
+
+    // 角与测量 → **动态量角器**（可旋转、实时读数、校验度数）。
+    if (
+      key.includes("角的度量") ||
+      key.includes("角的分类") ||
+      key.includes("线段、直线、射线与角")
+    ) {
+      return "protractor";
+    }
+
+    // 统计与数据 → **互动统计图表台**（recharts，增删数据实时联动）。
+    if (
+      key.includes("统计") ||
+      key.includes("数据的收集与整理") ||
+      key.includes("数据的分析") ||
+      key.includes("条形统计图") ||
+      key.includes("扇形统计图") ||
+      key.includes("平均数") ||
+      key.includes("中位数") ||
+      key.includes("众数")
+    ) {
+      return "chartLab";
+    }
+
+    // 函数与图象 → **实时函数坐标系实验室**（mafs 范式）。
     if (
       key.includes("函数") ||
       key.includes("反比例") ||
       key.includes("指数") ||
-      key.includes("对数")
+      key.includes("对数") ||
+      key.includes("图象")
     ) {
-      return "function";
+      return "functionLab";
     }
+
+    // 三角形 / 平行四边形 / 圆 / 全等 → **动态几何 + 量角器**。
     if (
       key.includes("三角形") ||
       key.includes("平行四边形") ||
       key.includes("圆") ||
       key.includes("几何") ||
-      key.includes("全等")
+      key.includes("全等") ||
+      key.includes("梯形") ||
+      key.includes("矩形") ||
+      key.includes("菱形")
     ) {
-      return "geometry";
+      return "protractor";
     }
+
+    // 方程 → **方程天平**（两边同量同数的直观模型）。
+    if (
+      key.includes("方程") ||
+      key.includes("等式") ||
+      key.includes("解方程")
+    ) {
+      return "balanceScale";
+    }
+
+    // 分数 → **分数圆盘**（自由等分 + 涂色）。
+    if (key.includes("分数") || key.includes("分式")) return "fractionDisc";
+
+    // 数感 / 整十整百 / 乘法口诀 → **十进制凑十积木块**。
+    if (
+      key.includes("数位") ||
+      key.includes("整十数") ||
+      key.includes("两位数") ||
+      key.includes("三位数") ||
+      key.includes("乘法") ||
+      key.includes("除法") ||
+      key.includes("积的变化") ||
+      key.includes("商的变化") ||
+      key.includes("因数") ||
+      key.includes("倍数") ||
+      key.includes("质数") ||
+      key.includes("奇数") ||
+      key.includes("加法运算律") ||
+      key.includes("四则混合") ||
+      key.includes("凑十")
+    ) {
+      return "decimalBlocks";
+    }
+
+    // 数轴 / 有理数 / 负数 → **数轴跳格器**。
+    if (
+      key.includes("数轴") ||
+      key.includes("有理数") ||
+      key.includes("负数")
+    ) {
+      return "numberLine";
+    }
+
+    /* ── 既有分派（保留兼容性） ── */
     if (key.includes("统计") || key.includes("概率")) return "probability";
     if (key.includes("方程") || key.includes("整式")) return "algebra";
-    if (key.includes("数轴") || key.includes("有理数")) return "numberline";
     if (key.includes("分数")) return "fraction";
     if (key.includes("周长") || key.includes("面积")) return "area";
     if (key.includes("对称") || key.includes("平移")) return "transform";
@@ -172,20 +304,120 @@ export function pickMathLabKind(topic, coreTitle) {
     if (key.includes("除法") || key.includes("乘法")) return "blocks";
   }
   const haystack = coreTitle;
-  if (/函数|图象|坐标/.test(haystack)) return "function";
-  if (/概率|统计|平均/.test(haystack)) return "probability";
-  if (/方程|整式|代数/.test(haystack)) return "algebra";
-  if (/数轴|负数|有理数/.test(haystack)) return "numberline";
-  if (/分数/.test(haystack)) return "fraction";
+  if (/函数|图象|坐标/.test(haystack)) return "functionLab";
+  if (/统计|平均|中位/.test(haystack)) return "chartLab";
+  if (/角/.test(haystack)) return "protractor";
+  if (/方程|整式|代数/.test(haystack)) return "balanceScale";
+  if (/数轴|负数|有理数/.test(haystack)) return "numberLine";
+  if (/分数/.test(haystack)) return "fractionDisc";
   if (/面积|周长/.test(haystack)) return "area";
   if (/对称|平移/.test(haystack)) return "transform";
-  if (/角|三角形|四边形|圆|几何/.test(haystack)) return "geometry";
-  return "blocks";
+  if (/三角形|四边形|圆|几何/.test(haystack)) return "protractor";
+  return "decimalBlocks";
 }
 
 /** 实验室的初始参数。 */
 export function mathLabParams(kind, topic) {
+  const key = topic?.key ?? "";
+
   switch (kind) {
+    /* ── Module 5 · GitHub 开源教具的初始参数 ── */
+    case "protractor": {
+      // 角度类课：给一个**具体的目标角**作为初始值。
+      const angleMap = {
+        角的分类: 120,
+        角的度量: 35,
+        线段: 45,
+      };
+      let angle = 60;
+      if (key.includes("分类")) angle = 120;
+      else if (key.includes("度量")) angle = 35;
+      else if (key.includes("三角形")) angle = 60;
+      else if (key.includes("圆")) angle = 90;
+      else if (key.includes("全等") || key.includes("几何")) angle = 50;
+      return { angle, sides: 3 };
+    }
+    case "functionLab": {
+      const slopeMap = {
+        二次函数: 1,
+        反比例: 6,
+        一次函数: 2,
+        正比例: 3,
+        指数: 2,
+        对数: 3,
+      };
+      let slope = 1;
+      let fnType = "quadratic";
+      if (key.includes("反比例")) {
+        slope = 6;
+        fnType = "inverse";
+      } else if (key.includes("一次函数") || key.includes("正比例")) {
+        slope = 2;
+        fnType = "linear";
+      } else if (key.includes("指数") || key.includes("对数")) {
+        slope = 2;
+        fnType = "linear";
+      }
+      return { slope, intercept: 1, fnType, a: slope, b: 1, type: fnType };
+    }
+    case "chartLab": {
+      // 统计类课：给一份**具体的初始数据集**。
+      const dataMap = {
+        平均数: [
+          { label: "第一组", value: 12 },
+          { label: "第二组", value: 8 },
+          { label: "第三组", value: 5 },
+          { label: "第四组", value: 9 },
+        ],
+        条形统计图: [
+          { label: "阅读", value: 12 },
+          { label: "运动", value: 8 },
+          { label: "音乐", value: 5 },
+          { label: "科学", value: 9 },
+        ],
+        扇形统计图: [
+          { label: "足球", value: 30 },
+          { label: "篮球", value: 25 },
+          { label: "乒乓", value: 20 },
+          { label: "其他", value: 25 },
+        ],
+      };
+      let data = dataMap.条形统计图;
+      if (key.includes("扇形")) data = dataMap.扇形统计图;
+      else if (key.includes("平均") || key.includes("中位")) data = dataMap.平均数;
+      return { data, trials: 100, p: 0.5 };
+    }
+    case "decimalBlocks": {
+      // 凑十类课：目标是**具体的凑十数**。
+      const targetMap = {
+        整十数: 20,
+        两位数加: 10,
+        三位数乘: 100,
+        乘法: 10,
+        除法: 10,
+        数位: 100,
+      };
+      let target = 10;
+      if (key.includes("数位") || key.includes("三位数")) target = 100;
+      else if (key.includes("整十数")) target = 20;
+      return { target, count: target, groups: 10 };
+    }
+    case "fractionDisc": {
+      const partsMap = {
+        分数的意义: 4,
+        分数与除法: 4,
+        分数加减: 8,
+      };
+      let parts = 4;
+      if (key.includes("加减")) parts = 8;
+      return { parts, numerator: 1, denominator: parts, slices: parts };
+    }
+    case "numberLine":
+      return { start: -5, step: 1, value: -3 };
+    case "balanceScale":
+      return { leftWeights: [2, 2], rightWeights: [4] };
+
+    /* ── 既有分派（保留兼容性） ── */
     case "function":
       return {
         a: 1,

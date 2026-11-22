@@ -3,24 +3,18 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactPlayer, { type ReactPlayerProps } from "react-player";
 import {
-  ArrowUpRight,
   ChevronDown,
-  CircleHelp,
-  Eye,
   GitBranch,
-  Lightbulb,
   Pause,
   Play,
-  Quote,
   Sparkles,
   Target,
-  TriangleAlert,
   Video,
   WifiOff,
 } from "lucide-react";
 import { buildBilibiliEmbedUrl, parseBilibiliStartTime, resolveVideo } from "@/lib/video-source";
 import type { InteractiveNode, Resource } from "@/lib/courses-api";
-import { activateConcept, formatTimestamp } from "@/lib/concept-actions";
+import { formatTimestamp } from "@/lib/concept-actions";
 import {
   VIDEO_SEEK,
   emitPredictDeepen,
@@ -89,24 +83,6 @@ import { cn } from "@/lib/cn";
  * 动作分发做完了，而且**左右两栏已经在订阅它**。视频气泡只是另一
  * 个「触发源」——跟正文里的 ``[[概念]]`` 标记、字幕节点是同一类东西。
  * 不另起一套，行为才是一致的。
- */
-
-/** 气泡类型 → 图标。 */
-const NODE_ICON: Record<InteractiveNode["type"], typeof Lightbulb> = {
-  concept: Lightbulb,
-  question: CircleHelp,
-  quote: Quote,
-  warning: TriangleAlert,
-};
-
-/**
- * 气泡类型 → 强调色。
- *
- * 胶囊是**统一的深蓝半透明**——不同类型不靠颜色区分，靠图标区分。
- *
- * 之前五种颜色对应五种节点类型，用户得先学会「蓝色=概念、紫色=引用」
- * 这套约定才能读懂画面。现在图标（灯泡 / 问号 / 引号 / 警示）本身就是
- * 语义，不需要额外的颜色词典。
  */
 
 /**
@@ -311,16 +287,6 @@ export function InteractiveVideoCanvas({
   const [reached, setReached] = useState<Set<number>>(new Set());
   /** 上一次 ``onProgress`` 报告的位置——用来判断「跨越」了哪个节点。 */
   const lastTimeRef = useRef(0);
-  /** 当前浮出的气泡。 */
-  const [activeNode, setActiveNode] = useState<InteractiveNode | null>(null);
-  /**
-   * 被手动收起的那个气泡。
-   *
-   * 为什么要记住它：用户点 [👁️] 收起气泡，往往只是**暂时**想让画面
-   * 干净一点（要截图、要专心看画面）。再点一下应该能把它放回来，
-   * 而不是什么都不发生。
-   */
-  const [hiddenNode, setHiddenNode] = useState<InteractiveNode | null>(null);
   /** 用户主动跳转到的位置——由左侧导航驱动。 */
   const [seekTarget, setSeekTarget] = useState<number | null>(null);
 
@@ -603,8 +569,6 @@ export function InteractiveVideoCanvas({
   useEffect(() => {
     setCurrentTime(0);
     setReached(new Set());
-    setActiveNode(null);
-    setHiddenNode(null);
     setSeekTarget(null);
     setIsPlaying(false);
     // 位置基线也要归零——否则新资源的第一帧会被算成「从旧位置跨过来」。
@@ -655,7 +619,7 @@ export function InteractiveVideoCanvas({
 
       if (nodes.length === 0) return;
 
-      // 「跨越」判定——回看时气泡会重新出现。
+      // 「跨越」判定——回看时也会重新计数。
       const node = pickCrossedNode(nodes, previous, seconds);
       if (!node) return;
 
@@ -666,13 +630,8 @@ export function InteractiveVideoCanvas({
         next.add(node.timestamp);
         return next;
       });
-
-      // 同一个节点不重复弹：只有当它跟当前显示的不是同一个时才换。
-      if (activeNode && activeNode.timestamp === node.timestamp) return;
-
-      setActiveNode(node);
     },
-    [nodes, activeNode, episodeEnd, episodeStart, isBilibiliFrame, companion, onEnded, onProgressChange],
+    [nodes, episodeEnd, episodeStart, isBilibiliFrame, companion, onEnded, onProgressChange],
   );
 
   /**
@@ -849,69 +808,12 @@ export function InteractiveVideoCanvas({
       next.add(node.timestamp);
       return next;
     });
-
-    if (activeNode && activeNode.timestamp === node.timestamp) return;
-
-    setActiveNode(node);
   }, [
     companion.time,
     isBilibiliFrame,
     nodes,
-    activeNode,
     accumulateWatch,
   ]);
-
-  /**
-   * 点击气泡 = 行为劫持。
-   *
-   * 顺序：先暂停（把用户留在原地），再唤醒 AI（填输入框 + 自动发送
-   * + 打时间戳笔记），最后收起气泡。
-   */
-  const onNodeClick = useCallback(
-    (node: InteractiveNode) => {
-      // ① 暂停。
-      //
-      // 下发一个明确的 ``false`` 让播放器停下来。``onPause`` 里会把它
-      // 还原成 ``undefined``，把控制权交还给用户。
-      setPlaying(false);
-      setIsPlaying(false);
-      // B 站没有 ``onPause`` 回调可听——影子计时器要手动停。
-      if (isBilibiliFrame) companion.pause();
-
-      // ② 唤醒右侧 AI —— 复用动作分发中心。
-      const timestampLabel = formatTimestamp(node.timestamp);
-      activateConcept({
-        term: node.keyword,
-        context: node.context ?? node.hint ?? "",
-        courseId,
-        pageId,
-        timestamp: node.timestamp,
-        timestampLabel,
-        // 带上视频名——AI 的回答里就能指名道姓说「在这节课的
-        // 02:00 处……」。
-        mediaTitle: resource.title || video?.provider || "",
-        // 引导问题——装配器写的**深度追问指令**。
-        //
-        // 它比原话更适合喂给模型：作者（模型）已经替用户想好了
-        // 「这里该问什么」，而且这条指令是自足的——助教拿到就能
-        // 直接作答，不需要再去猜用户的意图。
-        hint: node.prompt || node.hint || "",
-        source: "concept",
-        autoSend: true,
-      });
-
-      // ③ 气泡消失。
-      setActiveNode(null);
-    },
-    [
-      courseId,
-      pageId,
-      resource.title,
-      video?.provider,
-      isBilibiliFrame,
-      companion,
-    ],
-  );
 
   if (!video) {
     return (
@@ -920,10 +822,6 @@ export function InteractiveVideoCanvas({
       </div>
     );
   }
-
-  const NodeIcon = activeNode
-    ? (NODE_ICON[activeNode.type] ?? Lightbulb)
-    : Lightbulb;
 
   return (
     <div className={cn("space-y-3", className)} data-seek-interactive-video>
@@ -1084,30 +982,24 @@ export function InteractiveVideoCanvas({
 
             这是一个明确的分工：**视频负责发现，AI 负责解答。**
           */}
-          {activeNode && (
-            <button
-              type="button"
-              onClick={() => onNodeClick(activeNode)}
-              title={`${activeNode.keyword}——点击让 AI 助教讲讲这一段`}
-              className={cn(
-                "seek-pill pointer-events-auto absolute bottom-3 right-3 z-20",
-                "flex max-w-[min(78%,320px)] items-center gap-1.5 rounded-full",
-                "px-3 py-1.5 text-left text-[12px] leading-tight",
-                "transition-transform hover:scale-[1.03]",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
-              )}
-            >
-              <NodeIcon size={13} strokeWidth={2.2} className="shrink-0 opacity-90" />
-              <span className="shrink-0 opacity-70">
-                {activeNode.type === "question" ? "想一想" : "发现关键点"}
-              </span>
-              <span className="min-w-0 truncate font-medium">
-                {activeNode.keyword}
-              </span>
-              <ArrowUpRight size={12} strokeWidth={2.4} className="shrink-0 opacity-60" />
-            </button>
-          )}
-        </div>
+        {/*
+          ⛔ **「发现关键点」气泡已彻底移除**。
+
+          旧版在视频右下角浮出一颗深色胶囊，点它会把视频暂停、把
+          问题自动发给右侧 AI。看起来很聪明，实际上有三个问题：
+
+          1. **位置错了**——视频是这一页里最贵的一块视觉资源，右下角
+             恰恰是「字幕 / 播放控件 / 进度条」的地盘。气泡压在那里，
+             要么挡住字幕，要么挡住控件。
+          2. **时机错了**——它按**时间戳**自动弹出，与用户是否真的在
+             看这一段毫无关系。用户在拖进度条找某一节，它照样弹。
+          3. **职责重了**——「这里有个值得问的点」这件事，右侧 AI 伴学
+             的实时学习上下文已经承担了（它知道用户此刻在教具里干了
+             什么，比时间戳准得多）。
+
+          所以：**视频只负责讲清楚，不负责插嘴。** 想问随时可以问。
+        */}
+      </div>
 
         {/* ── B 站伴随式计时器 HUD ──
          *
@@ -1166,38 +1058,13 @@ export function InteractiveVideoCanvas({
         <span className="opacity-50">/</span>
         <span className="tabular-nums">{formatTimestamp(knownDuration)}</span>
 
-        {nodes.length > 0 && (
+        {nodes.length > 0 ? (
           <span className="ml-auto inline-flex items-center gap-1.5">
             <span className="tabular-nums">
               重点 {reached.size}/{nodes.length}
             </span>
-            {/* 气泡显隐切换——[👁️] 图标。
-                点一下收起当前气泡，再点一下把它放回来。 */}
-            <button
-              type="button"
-              onClick={() => {
-                if (activeNode) {
-                  // 记住它——用户可能只是暂时想让画面清爽一下。
-                  setHiddenNode(activeNode);
-                  setActiveNode(null);
-                } else if (hiddenNode) {
-                  setActiveNode(hiddenNode);
-                  setHiddenNode(null);
-                }
-              }}
-              title={activeNode ? "收起重点提示" : "显示重点提示"}
-              aria-label={activeNode ? "收起重点提示" : "显示重点提示"}
-              className={cn(
-                "seek-key-sm inline-flex h-6 w-6 items-center justify-center rounded-md",
-                activeNode
-                  ? "bg-[var(--seek-bean-soft)] text-[var(--primary)]"
-                  : "bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--muted)]/70",
-              )}
-            >
-              <Eye size={12} strokeWidth={2.2} />
-            </button>
           </span>
-        )}
+        ) : null}
       </div>
 
       {/* ── 掌握度分段进度条 + 技能树 ──

@@ -7,6 +7,7 @@ import {
 } from "@/shared/api/client";
 import { fetchManifest } from "@/lib/static-data";
 import type { InteractiveLab } from "@/lib/interactive-lab";
+import type { K12Question } from "@/lib/k12-api";
 
 /**
  * 课程的前端数据客户端。
@@ -294,6 +295,16 @@ export interface Episode {
    * 有它 → 单集学习页显示「✨ 动手玩动画」模块。
    */
   interactive_lab?: InteractiveLab | null;
+  /**
+   * 本集的**课后巩固题**（2–3 道真实题）。
+   *
+   * 学习页底部的「本课巩固检测」渲染它们。
+   */
+  quizzes?: K12Question[];
+  /** 本课核心总结（3 条）。 */
+  summary?: string[];
+  /** 本课的核心课文 / 知识点名。 */
+  core_title?: string;
 }
 
 /**

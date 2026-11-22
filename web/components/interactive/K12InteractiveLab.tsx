@@ -19,6 +19,9 @@ import {
   PrimaryMathLab,
   SecondaryMathLab,
 } from "@/components/interactive/K12StageLabs";
+import MathManipulativeEngine from "@/components/interactive/MathManipulativeEngine";
+import ChineseCultureLab from "@/components/interactive/ChineseCultureLab";
+import { useLabProgress } from "@/components/interactive/useLabProgress";
 
 /**
  * OE 原生互动动画实验室
@@ -187,6 +190,19 @@ function renderLab(
     case "probability":
       return <SecondaryMathLab lab={lab} />;
 
+    /* ── Module 5 · GitHub 开源数学教具 ── */
+    case "protractor":
+    case "functionLab":
+    case "chartLab":
+    case "decimalBlocks":
+    case "fractionDisc":
+    case "balanceScale":
+      return <MathManipulativePanel lab={lab} />;
+
+    /* ── Module 5 · 语文真实文化互动台 ── */
+    case "culture":
+      return <ChineseCulturePanel lab={lab} />;
+
     /* ── 兼容旧 kind ── */
     case "symmetry":
       return <SymmetryLab lab={lab} playful={playful} style={style} />;
@@ -198,6 +214,98 @@ function renderLab(
         </p>
       );
   }
+}
+
+/* ──────────────────────────────────────────────────────────────────
+ * Module 5 · GitHub 开源教具的桥接层
+ * ────────────────────────────────────────────────────────────────── */
+
+/**
+ * 数学动态教具的桥接层。
+ *
+ * 把课程数据里的 ``lab.manipulative`` 转成引擎需要的配置，
+ * 并把教具的操作进度实时上报给 AI 伴学。
+ */
+function MathManipulativePanel({ lab }: { lab: InteractiveLab }) {
+  const { markDone } = useLabProgress({
+    kind: lab.kind,
+    title: lab.title,
+    taskLabel: "教具探究",
+    tasks: [{ label: lab.title, done: false }],
+  });
+
+  const config = useMemo(
+    () => ({
+      kind: lab.manipulative?.kind ?? ("protractor" as const),
+      title: lab.title,
+      angle: lab.manipulative?.angle ?? lab.params?.angle ?? 40,
+      slope: lab.manipulative?.slope ?? lab.params?.a ?? 2,
+      intercept: lab.manipulative?.intercept ?? lab.params?.b ?? 1,
+      fnType:
+        lab.manipulative?.fnType ??
+        (lab.params?.type === "inverse"
+          ? ("inverse" as const)
+          : lab.params?.type === "linear"
+            ? ("linear" as const)
+            : ("quadratic" as const)),
+      data: lab.manipulative?.data,
+      target: lab.manipulative?.target ?? lab.params?.count ?? 10,
+      parts: lab.manipulative?.parts ?? lab.params?.denominator ?? 4,
+      start: lab.manipulative?.start ?? -5,
+      step: lab.manipulative?.step ?? 1,
+      leftWeights: lab.manipulative?.leftWeights,
+      rightWeights: lab.manipulative?.rightWeights,
+    }),
+    [lab],
+  );
+
+  return (
+    <MathManipulativeEngine
+      config={config}
+      onProgress={(message, done) => {
+        if (done > 0) markDone(0);
+      }}
+    />
+  );
+}
+
+/**
+ * 语文文化互动台的桥接层。
+ */
+function ChineseCulturePanel({ lab }: { lab: InteractiveLab }) {
+  const { markDone } = useLabProgress({
+    kind: "culture",
+    title: lab.title,
+    taskLabel: "本课生字描红",
+    tasks: (lab.chars ?? []).map((char) => ({ label: char, done: false })),
+  });
+
+  const [traced, setTraced] = useState<Set<number>>(new Set());
+
+  return (
+    <ChineseCultureLab
+      config={{
+        stage: lab.culture?.stage ?? "primary",
+        title: lab.title,
+        chars: lab.chars,
+        pinyin: lab.pinyin,
+        excerpt: lab.culture?.excerpt,
+        workTitle: lab.culture?.workTitle,
+        author: lab.culture?.author,
+        dynasty: lab.culture?.dynasty,
+        keywords: lab.culture?.keywords,
+        etymology: lab.culture?.etymology,
+      }}
+      onTrace={(_char, index) => {
+        setTraced((prev) => {
+          if (prev.has(index)) return prev;
+          const next = new Set(prev).add(index);
+          next.forEach((item) => markDone(item));
+          return next;
+        });
+      }}
+    />
+  );
 }
 
 /* ──────────────────────────────────────────────────────────────────
@@ -224,6 +332,37 @@ function HanziLab({
   const char = chars[active] ?? "";
   const pinyin = lab.pinyin?.[active] ?? "";
   const radical = lab.radicals?.[active] ?? "";
+
+  /**
+   * 行为追踪——「本课生字描红」的完成情况。
+   *
+   * 每个字描完算一个任务。AI 伴学会实时显示「已完成 3/8 个本课
+   * 生字描红」。
+   */
+  const [traced, setTraced] = useState<Set<number>>(new Set());
+  const { markDone } = useLabProgress({
+    kind: "hanzi",
+    title: lab.title,
+    taskLabel: "本课生字描红",
+    tasks: chars.map((char, index) => ({
+      label: char,
+      done: traced.has(index),
+    })),
+  });
+
+  /** 标记某个字已描完。 */
+  const completeChar = useCallback(
+    (index: number) => {
+      setTraced((prev) => {
+        if (prev.has(index)) return prev;
+        const next = new Set(prev);
+        next.add(index);
+        return next;
+      });
+      markDone(index);
+    },
+    [markDone],
+  );
 
   /**
    * 挂载 hanzi-writer。
@@ -280,7 +419,11 @@ function HanziLab({
 
         if (quizMode) {
           writer.quiz({
-            onComplete: () => setStrokeDone((count) => count + 1),
+            onComplete: () => {
+              setStrokeDone((count) => count + 1);
+              // 一个字描完 → 标记该字完成。
+              completeChar(active);
+            },
             onMistake: () => setStrokeDone((count) => count),
           });
         } else {
@@ -294,7 +437,7 @@ function HanziLab({
     return () => {
       cancelled = true;
     };
-  }, [char, quizMode]);
+  }, [char, quizMode, active, completeChar]);
 
   /** 朗读这个字。 */
   const speak = useCallback(() => {

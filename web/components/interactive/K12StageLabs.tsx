@@ -36,6 +36,7 @@ import type {
   LabParams,
   LiteraryLabData,
 } from "@/lib/interactive-lab";
+import { useLabProgress } from "@/components/interactive/useLabProgress";
 
 /* ──────────────────────────────────────────────────────────────────
  * 通用小组件
@@ -159,22 +160,63 @@ export function LiteraryLab({ lab }: LiteraryLabProps) {
   const [chosen, setChosen] = useState<number | null>(null);
   const [speakState, setSpeakState] = useState(false);
 
+  /**
+   * 行为追踪——「名篇精读」的三个探索任务：
+   * 通读选段 → 逐个赏析关键词 → 完成思考题。
+   */
   const keywords = classic?.keywords ?? [];
-  const keyword = keywords[activeKeyword] ?? null;
+  const [readDone, setReadDone] = useState(false);
+  const [viewedKeywords, setViewedKeywords] = useState<Set<number>>(new Set());
+  const { markDone } = useLabProgress({
+    kind: "literary",
+    title: lab.title,
+    taskLabel: "名篇精读任务",
+    tasks: [
+      { label: "通读本课选段", done: readDone },
+      {
+        label: "赏析全部关键词",
+        done: keywords.length > 0 && viewedKeywords.size >= keywords.length,
+      },
+      { label: "完成互动思考题", done: chosen !== null },
+    ],
+  });
 
   /** 朗读选段。 */
-  const speak = useCallback((text: string) => {
-    if (typeof window === "undefined") return;
-    const synth = window.speechSynthesis;
-    if (!synth) return;
-    synth.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "zh-CN";
-    utterance.rate = 0.78;
-    synth.speak(utterance);
-    setSpeakState(true);
-    window.setTimeout(() => setSpeakState(false), 900);
-  }, []);
+  const speak = useCallback(
+    (text: string) => {
+      if (typeof window === "undefined") return;
+      const synth = window.speechSynthesis;
+      if (!synth) return;
+      synth.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "zh-CN";
+      utterance.rate = 0.78;
+      synth.speak(utterance);
+      setSpeakState(true);
+      window.setTimeout(() => setSpeakState(false), 900);
+      // 朗读过选段 → 第一个任务完成。
+      setReadDone(true);
+      markDone(0);
+    },
+    [markDone],
+  );
+
+  /** 点击关键词 → 记录已赏析。 */
+  const openKeyword = useCallback(
+    (index: number) => {
+      setActiveKeyword(index);
+      setViewedKeywords((prev) => {
+        if (prev.has(index)) return prev;
+        const next = new Set(prev);
+        next.add(index);
+        return next;
+      });
+      markDone(1);
+    },
+    [markDone],
+  );
+
+  const keyword = keywords[activeKeyword] ?? null;
 
   if (!classic) {
     return (
@@ -230,7 +272,7 @@ export function LiteraryLab({ lab }: LiteraryLabProps) {
               <button
                 key={item.term}
                 type="button"
-                onClick={() => setActiveKeyword(index)}
+                onClick={() => openKeyword(index)}
                 aria-pressed={index === activeKeyword}
                 className={cn(
                   "rounded-lg border px-2.5 py-1.5 text-[13px] font-medium transition-colors",
@@ -308,7 +350,10 @@ export function LiteraryLab({ lab }: LiteraryLabProps) {
                 <button
                   key={option}
                   type="button"
-                  onClick={() => setChosen(index)}
+                  onClick={() => {
+                  setChosen(index);
+                  markDone(2);
+                }}
                   className={cn(
                     "block w-full rounded-lg border px-3 py-2 text-left text-[13px] transition-colors",
                     chosen === null

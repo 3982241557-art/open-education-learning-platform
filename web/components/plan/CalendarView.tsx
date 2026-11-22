@@ -644,7 +644,7 @@ function PlanChip({
         "block w-full truncate rounded px-1.5 py-0.5 text-left transition-colors",
         compact ? "text-[9.5px]" : "text-[11px]",
         done
-          ? "bg-emerald-500/12 text-emerald-700 line-through dark:text-emerald-400"
+          ? "bg-emerald-50 text-emerald-700 line-through dark:text-emerald-400"
           : "bg-[var(--primary)]/10 text-[var(--foreground)] hover:bg-[var(--primary)]/16",
       )}
     >

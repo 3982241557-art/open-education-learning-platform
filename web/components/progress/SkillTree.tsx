@@ -497,7 +497,7 @@ function QuizPanel({
                           className={cn(
                             "flex w-full items-start gap-2 rounded-lg border px-2.5 py-1.5 text-left text-[12px] transition-colors",
                             showCorrect
-                              ? "border-emerald-500/50 bg-emerald-500/8"
+                              ? "border-emerald-500/50 bg-emerald-50"
                               : showWrong
                                 ? "border-[var(--destructive)]/40 bg-[var(--destructive)]/5"
                                 : selected

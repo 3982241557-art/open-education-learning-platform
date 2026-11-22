@@ -156,6 +156,9 @@ function k12ToBundle(detail: K12SeriesDetail): CourseBundle {
     key_concepts: episode.key_concepts,
     origin: episode.origin,
     interactive_lab: episode.interactive_lab ?? null,
+    quizzes: episode.quizzes ?? [],
+    summary: episode.summary ?? [],
+    core_title: episode.core_title,
   }));
 
   const subjectName = detail.subject === "chinese" ? "语文" : "数学";

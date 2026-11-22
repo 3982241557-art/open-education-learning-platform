@@ -151,7 +151,7 @@ function QuestionItem({
             "border-[var(--border)] bg-[var(--card)] hover:bg-[var(--muted)]/50";
           if (submitted) {
             if (isCorrect) {
-              tone = "border-emerald-500/40 bg-emerald-500/8";
+              tone = "border-emerald-500/40 bg-emerald-50";
             } else if (picked) {
               tone = "border-destructive/40 bg-destructive/8";
             } else {

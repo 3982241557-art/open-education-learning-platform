@@ -2,7 +2,6 @@ import WorkspaceSidebar from "@/components/sidebar/WorkspaceSidebar";
 import AppShell from "@/components/layout/AppShell";
 import { ShellActionsProvider } from "@/context/ShellActionsContext";
 import { ProfileProvider } from "@/context/ProfileContext";
-import { OnboardingGradeModal } from "@/components/onboarding/OnboardingGradeModal";
 
 /**
  * 工作区路由组的外壳：侧边栏 + 内容区。
@@ -28,12 +27,24 @@ export default function WorkspaceLayout({
           {children}
         </AppShell>
         {/*
-          首次进入的年级 / 语言引导。
-          它挂在**工作区**里而不是根布局——因为只有进入学习区的人才
-          需要选年级；而它必须在 ProfileProvider 之下（要用到语言与
-          年级的 Context）。
+          ⛔ **不再有进站拦截弹窗**。
+
+          旧版在这里挂了一个「年级 + 语言」的选择弹窗，新用户第一次
+          打开就必须先做完两道选择才能看到内容。
+
+          它的三个硬伤：
+
+          1. **时机错了**——用户在还不知道这里有什么的时候就要决定
+             「我几年级」，他凭什么选？
+          2. **太强硬**——模态框是强制的，等于把品牌第一印象变成一张
+             问卷。英文用户第一眼撞上中文弹窗，会直接走人。
+          3. **重复**——课程页顶栏、侧边栏个人档案卡里本来就有年级
+             选择器，弹窗是第三份。
+
+          现在：年级 / 语言选择器**收纳在顶栏、【课程】页顶栏与个人
+          主页**三处，随时自由点选（见 ``components/common/
+          GradeSelector.tsx``）。首页开场只有一张纸飞机。
         */}
-        <OnboardingGradeModal />
       </ShellActionsProvider>
     </ProfileProvider>
   );

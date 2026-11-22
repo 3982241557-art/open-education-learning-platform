@@ -327,9 +327,9 @@ function Section({
 
 /** 掌握度状态标签。 */
 const STATUS_STYLES: Record<string, string> = {
-  已掌握: "bg-emerald-500/12 text-emerald-700 dark:text-emerald-400",
-  学习中: "bg-sky-500/12 text-sky-700 dark:text-sky-400",
-  薄弱需巩固: "bg-amber-500/14 text-amber-700 dark:text-amber-400",
+  已掌握: "bg-emerald-50 text-emerald-700 dark:text-emerald-400",
+  学习中: "bg-sky-50 text-sky-700 dark:text-sky-400",
+  薄弱需巩固: "bg-amber-50 text-amber-700 dark:text-amber-400",
   待学习: "bg-[var(--muted)] text-[var(--muted-foreground)]",
 };
 

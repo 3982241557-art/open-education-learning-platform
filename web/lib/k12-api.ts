@@ -49,6 +49,22 @@ export interface K12SubjectMeta {
   editionEn: string;
 }
 
+/** 一道巩固题（随堂检测）。 */
+export interface K12Question {
+  /** 题干。 */
+  question: string;
+  /** 选项。 */
+  options: string[];
+  /** 正确选项下标。 */
+  correctIndex: number;
+  /** 解析。 */
+  explanation: string;
+  /** 考点。 */
+  concept: string;
+  /** 出处（``textbook`` / ``derived``）。 */
+  source?: string;
+}
+
 /** 一集。 */
 export interface K12Episode {
   ep_id: string;
@@ -70,6 +86,24 @@ export interface K12Episode {
    * 有它 → 这一集有「✨ 动手玩动画」模块；没有 → 只看视频。
    */
   interactive_lab?: InteractiveLab | null;
+  /**
+   * 本集的**课前摸底诊断题**（2 道）。
+   *
+   * ⚠️ 这些题**不再用于进课弹窗**——学习页已经砍掉了那个拦截框。
+   *    它们现在被用作「本课前置基础」的自评与 AI 伴学的难度依据。
+   */
+  diagnostics?: K12Question[];
+  /**
+   * 本集的**课后巩固题**（2–3 道）。
+   *
+   * 学习页底部的「本课巩固检测」直接渲染它们——题库是构建期生成
+   * 的真实内容，不是运行时拼出来的模板。
+   */
+  quizzes?: K12Question[];
+  /** 本课核心总结（3 条）。 */
+  summary?: string[];
+  /** 本课的核心课文 / 知识点名。 */
+  core_title?: string;
 }
 
 /** 一套系列的**索引条目**（轻量）。 */
