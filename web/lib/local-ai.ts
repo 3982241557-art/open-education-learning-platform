@@ -2,43 +2,59 @@
  * 本地 AI 助教
  * ============
  *
- * 纯静态模式下没有 Python 后端，AI 助教**直接请求 DeepSeek**——
- * 浏览器直连模型厂商的 API。
+ * 纯静态模式下没有 Python 后端，AI 助教有**三条**路可用：
  *
- * 两条路
- * ------
+ * 1. **转发代理**（首选）—— 请求 ``NEXT_PUBLIC_AI_PROXY_URL`` 指向的
+ *    轻量转发服务（见仓库根目录的 ``ai-proxy/``）。服务端保管
+ *    ``DEEPSEEK_API_KEY``，前端**永远看不到** Key。外部访客打开静态
+ *    网址就能直接对话，零配置。
+ * 2. **用户自填 Key** —— 浏览器直接调 DeepSeek。适合自用或不想部署
+ *    代理的场景。Key 只存在这台设备的 localStorage 里。
+ * 3. **离线引导** —— 两条路都不通时，用本课预装内容（知识向导 /
+ *    段落导读 / 时间轴节点）组装一段有用的导读，而不是报「网络错误」。
  *
- * 1. **用户填了 API Key** —— 浏览器直接调 DeepSeek，拿到真正的回答。
- * 2. **没填 Key** —— 退到**离线引导回答**：结合当前课程的
- *    ``study_guide``（知识向导）与 ``interactive_nodes``（时间轴节点），
- *    组装一段有用的引导，而不是报「网络错误」。
+ * 优先级：代理 > 自填 Key > 离线引导。
  *
- * 为什么 Key 只存本地
- * ------------------
+ * 理由：代理是**零门槛**的——访客不需要做任何配置。自填 Key 是**兜底**
+ * ——用户已经填了，就用他自己的（不消耗站点额度）。
  *
- * Key 存在浏览器 ``localStorage`` 里，**不进仓库、不进任何服务器**。
- * 它只在这台设备上有效。
+ * 安全边界
+ * --------
  *
- * 代价要说清楚：**纯静态站点无法保护一个用户自己填的 Key**——它在
- * 浏览器里，任何能打开开发者工具的人都能看到。这是「纯静态 + 浏览器
- * 直连模型」这个架构的固有性质，不是实现缺陷。
- *
- * 如果不能接受这一点，唯一的办法是部署一个后端来保管 Key。
+ * 自填的 Key 存在浏览器 ``localStorage`` 里，**不进仓库、不进任何
+ * 自己的服务器**。但纯静态站点无法保护它——它在浏览器里，任何能打开
+ * 开发者工具的人都能看到。这是「纯静态 + 浏览器直连模型」这个架构的
+ * 固有性质。**部署 ``ai-proxy/`` 就彻底解决了这个问题。**
  *
  * CORS
  * ----
  *
  * DeepSeek 的 API **允许浏览器直连**（它有设置 ``Access-Control-
- * Allow-Origin: *``）。所以这条路是通的。
+ * Allow-Origin: *``）。代理的端点则由 ``ai-proxy`` 自己放行白名单。
  */
 
 import { readLocal, writeLocal, StorageKeys } from "@/lib/local-store";
 
-/** DeepSeek 的端点。 */
+/** DeepSeek 的直连端点（仅在用户自填 Key 时使用）。 */
 const DEEPSEEK_ENDPOINT = "https://api.deepseek.com/chat/completions";
 
 /** 默认模型。 */
 const DEEPSEEK_MODEL = "deepseek-chat";
+
+/**
+ * 转发代理地址。
+ *
+ * 来自 ``NEXT_PUBLIC_AI_PROXY_URL``——构建期内联进前端 bundle。
+ * 没设则为空字符串（前端退到自填 Key / 离线引导）。
+ */
+export const AI_PROXY_URL: string = (
+  process.env.NEXT_PUBLIC_AI_PROXY_URL || ""
+).replace(/\/+$/, "");
+
+/** 转发代理是否配置了。 */
+export function hasAiProxy(): boolean {
+  return AI_PROXY_URL.length > 0;
+}
 
 /** 读本地存的 API Key。 */
 export function getLocalApiKey(): string {
@@ -99,6 +115,20 @@ export interface LocalCourseContext {
     title: string;
     content: string;
   }>;
+  /**
+   * **学习者画像**——由课前诊断结果拼装。
+   *
+   * 形如：
+   *
+   * .. code-block:: text
+   *
+   *     [学习者画像] 当前正在学习《XXX》第 3 讲，课前诊断显示其掌握度为
+   *     【基础薄弱】，对【概念 A】存在模糊，请优先用生活直觉与循序渐进的
+   *     方式讲解，避免直接堆砌高阶公式。
+   *
+   * 它被静默拼进 system prompt——用户看不到它，但助手知道该怎么讲。
+   */
+  learnerProfile?: string;
 }
 
 /**
@@ -241,11 +271,39 @@ function buildSystemPrompt(context: LocalCourseContext | null): string {
     details.push(`- 段落导读：${segments}`);
   }
 
+  // ── 学习者画像 ──
+  //
+  // 由课前诊断结果拼装（见 ``lib/diagnostic-profile.ts``）。
+  //
+  // 它是**有依据**的判断——用户刚做完 2~3 道针对本集知识点的题，
+  // 所以「基础薄弱」不是模型猜的，而是根据作答算出来的。
+  if (context.learnerProfile?.trim()) {
+    details.push("", context.learnerProfile.trim());
+  }
+
   return [...base, ...details].join("\n");
 }
 
 /**
- * 直接调 DeepSeek。
+ * 组装发给模型的 ``messages`` 数组。
+ */
+function buildMessages(
+  question: string,
+  history: LocalChatMessage[],
+  context: LocalCourseContext | null,
+): Array<{ role: string; content: string }> {
+  return [
+    { role: "system", content: buildSystemPrompt(context) },
+    ...history.slice(-10).map((message) => ({
+      role: message.role,
+      content: message.content,
+    })),
+    { role: "user", content: question },
+  ];
+}
+
+/**
+ * 直接调 DeepSeek（用户自填 Key 的那条路）。
  *
  * @returns 模型的完整回答。失败时抛错——调用方负责降级。
  */
@@ -256,14 +314,7 @@ export async function callDeepSeek(
   context: LocalCourseContext | null,
   signal?: AbortSignal,
 ): Promise<string> {
-  const messages = [
-    { role: "system", content: buildSystemPrompt(context) },
-    ...history.slice(-10).map((message) => ({
-      role: message.role,
-      content: message.content,
-    })),
-    { role: "user", content: question },
-  ];
+  const messages = buildMessages(question, history, context);
 
   const response = await fetch(DEEPSEEK_ENDPOINT, {
     method: "POST",
@@ -297,12 +348,63 @@ export async function callDeepSeek(
 }
 
 /**
+ * 通过转发代理问模型（**首选**这条路）。
+ *
+ * 代理替我们保管 Key——前端**不接触**任何密钥。
+ *
+ * 代理返回的是**与 DeepSeek 完全相同**的 JSON 结构，所以解析逻辑
+ * 可以复用。
+ */
+export async function callAiProxy(
+  question: string,
+  history: LocalChatMessage[],
+  context: LocalCourseContext | null,
+  signal?: AbortSignal,
+): Promise<string> {
+  const messages = buildMessages(question, history, context);
+
+  const response = await fetch(`${AI_PROXY_URL}/chat/completions`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      messages,
+      stream: false,
+      temperature: 0.6,
+      max_tokens: 2000,
+    }),
+    signal,
+  });
+
+  if (!response.ok) {
+    const text = await response.text().catch(() => "");
+    throw new Error(
+      `转发服务返回 ${response.status}${text ? `：${text.slice(0, 200)}` : ""}`,
+    );
+  }
+
+  const data = await response.json();
+  const content = data?.choices?.[0]?.message?.content;
+  if (typeof content !== "string" || !content.trim()) {
+    throw new Error("模型返回了空内容。");
+  }
+  return content;
+}
+
+/**
  * 问一句。
  *
- * **永远不抛错**——没配 Key 或者调用失败，都返回一段可用的引导回答。
+ * **永远不抛错**——三条路（代理 / 自填 Key / 离线引导）依次尝试，
+ * 任何一条失败都不会让用户看到红色的网络报错。
  *
- * 这是刻意的：静态模式下**不能**让用户看到红色的网络报错。助教
- * 永远在，只是能力有高低——有 Key 时是完整讲解，没 Key 时是导读。
+ * 这是刻意的：静态模式下**不能**让用户看到网络错误。助教永远在，
+ * 只是能力有高低——代理可用时是完整讲解，没 Key 时是导读。
+ *
+ * 路由顺序
+ * --------
+ *
+ * 1. **代理优先**——零门槛，且不消耗访客自己的额度；
+ * 2. **代理失败 → 自填 Key**——用户已经填了，就用他自己的；
+ * 3. **都不行 → 离线引导**——用本课预装内容组装一段导读。
  */
 export async function askLocalAssistant(
   question: string,
@@ -311,25 +413,54 @@ export async function askLocalAssistant(
   signal?: AbortSignal,
 ): Promise<{ answer: string; live: boolean; note?: string }> {
   const key = getLocalApiKey();
+  const proxyReady = hasAiProxy();
 
-  if (!key) {
+  // ── 两条路都没有 ──
+  if (!proxyReady && !key) {
     return {
       answer: buildOfflineAnswer(question, context),
       live: false,
-      note: "未配置 DeepSeek API Key，以下是本课预装内容的导读。",
+      note: "AI 助教服务尚未配置，以下是本课预装内容的导读。",
     };
   }
 
-  try {
-    const answer = await callDeepSeek(key, question, history, context, signal);
-    return { answer, live: true };
-  } catch (error) {
-    // 网络失败 / Key 无效 / 额度耗尽——全部降级到离线引导。
-    const reason = error instanceof Error ? error.message : "模型请求失败";
-    return {
-      answer: buildOfflineAnswer(question, context),
-      live: false,
-      note: `AI 服务暂时不可用（${reason.slice(0, 80)}），以下是本课预装内容的导读。`,
-    };
+  // ── ① 代理（首选）──
+  if (proxyReady) {
+    try {
+      const answer = await callAiProxy(question, history, context, signal);
+      return { answer, live: true };
+    } catch (error) {
+      // 代理挂了——如果用户自己也填了 Key，就退到直连。
+      if (!key) {
+        const reason = error instanceof Error ? error.message : "转发失败";
+        return {
+          answer: buildOfflineAnswer(question, context),
+          live: false,
+          note: `AI 服务暂时不可用（${reason.slice(0, 80)}），以下是本课预装内容的导读。`,
+        };
+      }
+    }
   }
+
+  // ── ② 用户自填 Key（兜底）──
+  if (key) {
+    try {
+      const answer = await callDeepSeek(key, question, history, context, signal);
+      return { answer, live: true };
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : "模型请求失败";
+      return {
+        answer: buildOfflineAnswer(question, context),
+        live: false,
+        note: `AI 服务暂时不可用（${reason.slice(0, 80)}），以下是本课预装内容的导读。`,
+      };
+    }
+  }
+
+  // ── ③ 兜底 ──
+  return {
+    answer: buildOfflineAnswer(question, context),
+    live: false,
+    note: "AI 服务暂时不可用，以下是本课预装内容的导读。",
+  };
 }

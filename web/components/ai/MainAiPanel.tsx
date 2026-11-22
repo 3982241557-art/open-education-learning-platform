@@ -36,12 +36,19 @@ export function MainAiPanel({
   courseTitle,
   pageId,
   pageTitle,
+  masteryLabel,
   className = "",
 }: {
   courseId: string;
   courseTitle: string;
   pageId?: string;
   pageTitle?: string;
+  /**
+   * 难度适配标签——来自课前诊断。
+   *
+   * 有值时，助教顶部显示「已适配：xxx」小徽标。点击可重新诊断。
+   */
+  masteryLabel?: string;
   className?: string;
 }) {
   const {
@@ -129,6 +136,31 @@ export function MainAiPanel({
             {pageTitle ? ` · ${pageTitle}` : ""}
           </p>
         </div>
+        {/* ── 难度适配徽标 ──
+         *
+         * 课前诊断之后，助教顶部出现一颗**极简小徽标**：
+         *
+         *     已适配：基础夯实
+         *
+         * 它只回答一个问题：「他知道我的水平了吗？」——所以它必须
+         * 极小、极轻，不抢内容的戏。
+         *
+         * 点击可重新诊断（由外层页面监听这个事件）。
+         */}
+        {masteryLabel ? (
+          <button
+            type="button"
+            onClick={() =>
+              window.dispatchEvent(
+                new CustomEvent("seek:retest-diagnostic"),
+              )
+            }
+            title="重新诊断，助手会按新的水平讲解"
+            className="shrink-0 rounded-full border border-[var(--seek-bean-soft-border)] bg-[var(--seek-bean-soft)] px-2 py-0.5 text-[10.5px] font-medium text-[var(--primary)] transition-opacity hover:opacity-75"
+          >
+            已适配：{masteryLabel}
+          </button>
+        ) : null}
         {/* 已划线的段落会自动进入助教的上下文——这里告诉用户
             「它看得见我划过的东西」。 */}
         {notes.length > 0 && (

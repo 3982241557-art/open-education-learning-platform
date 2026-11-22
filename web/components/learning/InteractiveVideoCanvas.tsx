@@ -21,7 +21,11 @@ import {
 import { buildBilibiliEmbedUrl, parseBilibiliStartTime, resolveVideo } from "@/lib/video-source";
 import type { InteractiveNode, Resource } from "@/lib/courses-api";
 import { activateConcept, formatTimestamp } from "@/lib/concept-actions";
-import { VIDEO_SEEK, type VideoSeekDetail } from "@/lib/learning-events";
+import {
+  VIDEO_SEEK,
+  emitPredictDeepen,
+  type VideoSeekDetail,
+} from "@/lib/learning-events";
 import { InteractiveTimeline } from "@/components/learning/InteractiveTimeline";
 import { MasteryProgressBar, toMasterySegments } from "@/components/progress/MasteryProgressBar";
 import { SkillTree } from "@/components/progress/SkillTree";
@@ -250,11 +254,32 @@ export function InteractiveVideoCanvas({
   resource,
   courseId,
   pageId,
+  episodeStart,
+  episodeEnd,
+  onProgressChange,
+  onEnded,
   className = "",
 }: {
   resource: Resource;
   courseId?: string;
   pageId?: string;
+  /**
+   * 本集在原视频里的**起点**（秒）——时间轴切片时 > 0。
+   *
+   * 播放器要定位到这里，并且「本集内的进度」= 当前时间 − 起点。
+   */
+  episodeStart?: number;
+  /**
+   * 本集在原视频里的**终点**（秒）——时间轴切片时用。
+   *
+   * 播到这里就**自动停**——一集播完就该进入学完闭环，而不是继续
+   * 播下一段（下一段是下一集的内容）。
+   */
+  episodeEnd?: number | null;
+  /** 播放进度变化时的回调（**本集内**的相对秒数）。 */
+  onProgressChange?: (position: number, duration: number) => void;
+  /** 本集播完时的回调。 */
+  onEnded?: () => void;
   className?: string;
 }) {
   const playerRef = useRef<ReactPlayer>(null);
@@ -605,14 +630,34 @@ export function InteractiveVideoCanvas({
       const advanced = seconds - previous;
       if (advanced > 0 && advanced < 2) accumulateWatch(advanced);
 
+      // ── 分集边界：本集播完就停 ──
+      //
+      // 时间轴切片模式下，「本集」是原视频里的一段。播到终点就必须
+      // 停下——否则用户会一路播进下一集的内容，而下一集是**另一集**，
+      // 它的知识点、字幕、诊断全都对不上。
+      if (episodeEnd && seconds >= episodeEnd) {
+        setPlaying(false);
+        setIsPlaying(false);
+        if (isBilibiliFrame) companion.pause();
+        onEnded?.();
+        return;
+      }
+
+      // ── 分集进度回调（本集内的相对秒数）──
+      if (onProgressChange) {
+        const start = episodeStart ?? 0;
+        const end = episodeEnd ?? 0;
+        onProgressChange(
+          Math.max(0, seconds - start),
+          end > start ? end - start : 0,
+        );
+      }
+
       if (nodes.length === 0) return;
 
       // 「跨越」判定——回看时气泡会重新出现。
       const node = pickCrossedNode(nodes, previous, seconds);
       if (!node) return;
-
-      // 同一个节点不重复弹：只有当它跟当前显示的不是同一个时才换。
-      if (activeNode && activeNode.timestamp === node.timestamp) return;
 
       // 记一笔「已到达」——只用于进度计数。
       setReached((prev) => {
@@ -621,9 +666,13 @@ export function InteractiveVideoCanvas({
         next.add(node.timestamp);
         return next;
       });
+
+      // 同一个节点不重复弹：只有当它跟当前显示的不是同一个时才换。
+      if (activeNode && activeNode.timestamp === node.timestamp) return;
+
       setActiveNode(node);
     },
-    [nodes, activeNode],
+    [nodes, activeNode, episodeEnd, episodeStart, isBilibiliFrame, companion, onEnded, onProgressChange],
   );
 
   /**
@@ -793,7 +842,6 @@ export function InteractiveVideoCanvas({
 
     const node = pickCrossedNode(nodes, previous, current);
     if (!node) return;
-    if (activeNode && activeNode.timestamp === node.timestamp) return;
 
     setReached((prev) => {
       if (prev.has(node.timestamp)) return prev;
@@ -801,6 +849,9 @@ export function InteractiveVideoCanvas({
       next.add(node.timestamp);
       return next;
     });
+
+    if (activeNode && activeNode.timestamp === node.timestamp) return;
+
     setActiveNode(node);
   }, [
     companion.time,

@@ -17,7 +17,6 @@ import { InteractiveVideoCanvas } from "@/components/learning/InteractiveVideoCa
 import { DiscoveryConsole } from "@/components/learning/DiscoveryConsole";
 import {
   TopicFilter,
-  TopicIntro,
   TOPICS,
 } from "@/components/learning/TopicFilter";
 import { ArchiveDrawer } from "@/components/learning/ArchiveDrawer";
@@ -551,10 +550,18 @@ function GlobalHubConsole() {
              * 但它是**横切视角**，不是第五个分类：选了它仍然可以
              * 再选学科。
              */}
-            <div className="rounded-xl border border-[var(--border)] bg-white px-4 py-3.5">
-              <TopicIntro />
+            {/*
+              专题标签把「中华文脉与全球视野交融」这条线显性化——
+              但它是**横切视角**，不是第五个分类：选了它仍然可以
+              再选学科。
+
+              ⚠️ 原来的导语整块（「这里收着世界各地上百讲顶尖公开课……」）
+              已删除——那是**平台级**的宣传文案，不属于用户此刻的
+              决策。平台的介绍应该放在首页 / 关于页，而不是压在
+              每一门课的上面。
+            */}
+            <div className="rounded-xl border border-[var(--border)] bg-white px-4 py-3">
               <TopicFilter
-                className="mt-3"
                 resources={hub?.categories.flatMap((c) => c.resources) ?? []}
                 activeTopic={activeTopic}
                 onChange={setActiveTopic}

@@ -9,7 +9,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { apiFetch, apiUrl, isStaticRuntime } from "@/shared/api/client";
-import { hasLocalApiKey } from "@/lib/local-ai";
+import { hasLocalApiKey, hasAiProxy } from "@/lib/local-ai";
 import { localUsage } from "@/lib/local-store";
 
 interface SetupStatus {
@@ -47,6 +47,13 @@ export function SetupStatusCard() {
   const [staticMode, setStaticMode] = useState(false);
   /** 本地是否配了 DeepSeek Key。 */
   const [localKeyReady, setLocalKeyReady] = useState(false);
+  /**
+   * 平台是否配置了 AI 转发代理。
+   *
+   * 配了的话访客**零配置**就能对话——设置页必须如实反映这一点，
+   * 否则会误导用户去填一个根本不需要填的 Key。
+   */
+  const proxyReady = hasAiProxy();
   /** 本地存储占用。 */
   const [usage, setUsage] = useState({ bytes: 0, entries: 0 });
 
@@ -106,7 +113,11 @@ export function SetupStatusCard() {
             ["站点形态", "纯静态（GitHub Pages）"],
             [
               "AI 助教",
-              localKeyReady ? "已配置本地 Key" : "未配置（使用预装导读）",
+              proxyReady
+                ? "已接入平台代理（零配置）"
+                : localKeyReady
+                  ? "已配置本地 Key"
+                  : "未配置（使用预装导读）",
             ],
             [
               "本地存档",
@@ -128,7 +139,7 @@ export function SetupStatusCard() {
           ))}
         </dl>
 
-        {!localKeyReady ? (
+        {!proxyReady && !localKeyReady ? (
           <div className="flex items-start gap-2.5 rounded-xl border border-amber-500/25 bg-amber-500/5 p-4">
             <AlertTriangle
               size={16}

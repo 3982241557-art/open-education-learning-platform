@@ -385,3 +385,56 @@ export function emitResourceSwitch(detail: ResourceSwitchDetail): void {
     new CustomEvent<ResourceSwitchDetail>(RESOURCE_SWITCH, { detail }),
   );
 }
+
+/* ── 「先猜后看」认知钩子 ──────────────────────────────────────────────
+ *
+ * 用户在视频画面上做了一道直觉题，点「把我的想法发给助教深挖」时，
+ * 视频区把「当前时间戳 + 题目 + 用户的直觉选项」广播出来。
+ *
+ * 订阅方是 ``ChatContext``——它把这份上下文组装成一条**自足的**
+ * 指令填进右侧输入框。
+ *
+ * 为什么是「填入」而不是「自动发送」
+ * ----------------------------------
+ *
+ * 与「引用提问」同一条思路：用户的直觉**本身就是**问题的一半。
+ * 自动发出去的话，用户就没法补充「我为什么会这么想」——而那恰恰
+ * 是助教最该听到的东西。
+ *
+ * 所以这里**只填入 + 聚焦**，等用户补一句再按发送。
+ */
+export const PREDICT_DEEPEN = "seek:predict-deepen";
+
+/** 「发给助教深挖」事件的载荷。 */
+export interface PredictDeepenDetail {
+  /** 当前时间戳（秒）。 */
+  timestamp: number;
+  /** 时间戳展示文本——「03:20」。 */
+  timestampLabel: string;
+  /** 直觉题。 */
+  question: string;
+  /** 用户选中的选项文本。 */
+  chosen: string;
+  /** 全部选项。 */
+  options: string[];
+  /** 是否答对。 */
+  correct: boolean;
+  /** 视频标题。 */
+  mediaTitle?: string;
+  /** 所属课程 id。 */
+  courseId?: string;
+  /** 所属页 / 资源 id。 */
+  pageId?: string;
+  /** 节点关键词。 */
+  keyword?: string;
+}
+
+/**
+ * 广播一次「把我的直觉发给助教深挖」的请求。
+ */
+export function emitPredictDeepen(detail: PredictDeepenDetail): void {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(
+    new CustomEvent<PredictDeepenDetail>(PREDICT_DEEPEN, { detail }),
+  );
+}

@@ -95,10 +95,59 @@
               },
               "context": { "type": "string" },
               "hint": { "type": "string" },
-              "context_label": { "type": "string" }
+              "context_label": { "type": "string" },
+              "predict_hook": {
+                "description": "「先猜后看」认知钩子——可选。没有它时，前端按节点类型运行时生成一道兜底题。",
+                "type": "object",
+                "required": ["question", "options", "correct_index", "reveal_hint"],
+                "properties": {
+                  "question": { "type": "string", "minLength": 1 },
+                  "options": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 3,
+                    "items": { "type": "string", "minLength": 1 }
+                  },
+                  "correct_index": { "type": "integer", "minimum": 0 },
+                  "reveal_hint": { "type": "string", "minLength": 1 },
+                  "origin": { "type": "string", "enum": ["authored", "generated"] }
+                }
+              }
             }
           }
         },
+        "episodes": {
+          "description": "分集列表——这条资源被拆成了几集。原生分 P（page）/ 官方播放列表（youtube_id）/ 时间轴切片（start_time + end_time）三种形态。",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["ep_id", "title"],
+            "properties": {
+              "ep_id": { "type": "string", "minLength": 1 },
+              "title": { "type": "string", "minLength": 1 },
+              "index": { "type": "integer", "minimum": 1 },
+              "total": { "type": "integer", "minimum": 1 },
+              "video_url": { "type": "string" },
+              "bvid": { "type": "string" },
+              "page": { "type": ["integer", "null"], "minimum": 1 },
+              "youtube_id": { "type": "string" },
+              "duration": { "type": "number", "minimum": 0 },
+              "start_time": { "type": "number", "minimum": 0 },
+              "end_time": { "type": ["number", "null"], "minimum": 0 },
+              "key_concepts": {
+                "type": "array",
+                "items": { "type": "string", "minLength": 1 }
+              },
+              "origin": {
+                "type": "string",
+                "enum": ["pages", "playlist", "chapters", "single"]
+              }
+            }
+          }
+        },
+        "episode_count": { "type": "integer", "minimum": 0 },
+        "episode_origin": { "type": "string" },
         "is_default": { "type": "boolean" }
       }
     }

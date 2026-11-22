@@ -138,6 +138,47 @@ export interface Page {
 }
 
 /**
+ * 「先猜后看」认知钩子
+ * =====================
+ *
+ * 在视频揭晓某个概念**之前**，先问一个极简直觉问题，让用户 3 秒内
+ * 做个判断，再揭示核心结论。
+ *
+ * 借鉴自两个开源项目的交互模式：
+ *
+ * - **oppia/oppia** 的 Exploration 交互状态机——「问题 → 用户选择
+ *   → 即时反馈 → 后续追问」这条链路被提炼成一个**四态状态机**。
+ * - **mathigon/textbooks** 的行内微测验——用「一步作答 + 一步揭示」
+ *   的极简重量打断阅读节奏，而不是弹窗打断。
+ *
+ * ⚠️ **已弃用**
+ *
+ * 这套「先猜后看」的**前端呈现**（右下角小黑条）已被移除，改由
+ * 两级课程架构里的玻璃拟态诊断卡承担（见
+ * ``components/learning/EpisodeDiagnosticModal.tsx``）。
+ *
+ * 数据字段保留——它记录了作者手写的定制题，是有价值的内容资产；
+ * 只是不再在播放器右下角渲染。
+ */
+export interface PredictHook {
+  /** 一句话直觉问题（≤28 字）。 */
+  question: string;
+  /** 2~3 个极简选项。 */
+  options: string[];
+  /** 引导性参考答案的下标（从 0 开始）。 */
+  correct_index: number;
+  /** 选完后 1 句话点破认知冲突。 */
+  reveal_hint: string;
+  /**
+   * 这道题是从哪里来的。
+   *
+   * - ``authored`` —— 数据里手写的定制题（质量最高）；
+   * - ``generated`` —— 运行时按节点类型生成的兜底题。
+   */
+  origin?: "authored" | "generated";
+}
+
+/**
  * 一个**交互节点**——视频播放到某个时间戳时弹出的知识点。
  *
  * 这是「流媒体交互式沙盘」的核心：用户在视频画面上看到浮出的气泡，
@@ -154,6 +195,13 @@ export interface InteractiveNode {
   context?: string;
   /** 给 AI 的额外提示。 */
   hint?: string;
+  /**
+   * 「先猜后看」认知钩子——可选。
+   *
+   * 没有它时，运行时按节点类型生成一道兜底题（见
+   * :func:`lib/predict-hook`），所以**任何**课程都能立刻体验到。
+   */
+  predict_hook?: PredictHook;
   /**
    * 深度追问指令——点击这个节点后**直接发给右侧助教**的问题。
    *
@@ -176,6 +224,58 @@ export interface InteractiveNode {
    */
   anchor_origin?: string;
   [key: string]: unknown;
+}
+
+/**
+ * **一集**——系列课程里的最小学习单元。
+ *
+ * 两级课程结构
+ * ------------
+ *
+ * .. code-block:: text
+ *
+ *     /courses/[courseId]           第一层 · 课程目录页
+ *       └─ 简介 · 总进度条 · 完整分集目录
+ *
+ *     /courses/[courseId]/[epId]    第二层 · 单集沉浸学习页
+ *       └─ ← 返回目录 · 当前集标题 · 播放器 · AI 助教 · 折叠辅助区
+ *
+ * 「一集」可以是三种形态
+ * --------------------
+ *
+ * 1. **原生分 P**（B 站）—— ``page`` 有值，播放地址是
+ *    ``?bvid=...&p=N``。每集是一条独立视频。
+ * 2. **官方播放列表**（YouTube）—— ``youtube_id`` 指向独立视频。
+ * 3. **时间轴切片**—— ``start_time`` / ``end_time`` 圈定区间，
+ *    播放时自动定位到区间内，播到末尾即停。
+ */
+export interface Episode {
+  /** 集的唯一标识——在所属课程内唯一。 */
+  ep_id: string;
+  /** 集标题——「Lecture 1 - C」这样。 */
+  title: string;
+  /** 在系列里的序号（从 1 开始）。 */
+  index: number;
+  /** 系列总集数。 */
+  total: number;
+  /** 播放地址（原生分 P / 独立视频时用）。 */
+  video_url?: string;
+  /** B 站 bvid。 */
+  bvid?: string;
+  /** B 站分 P 页码（1 开始）。 */
+  page?: number | null;
+  /** YouTube 视频 id。 */
+  youtube_id?: string;
+  /** 本集时长（秒）。 */
+  duration?: number;
+  /** 本集在原视频里的起点（秒）——时间轴切片时用。 */
+  start_time?: number;
+  /** 本集在原视频里的终点（秒）——时间轴切片时用。 */
+  end_time?: number | null;
+  /** 本集的核心概念——诊断卡据此出题。 */
+  key_concepts?: string[];
+  /** 拆分方式：`pages` / `playlist` / `chapters` / `single`。 */
+  origin?: string;
 }
 
 /**
@@ -290,6 +390,13 @@ export interface Resource {
    * 纯正中文学术导读——简介是乱码 / 广告 / 纯英文时的兜底。
    */
   academic_intro?: string;
+  /**
+   * **分集列表**——这条资源被拆成了几集。
+   *
+   * 只有 1 集（或没有）时，课程目录页显示「一讲」；
+   * 多集时显示完整目录，每集可单独进入沉浸学习页。
+   */
+  episodes?: Episode[];
   /**
    * 这条资源是否已经被 AI 装配过自学框架。
    *
@@ -681,6 +788,40 @@ function normalizeCourse(raw: any): Course {
   };
 }
 
+/**
+ * 归一化「先猜后看」钩子。
+ *
+ * 数据里写坏的钩子（选项太少、答案下标越界）会被丢成
+ * ``undefined``。
+ *
+ * ⚠️ 前端**不再渲染**这个钩子——旧的右下角小黑条已被玻璃拟态
+ *    诊断卡取代。但字段仍然保留在数据里：它是作者手写的定制题，
+ *    是一份有价值的内容资产。
+ */
+function normalizePredictHook(raw: any): PredictHook | undefined {
+  if (!raw || typeof raw !== "object") return undefined;
+
+  const question = String(raw?.question ?? "").trim();
+  const options = Array.isArray(raw?.options)
+    ? raw.options.map((item: any) => String(item ?? "").trim()).filter(Boolean)
+    : [];
+  const correctIndex = Number(raw?.correct_index);
+  const revealHint = String(raw?.reveal_hint ?? "").trim();
+
+  if (!question || options.length < 2) return undefined;
+  if (!Number.isInteger(correctIndex)) return undefined;
+  if (correctIndex < 0 || correctIndex >= options.length) return undefined;
+  if (!revealHint) return undefined;
+
+  return {
+    question,
+    options,
+    correct_index: correctIndex,
+    reveal_hint: revealHint,
+    origin: "authored",
+  };
+}
+
 function normalizeResource(raw: any): Resource {
   return {
     id: String(raw?.id ?? ""),
@@ -707,6 +848,9 @@ function normalizeResource(raw: any): Resource {
           type: (String(node?.type ?? "concept") as InteractiveNode["type"]),
           context: node?.context ? String(node.context) : undefined,
           hint: node?.hint ? String(node.hint) : undefined,
+          predict_hook: node?.predict_hook
+            ? normalizePredictHook(node.predict_hook)
+            : undefined,
         }))
       : [],
     is_default: Boolean(raw?.is_default),

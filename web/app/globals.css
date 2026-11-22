@@ -474,6 +474,96 @@
   }
 }
 
+/* ── 「先猜后看」钩子卡片 ────────────────────────────────────────────
+   深蓝毛玻璃微卡片——浮在视频画面右下角，不遮挡主画面。
+
+   视觉规范与既有的 ``.seek-pill`` 一致（深蓝毛玻璃 + 纯白文字 +
+   极细浅蓝边框），但**层级更深**：它承载的是一次作答而不只是一句
+   提示，所以阴影更重、边框更亮一点点。
+
+   动画用「轻微上浮 + 淡入」——比胶囊慢一点点，因为卡片里有内容要
+   被读完；太快会让人觉得闪了一下没看清。 */
+.seek-predict {
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  animation: seek-predict-in 260ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes seek-predict-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 选项按钮的悬停反馈——比普通按钮慢一档，避免鼠标划过时闪烁。 */
+.seek-predict-option {
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+/* ── 玻璃拟态卡片 ────────────────────────────────────────────────────
+   进课诊断卡 / 学完闭环卡的入场动效。
+   弹性曲线（``cubic-bezier(0.16, 1, 0.3, 1)``）——起步慢、中段快、
+   收尾稳，读起来像「浮起来」而不是「弹出来」。 */
+@keyframes diagnostic-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.965);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 遮罩淡入——比卡片慢一点，让卡片「从模糊里显形」。 */
+@keyframes diagnostic-backdrop-in {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(12px);
+  }
+}
+
+/* ── 微庆祝粒子 ──────────────────────────────────────────────────────
+   深蓝与银白的细粒子轻盈绽放。
+   刻意**不用**彩带、礼花、卡通星星——那是低幼感。 */
+@keyframes celebrate-particle {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) scale(0.4);
+  }
+  18% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--celebrate-x, 0), var(--celebrate-y, -90px), 0)
+      scale(1.1);
+  }
+}
+
+/* 环形进度条亮起。 */
+@keyframes celebrate-ring-in {
+  from {
+    stroke-dashoffset: var(--celebrate-circumference, 100);
+  }
+  to {
+    stroke-dashoffset: var(--celebrate-target, 0);
+  }
+}
+
 /* ── 侧边抽屉 ──────────────────────────────────────────────────────────
    从左侧滑出的选课 / 笔记抽屉。 */
 @keyframes seek-drawer-in {
@@ -485,6 +575,89 @@
     opacity: 1;
     transform: translateX(0);
   }
+}
+
+/* ── 分龄动效（Adaptive Stage UX）────────────────────────────────────
+   小学部专属的活泼动效：彩星迸射、节点弹起、答错轻晃。
+
+   ⚠️ 这些动效**只用于小学部**。初高中部保持利落、冷静的学术感
+      ——幼稚的动效对 15–18 岁的学生是干扰，不是友好。 */
+
+/* 彩星 / 粒子从按钮中心迸射。 */
+@keyframes seek-burst {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) scale(0.3) rotate(0deg);
+  }
+  22% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--burst-x, 0), var(--burst-y, 0), 0)
+      scale(1.15) rotate(40deg);
+  }
+}
+
+/* 节点逐颗点亮的弹起。 */
+@keyframes seek-node-pop {
+  0% {
+    opacity: 0.35;
+    transform: scale(0.2) translateY(4px);
+  }
+  62% {
+    opacity: 1;
+    transform: scale(1.35) translateY(-2px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.1) translateY(0);
+  }
+}
+
+/* 答错时的「轻晃鼓励」——左右摇摆 + 一点上弹。 */
+@keyframes seek-shake {
+  0%,
+  100% {
+    transform: translateX(0) translateY(0);
+  }
+  22% {
+    transform: translateX(-5px) translateY(-2px);
+  }
+  48% {
+    transform: translateX(4px) translateY(0);
+  }
+  72% {
+    transform: translateX(-2px) translateY(-1px);
+  }
+}
+
+/* Q 弹按压——按下去回弹，像果冻。 */
+.seek-press {
+  transition:
+    transform 180ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    background-color 160ms ease,
+    border-color 160ms ease;
+}
+.seek-press:active {
+  transform: scale(0.94);
+}
+
+/* 小学部的跳动伴学小星。 */
+@keyframes seek-buddy-hop {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  30% {
+    transform: translateY(-7px) rotate(-5deg);
+  }
+  60% {
+    transform: translateY(0) rotate(4deg);
+  }
+}
+.seek-buddy {
+  animation: seek-buddy-hop 620ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 /* ── 标签页 ──────────────────────────────────────────────────────────
@@ -526,6 +699,12 @@
 
 @media (prefers-reduced-motion: reduce) {
   .seek-pill {
+    animation: none;
+  }
+
+  /* 钩子卡片同理——不做入场动画，但**保留**翻转（那是内容切换，
+     不是装饰性运动，去掉反而会让人看不懂发生了什么）。 */
+  .seek-predict {
     animation: none;
   }
 }

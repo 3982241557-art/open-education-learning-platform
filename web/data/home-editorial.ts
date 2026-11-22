@@ -110,9 +110,9 @@ export const HOME_EDITORIAL: {
     title: "开放教育学习平台",
     subtitle: "深圳后海总部 · Open Education Learning Platform · Houhai HQ, Shenzhen",
     lead:
-      "我们把世界顶尖名校的公开课，装进了一套可以边看边问、随堂检测、达标拿证的自学系统里。" +
-      "无论你身在北美、欧洲、东南亚还是澳新——语言的门槛被拆掉之后，剩下的就是学本身。",
-    primaryCta: { label: "开始探索课程", href: "/learning" },
+      "我们把国内 K12 语文与数学的教材同步课，装进了一套可以边看边问、课前诊断、随堂检测、达标拿证的自学系统里。" +
+      "无论你身在北美、欧洲、东南亚还是澳新——按孩子的年级和年龄直接对号入座，剩下的就是学本身。",
+    primaryCta: { label: "按年级选课", href: "/k12" },
     secondaryCta: { label: "看看公开课大厅", href: "/hub" },
     image: {
       src: "/images/home/hero.jpg",
@@ -120,10 +120,10 @@ export const HOME_EDITORIAL: {
       alt: "深圳后海总部与全球学习者",
     },
     stats: [
-      { value: "130+", label: "门全球公开课" },
-      { value: "670+", label: "个知识节点" },
-      { value: "4", label: "大学科门类" },
-      { value: "3", label: "语种支持" },
+      { value: "24", label: "套年级同步系列" },
+      { value: "1519", label: "个真实课时" },
+      { value: "12", label: "个年级全覆盖" },
+      { value: "2", label: "大核心学科" },
     ],
   },
 
@@ -281,7 +281,7 @@ export const HOME_EDITORIAL: {
 /** 底部 CTA——首页末尾的最后一次推动。 */
 export const HOME_FINAL_CTA = {
   title: "从今天的一节课开始",
-  body: "不用准备什么。挑一门你想看的课，剩下的交给节奏。",
-  primaryCta: { label: "开始探索课程", href: "/learning" },
+  body: "不用准备什么。挑一个年级、选一门学科，剩下的交给节奏。",
+  primaryCta: { label: "按年级选课", href: "/k12" },
   secondaryCta: { label: "查看学情中心", href: "/learning/books" },
 };

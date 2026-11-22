@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -22,8 +22,11 @@ import {
   type ProgressSummary,
 } from "@/lib/learning-api";
 import { onLearningEvent, PROGRESS_UPDATED, TRACE_UPDATED } from "@/lib/learning-events";
+import { aggregateLocalProgress } from "@/lib/local-progress";
+import { fetchGlobalHub } from "@/lib/global-hub-api";
 import { cn } from "@/lib/cn";
 import { CertificateWall } from "@/components/progress/CertificateWall";
+import { K12Section } from "@/components/learning/K12ProgressSection";
 
 /**
  * 学情与进度中心
@@ -53,11 +56,22 @@ export default function ProgressCenterPage() {
   const load = useCallback(async () => {
     setError(null);
     try {
-      const data = await fetchProgress();
+      const data = await fetchProgress("", titleMapRef.current);
       setCourses(data.courses);
       setSummary(data.summary);
     } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+      // ── 兜底：直接读 localStorage ──
+      //
+      // ``fetchProgress`` 内部已经有降级分支（后端返回 HTML 或连不上时
+      // 自动汇总本地数据）。这里再兜一层，是为了让**任何**异常都不
+      // 变成一片空白页。
+      //
+      // ⚠️ 绝不能把错误信息里的 HTML 源码直接显示给用户——
+      //    这里只显示一句人话，细节留在 console 里。
+      console.error("[progress-center] 加载失败，改用本地汇总", err);
+      const local = aggregateLocalProgress([], titleMapRef.current);
+      setCourses(local.courses as unknown as CourseProgress[]);
+      setSummary(local.summary as unknown as ProgressSummary);
     } finally {
       setLoading(false);
     }
@@ -66,6 +80,47 @@ export default function ProgressCenterPage() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  /**
+   * 课程标题映射。
+   *
+   * localStorage 的键名只有 id——显示时需要真实的课程名。
+   * 从静态课程目录里取。
+   */
+  const [titleMap, setTitleMap] = useState<Record<string, string>>({});
+
+  /** 目录异步到达，用 ref 让 ``load`` 随时能拿到最新的一份。 */
+  const titleMapRef = useRef<Record<string, string>>({});
+  useEffect(() => {
+    titleMapRef.current = titleMap;
+  }, [titleMap]);
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const { hub } = await fetchGlobalHub();
+        if (!hub) return;
+        const map: Record<string, string> = {
+          global_resource_hub: hub.title,
+        };
+        for (const category of hub.categories) {
+          for (const resource of category.resources) {
+            // 资源 → 所属学科（章节划分用）。
+            map[`chapter:${resource.id}`] = category.title;
+          }
+        }
+        setTitleMap(map);
+      } catch {
+        /* 目录读不到——用 id 兜底 */
+      }
+    })();
+  }, []);
+
+  /** 目录到达后重算一次——章节划分需要资源→学科的映射。 */
+  useEffect(() => {
+    if (Object.keys(titleMap).length === 0) return;
+    void load();
+  }, [titleMap, load]);
 
   /**
    * 别的模块改了进度（阅读器翻页、AI 记了笔记、测验提交了答案），
@@ -128,6 +183,14 @@ export default function ProgressCenterPage() {
              * 「还没拿到证书」误读成一种缺陷。
              */}
             <CertificateWall className="mb-7" />
+
+            {/* ── K12 年级同步系列 ──
+             *
+             * 平台的主体是 K12 的 24 套年级系列——所以它们排在
+             * 中台资源**前面**。而且这里显示的是**按年级 × 学科**
+             * 组织的真实进度：完成了哪几讲、诊断掌握度、测验正确率。
+             */}
+            <K12Section className="mb-7" />
 
             {/* 在学 */}
             {groups.active.length > 0 && (

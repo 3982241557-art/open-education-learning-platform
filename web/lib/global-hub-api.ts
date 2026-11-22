@@ -1,8 +1,10 @@
 import { apiFetch, apiUrl, asJsonOrThrow } from "@/shared/api/client";
 import { isStaticRuntime, staticFetch } from "@/shared/api/client";
 import type {
+  Episode,
   GuidedSegment,
   InteractiveNode,
+  PredictHook,
   ResourceType,
   StudyGuide,
   SuggestedQuestion,
@@ -59,6 +61,8 @@ export interface GlobalHubResource {
   guided_segments?: GuidedSegment[];
   /** 纯正中文学术导读——简介是乱码 / 广告 / 纯英文时的兜底。 */
   academic_intro?: string;
+  /** 分集列表——这条资源被拆成了几集。 */
+  episodes?: Episode[];
   /** 这条资源是否已被 AI 装配过自学框架。 */
   is_structured?: boolean;
   is_default: boolean;
@@ -104,6 +108,77 @@ function normalizeNode(raw: any): InteractiveNode {
     prompt: raw?.prompt ? String(raw.prompt) : undefined,
     anchor_title: raw?.anchor_title ? String(raw.anchor_title) : undefined,
     anchor_origin: raw?.anchor_origin ? String(raw.anchor_origin) : undefined,
+    predict_hook: normalizePredictHook(raw?.predict_hook),
+  };
+}
+
+/**
+ * 归一化「先猜后看」钩子。
+ *
+ * 手写的钩子优先——但**必须校验**：数据里写坏了（选项少于两个、
+ * 答案下标越界）会让卡片空白。所以这里做一遍完整检查，坏的直接
+ * 丢成 ``undefined``，运行时由 :func:`lib/predict-hook` 生成兜底题。
+ */
+function normalizePredictHook(raw: any): PredictHook | undefined {
+  if (!raw || typeof raw !== "object") return undefined;
+
+  const question = String(raw?.question ?? "").trim();
+  const options = Array.isArray(raw?.options)
+    ? raw.options.map((item: any) => String(item ?? "").trim()).filter(Boolean)
+    : [];
+  const correctIndex = Number(raw?.correct_index);
+  const revealHint = String(raw?.reveal_hint ?? "").trim();
+
+  if (!question || options.length < 2) return undefined;
+  if (!Number.isInteger(correctIndex)) return undefined;
+  if (correctIndex < 0 || correctIndex >= options.length) return undefined;
+  if (!revealHint) return undefined;
+
+  return {
+    question,
+    options,
+    correct_index: correctIndex,
+    reveal_hint: revealHint,
+    origin: "authored",
+  };
+}
+
+/**
+ * 归一化**分集**。
+ *
+ * 数据里的分集可能来自三个来源（B 站分 P / YouTube 播放列表 /
+ * 时间轴切片），字段不完全一致。归一化之后前端只面对一种形状。
+ */
+function normalizeEpisode(raw: any): Episode | null {
+  if (!raw || typeof raw !== "object") return null;
+
+  const epId = String(raw?.ep_id ?? "").trim();
+  const title = String(raw?.title ?? "").trim();
+  if (!epId || !title) return null;
+
+  const index = Number(raw?.index ?? 0) || 0;
+  const total = Number(raw?.total ?? 0) || 0;
+
+  return {
+    ep_id: epId,
+    title,
+    index: index > 0 ? index : 1,
+    total: total > 0 ? total : 1,
+    video_url: raw?.video_url ? String(raw.video_url) : undefined,
+    bvid: raw?.bvid ? String(raw.bvid) : undefined,
+    page:
+      typeof raw?.page === "number" && raw.page > 0 ? raw.page : null,
+    youtube_id: raw?.youtube_id ? String(raw.youtube_id) : undefined,
+    duration: Number(raw?.duration ?? 0) || 0,
+    start_time: Number(raw?.start_time ?? 0) || 0,
+    end_time:
+      typeof raw?.end_time === "number" && raw.end_time > 0
+        ? raw.end_time
+        : null,
+    key_concepts: Array.isArray(raw?.key_concepts)
+      ? raw.key_concepts.map((item: any) => String(item ?? "").trim()).filter(Boolean)
+      : [],
+    origin: raw?.origin ? String(raw.origin) : "single",
   };
 }
 
@@ -184,6 +259,11 @@ function normalizeResource(raw: any): GlobalHubResource {
     study_guide: normalizeStudyGuide(raw?.study_guide),
     guided_segments: normalizeGuidedSegments(raw?.guided_segments),
     academic_intro: raw?.academic_intro ? String(raw.academic_intro) : undefined,
+    episodes: Array.isArray(raw?.episodes)
+      ? raw.episodes
+          .map(normalizeEpisode)
+          .filter((item: Episode | null): item is Episode => Boolean(item))
+      : [],
     is_structured: Boolean(raw?.is_structured),
     is_default: Boolean(raw?.is_default),
   };

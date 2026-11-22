@@ -21,17 +21,21 @@ import type { LocalChatMessage, LocalCourseContext } from "@/lib/local-ai";
 import { sanitizeModelText } from "@/lib/ai-sanitize";
 import {
   CONCEPT_ACTIVATED,
+  PREDICT_DEEPEN,
   RESOURCE_ACTIVATED,
   TIMESTAMP_QUOTE,
   type ConceptActivatedDetail,
+  type PredictDeepenDetail,
   type ResourceActivatedDetail,
   type StudyGuideLike,
   type TimestampQuoteDetail,
 } from "@/lib/learning-events";
 import {
   buildConceptPrompt,
+  buildPredictDeepenPrompt,
   buildTimestampQuotePrompt,
 } from "@/lib/concept-actions";
+import { buildLearnerProfilePrompt } from "@/lib/diagnostic-profile";
 
 /**
  * 全局对话状态 —— 双 AI 架构里的「AI 指导一：课程专属执行官」。
@@ -134,6 +138,33 @@ export interface CurrentResource {
     context?: string;
     hint?: string;
   }>;
+}
+
+/**
+ * 用户当前所处的**学习者画像**（由课前诊断产生）。
+ *
+ * 它被**静默**拼进 AI 助教的 system prompt——用户不会看到这段提示词，
+ * 但助手会据此调整讲解的深浅。
+ *
+ * 形如：
+ *
+ * .. code-block:: text
+ *
+ *     [学习者画像] 当前正在学习《哈佛大学 CS50》第 3 讲，课前诊断显示其
+ *     掌握度为【基础薄弱】，对【数组】存在模糊，请优先用生活直觉与
+ *     循序渐进的方式讲解，避免直接堆砌高阶公式。
+ */
+export interface LearnerProfile {
+  /** 资源 id（课程 id）。 */
+  resourceId: string;
+  /** 课程标题。 */
+  courseTitle: string;
+  /** 集 id。 */
+  epId: string;
+  /** 集标题。 */
+  episodeTitle: string;
+  /** 集序号。 */
+  episodeIndex?: number;
 }
 
 /**
@@ -253,6 +284,15 @@ interface ChatState {
    * 时自动更新，下一次提问时随请求一起发给后端。
    */
   currentResource: CurrentResource | null;
+  /**
+   * 当前的学习者画像。
+   *
+   * 由单集沉浸学习页在诊断完成后设置。设置后，它会被静默拼进
+   * 下一次提问的 system prompt——用户看不到它，但助手知道该怎么讲。
+   */
+  learnerProfile: LearnerProfile | null;
+  /** 设置（或清空）学习者画像。 */
+  setLearnerProfile: (profile: LearnerProfile | null) => void;
 }
 
 const ChatContext = createContext<ChatState | null>(null);
@@ -407,6 +447,21 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
    * 「读到最新值」而「身份不变」两件事。
    */
   const currentResourceRef = useRef<CurrentResource | null>(null);
+  /**
+   * 当前的学习者画像。
+   *
+   * 由单集页在诊断完成后写入。它会被静默拼进 system prompt。
+   */
+  const [learnerProfile, setLearnerProfile] = useState<LearnerProfile | null>(
+    null,
+  );
+  /**
+   * 学习者画像的 ref 副本。
+   *
+   * 理由跟 :attr:`currentResourceRef` 一样——``send`` 要读最新值，
+   * 但不该因为它变了就重建订阅 effect。
+   */
+  const learnerProfileRef = useRef<LearnerProfile | null>(null);
   /**
    * 用户刚刚在视频里触发的**交互节点**。
    *
@@ -621,6 +676,20 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     setInputValue(text);
   }, []);
 
+  /**
+   * 设置学习者画像。
+   *
+   * 同时更新 ref 副本——``send`` 读的是 ref（它不该重建），而界面
+   * 读的是 state（它要触发重渲染）。
+   */
+  const setLearnerProfileAndRef = useCallback(
+    (profile: LearnerProfile | null) => {
+      learnerProfileRef.current = profile;
+      setLearnerProfile(profile);
+    },
+    [],
+  );
+
   const stop = useCallback(() => {
     abortRef.current?.abort();
     abortRef.current = null;
@@ -680,8 +749,18 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       studyGuide: resource?.studyGuide ?? null,
       interactiveNodes: nodes as LocalCourseContext["interactiveNodes"],
       guidedSegments: resource?.guidedSegments ?? [],
+      // ── 学习者画像 ──
+      //
+      // 从 localStorage 里读**当前这一集**的诊断结果，拼成一段提示词。
+      // 没诊断过就是空串——助手按默认方式讲。
+      learnerProfile: learnerProfile
+        ? buildLearnerProfilePrompt(
+            learnerProfile.resourceId,
+            learnerProfile.epId,
+          )
+        : "",
     };
-  }, [context?.courseId]);
+  }, [context?.courseId, learnerProfile]);
 
   const send = useCallback(
     async (text: string) => {
@@ -837,6 +916,25 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
             context: node.context,
             hint: node.hint,
             media_title: node.mediaTitle,
+          };
+        })(),
+        // ── 学习者画像 ──
+        //
+        // 由课前诊断产生。它被静默拼进 system prompt——用户看不到，
+        // 但助手知道该按什么难度讲。
+        learner_profile: (() => {
+          const profile = learnerProfileRef.current;
+          if (!profile) return null;
+          const prompt = buildLearnerProfilePrompt(
+            profile.resourceId,
+            profile.epId,
+          );
+          if (!prompt) return null;
+          return {
+            course_title: profile.courseTitle,
+            episode_title: profile.episodeTitle,
+            episode_index: profile.episodeIndex ?? null,
+            prompt,
           };
         })(),
       });
@@ -1086,6 +1184,65 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener(RESOURCE_ACTIVATED, handler);
   }, []);
 
+  /**
+   * 订阅「把我的直觉发给助教深挖」。
+   *
+   * 用户在视频画面上做完一道直觉题，点「发给助教深挖」时，视频区
+   * 把「当前时间戳 + 题目 + 用户的直觉选项」广播出来，这里把它组装
+   * 成一条**自足的**指令填进输入框。
+   *
+   * 为什么只填入、不自动发送
+   * ----------------------
+   *
+   * 用户的直觉本身只是「半句话」——他可能还想补一句「我为什么会
+   * 这么想」，而那恰恰是助教最该听到的。
+   *
+   * 所以这里**只填入 + 聚焦光标**，等用户补完再按发送。这与
+   * 「引用提问」是同一条设计线。
+   */
+  useEffect(() => {
+    const handler = (event: Event) => {
+      const detail = (event as CustomEvent<PredictDeepenDetail>).detail;
+      if (!detail?.question) return;
+
+      const prompt = buildPredictDeepenPrompt({
+        mediaTitle: detail.mediaTitle,
+        timestampLabel: detail.timestampLabel,
+        question: detail.question,
+        chosen: detail.chosen,
+        options: detail.options,
+        correct: detail.correct,
+        keyword: detail.keyword,
+      });
+
+      // 让后端知道用户此刻卡在视频的哪一秒——助教的回答里就能指着
+      // 这一段说话。
+      const interactive: CurrentInteractive = {
+        keyword: detail.keyword ?? detail.timestampLabel ?? "",
+        timestamp: detail.timestampLabel ?? "",
+        context: `我的直觉题作答：${detail.chosen}`,
+        hint: "",
+        mediaTitle: detail.mediaTitle ?? "",
+      };
+      setCurrentInteractive(interactive);
+      currentInteractiveRef.current = interactive;
+
+      setInputValue(prompt);
+      requestAnimationFrame(() => {
+        const input = document.querySelector<HTMLTextAreaElement>(
+          "[data-seek-ai-input]",
+        );
+        if (!input) return;
+        input.focus();
+        const end = input.value.length;
+        input.setSelectionRange(end, end);
+      });
+    };
+
+    window.addEventListener(PREDICT_DEEPEN, handler);
+    return () => window.removeEventListener(PREDICT_DEEPEN, handler);
+  }, []);
+
   const value = useMemo(
     () => ({
       messages,
@@ -1113,6 +1270,8 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       lastReceipts,
       setOnActions,
       currentResource,
+      learnerProfile,
+      setLearnerProfile: setLearnerProfileAndRef,
     }),
     [
       addQuote,
@@ -1137,6 +1296,8 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       setOnActions,
       stop,
       currentResource,
+      learnerProfile,
+      setLearnerProfileAndRef,
     ],
   );
 

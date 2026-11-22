@@ -281,6 +281,7 @@ class PromptAssembler:
         skill_override: str = "",
         skill_override_name: str = "",
         resource_context: str = "",
+        learner_profile: str = "",
     ) -> AssembledPrompt:
         """把各个来源拼成最终的 system prompt + messages。
 
@@ -295,9 +296,19 @@ class PromptAssembler:
         ``resource_context`` 是**外链资源的陪读上下文**——用户此刻正在
         中间栏看的那份外部资源（视频 / 网页 / 电子书）的元数据与预置
         摘要。它让 AI 从「通用助教」切换成「超级陪读」。
+
+        ``learner_profile`` 是**学习者画像**——由课前诊断产生。它让 AI
+        知道该按什么难度讲，而不是永远从最基础处讲起。
         """
         blocks: list[PromptBlock] = self.foundation_blocks()
 
+        if learner_profile.strip():
+            blocks.append(
+                PromptBlock(
+                    "learner_profile",
+                    self._learner_profile_block(learner_profile),
+                )
+            )
         if resource_context.strip():
             blocks.append(
                 PromptBlock("resource_context", self._resource_context_block(resource_context))
@@ -375,6 +386,46 @@ class PromptAssembler:
             "- If the summary does not cover something, say so plainly and ask the "
             "user to read it out; **never invent** content from the video or page.\n\n"
             f"## Current Resource\n{resource_context.strip()}"
+        )
+
+    def _learner_profile_block(self, learner_profile: str) -> str:
+        """渲染「学习者画像」区块。
+
+        这个区块来自**课前诊断**——用户在进入某一讲之前回答了 2~3 道
+        针对本集知识点的短题。
+
+        它与「当前资源」区块的区别很重要：
+
+        - 当前资源 = 「你在看什么」（客观事实）；
+        - 学习者画像 = 「你懂多少」（有诊断作答作为依据）。
+
+        因为有依据，所以画像里的判断是**可信的**——「基础薄弱」不是
+        模型猜的，而是根据用户实际选了什么算出来的。模型据此调整讲解
+        的深浅，而不是从最基础处重复一遍。
+        """
+        if self.language == "zh":
+            return (
+                "## 学习者画像\n"
+                "以下信息来自用户进入本讲前的**课前诊断**（他实际作答了"
+                "针对本集知识点的题目）。请据此调整讲解的深浅与方式：\n"
+                "- 掌握度薄弱时，先用生活直觉与具体例子建立概念，再谈原理；"
+                "不要直接堆砌公式与术语。\n"
+                "- 用户标记为存疑的概念，要**重点澄清**——那是他这次真正卡住的地方。\n"
+                "- 用户标记为已掌握时，直接切入深层推导与边界条件，不要重复讲入门。\n"
+                "- **不要**向用户提及「诊断」「画像」这些词——他只感觉到助教更懂他的水平。\n\n"
+                f"{learner_profile.strip()}"
+            )
+        return (
+            "## Learner Profile\n"
+            "The following comes from a pre-lesson diagnostic the learner actually "
+            "answered about this episode's key concepts. Adjust your depth and "
+            "approach accordingly:\n"
+            "- When mastery is weak, build the concept from everyday intuition and "
+            "concrete examples before the formalism.\n"
+            "- Concepts flagged as uncertain deserve focused clarification.\n"
+            "- When mastery is strong, go straight to deeper derivations and edge cases.\n"
+            "- **Never** mention the word 'diagnostic' to the user.\n\n"
+            f"{learner_profile.strip()}"
         )
 
     def _active_skill_block(self, instruction: str, name: str = "") -> str:

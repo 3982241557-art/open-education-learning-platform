@@ -6,6 +6,7 @@ import {
   staticFetch,
 } from "@/shared/api/client";
 import { readLocal, writeLocal, StorageKeys } from "@/lib/local-store";
+import { aggregateLocalProgress } from "@/lib/local-progress";
 import type { ResourceProgress } from "@/lib/courses-api";
 
 /**
@@ -524,20 +525,53 @@ export interface ProgressSummary {
   pending_count: number;
 }
 
-/** 拉取学情大盘。 */
+/**
+ * 拉取学情大盘。
+ *
+ * 三条路，**永远不返回 HTML**：
+ *
+ * 1. **后端在线** —— 请求 ``/api/learning/progress``；
+ * 2. **后端返回了 HTML**（静态站点上的 404 兜底页）—— 降级到
+ *    :func:`aggregateLocalProgress` 从 localStorage 汇总；
+ * 3. **后端连不上** —— 同样降级到 localStorage。
+ *
+ * 关键点：**静态模式下永远有数据可显示**。用户的学习记录一直存在
+ * localStorage 里，只是以前没人去汇总它。
+ */
 export async function fetchProgress(
   courseId = "",
+  titleMap: Record<string, string> = {},
 ): Promise<{ courses: CourseProgress[]; summary: ProgressSummary }> {
-  const response = await apiFetch(
-    apiUrl(`/api/learning/progress${query(courseId)}`),
-    { cache: "no-store" },
-  );
-  const data = await asJsonOrThrow(response);
-  const courses = Array.isArray(data?.courses) ? data.courses : [];
-  return {
-    courses: courses as CourseProgress[],
-    summary: (data?.summary ?? {}) as ProgressSummary,
-  };
+  // ── 静态模式：直接走 localStorage ──
+  if (await isStaticRuntime()) {
+    const local = aggregateLocalProgress(courseId ? [courseId] : [], titleMap);
+    return {
+      courses: local.courses as unknown as CourseProgress[],
+      summary: local.summary as unknown as ProgressSummary,
+    };
+  }
+
+  try {
+    const response = await apiFetch(
+      apiUrl(`/api/learning/progress${query(courseId)}`),
+      { cache: "no-store" },
+    );
+    const data = await asJsonOrThrow(response);
+    const courses = Array.isArray(data?.courses) ? data.courses : [];
+    return {
+      courses: courses as CourseProgress[],
+      summary: (data?.summary ?? {}) as ProgressSummary,
+    };
+  } catch {
+    // ── 降级：后端挂了 / 返回了 HTML ──
+    //
+    // 宁可显示本地汇总，也不要显示一整页 404 源码。
+    const local = aggregateLocalProgress(courseId ? [courseId] : [], titleMap);
+    return {
+      courses: local.courses as unknown as CourseProgress[],
+      summary: local.summary as unknown as ProgressSummary,
+    };
+  }
 }
 
 // ── 选区动作 ───────────────────────────────────────────────────────────

@@ -66,9 +66,14 @@ const TARGET_DIR = path.join(ROOT, "web", "public", "data");
  * 要复制的**单文件**。
  *
  * 格式：``[源文件名, 目标文件名]``。同名时目标可以省略。
+ *
+ * ⚠️ ``global_resource_hub.json`` 现在是 **K12 体系**的中台大盘——
+ *    由 ``scripts/build-k12-static.mjs`` 产出（它读采集器结果，
+ *    并同时写出索引 + 每套课的详情分片）。
  */
 const FILES = [
   ["global_resource_hub.json", "global_resource_hub.json"],
+  ["k12/k12_series.json", "k12-series-source.json"],
   ["github_candidates_review.json", "github_candidates_review.json"],
   ["watched_channels.json", "watched_channels.json"],
   ["user_profile.json", "user_profile.json"],
@@ -76,8 +81,20 @@ const FILES = [
 
 /**
  * 要复制的**目录**（整个目录树）。
+ *
+ * ⚠️ ``courses/`` 现在**只**装 K12 的 24 套系列详情——
+ *    旧的大学公开课课程库已经整体下线。
  */
 const DIRECTORIES = ["courses", "skills", "translations"];
+
+/**
+ * **已经在** ``web/public/data/`` 里、**不需要**同步的文件。
+ *
+ * 这些由 ``scripts/build-k12-static.mjs`` **直接**写进前端目录
+ * （因为它们是**分片**的——索引 + 每套课一个文件，必须由同一个
+ * 脚本一起产出，否则会有一半新一半旧）。
+ */
+const PREBUILT = ["k12-index.json"];
 
 /**
  * 复制单个文件。
@@ -279,6 +296,21 @@ function main() {
     console.warn(
       "⚠️  课程数为 0——静态站点会是一个空站。" +
         "请确认 backend/data/global_resource_hub.json 里有内容。",
+    );
+  }
+
+  // ── K12 分片（可选）──
+  //
+  // ⚠️ ``web/public/data/k12-index.json`` 与 ``courses/k12_*.json``
+  //    是由 ``scripts/build-k12-static.mjs`` 写的——它必须**跑在
+  //    同步之后**，否则这里的 ``copyDirectory("courses")`` 会把
+  //    K12 的详情文件用后端目录里的旧版本覆盖掉。
+  //
+  //    所以这里只做**提示**——真正的构建在 npm 的 ``prebuild`` 里。
+  if (!fs.existsSync(path.join(TARGET_DIR, "k12-index.json"))) {
+    console.log(
+      "ℹ️  还没生成 K12 分片——运行 `npm run build:k12` " +
+        "（它需要 backend/data/k12/k12_series.json）。",
     );
   }
 }

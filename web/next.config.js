@@ -223,6 +223,15 @@ const nextConfig = {
     NEXT_PUBLIC_API_BASE_URL: API_BASE,
     NEXT_PUBLIC_BASE_PATH: BASE_PATH,
     NEXT_PUBLIC_STATIC_EXPORT: STATIC_EXPORT ? "true" : "false",
+    /**
+     * AI 转发代理地址。
+     *
+     * 指向仓库根目录的 ``ai-proxy/`` 服务。填了它，静态站点的
+     * AI 助教就能**零配置**工作——服务端保管 DeepSeek Key。
+     *
+     * 没设则为空字符串，前端退到「用户自填 Key」或「离线引导」。
+     */
+    NEXT_PUBLIC_AI_PROXY_URL: envString("NEXT_PUBLIC_AI_PROXY_URL"),
   },
 
   /**

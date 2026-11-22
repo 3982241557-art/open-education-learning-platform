@@ -28,6 +28,7 @@ from __future__ import annotations
 
 import json
 import logging
+from typing import Any
 
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
@@ -119,6 +120,14 @@ class ChatRequest(BaseModel):
     #: 而之前的 user/assistant 历史保持不变——模型会立刻换一种语气
     #: 接续同一段对话。
     persona: str = ""
+    #: **学习者画像**——由课前诊断产生。
+    #:
+    #: 形如 ``{"course_title": "...", "episode_title": "...",
+    #: "episode_index": 3, "prompt": "[学习者画像] ..."}``。
+    #:
+    #: 它被**静默**拼进 system prompt——用户看不到这段提示词，
+    #: 但助手知道该按什么难度讲。
+    learner_profile: dict[str, Any] | None = None
 
 
 def _build_prompt(payload: ChatRequest):
@@ -157,6 +166,16 @@ def _build_prompt(payload: ChatRequest):
         if not persona_body:
             warnings.append(f"未找到回答模式 skill：{payload.persona}")
 
+    # ④′ 学习者画像：由课前诊断产生。
+    #
+    # 它决定 AI 该按什么难度讲。与「当前资源」不同——资源说的是
+    # 「你在看什么」，画像说的是「你懂多少」。
+    learner_profile = ""
+    if isinstance(payload.learner_profile, dict):
+        raw_prompt = payload.learner_profile.get("prompt")
+        if isinstance(raw_prompt, str) and raw_prompt.strip():
+            learner_profile = raw_prompt.strip()
+
     # ⑤ 组装。
     assembler = PromptAssembler(language=payload.language)
     assembled = assembler.assemble(
@@ -168,6 +187,7 @@ def _build_prompt(payload: ChatRequest):
         skill_override=persona_body,
         skill_override_name=persona_name,
         resource_context=resource_context,
+        learner_profile=learner_profile,
     )
     assembled.warnings = warnings
     return assembled

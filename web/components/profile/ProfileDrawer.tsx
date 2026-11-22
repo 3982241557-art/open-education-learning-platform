@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Download, Loader2, Upload, X } from "lucide-react";
 import { useProfile } from "@/context/ProfileContext";
-import { getLocalApiKey, setLocalApiKey } from "@/lib/local-ai";
+import { getLocalApiKey, setLocalApiKey, hasAiProxy } from "@/lib/local-ai";
 import { isStaticRuntime } from "@/shared/api/client";
 import type { Region } from "@/context/LocaleContext";
 import { UserAvatar } from "@/components/profile/UserAvatar";
@@ -65,6 +65,13 @@ export function ProfileDrawer({
   );
   /** 是否处于静态模式（纯静态版没有后端托管 Key）。 */
   const [staticMode, setStaticMode] = useState(false);
+  /**
+   * 平台是否配置了 AI 转发代理。
+   *
+   * 配了的话，访客**什么都不用填**就能直接对话——这是最重要的
+   * 一条信息，必须显式告诉他。
+   */
+  const proxyReady = hasAiProxy();
   const [avatarUrlDraft, setAvatarUrlDraft] = useState(profile.avatar_url);
   const [flash, setFlash] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -349,10 +356,41 @@ export function ProfileDrawer({
           {/* AI 助教接入 */}
           <div className="rounded-xl border border-[var(--border)] bg-[var(--muted)]/40 p-3">
             <p className="text-[12px] font-medium">AI 助教</p>
-            <p className="mt-1 text-[11px] leading-relaxed text-[var(--muted-foreground)]">
+
+            {/* ── 转发代理状态 ──
+             *
+             * 站点配了 ``ai-proxy`` 时，访客**什么都不用填**就能对话。
+             * 这里明确告诉他这件事——否则他看到输入框会以为必须填 Key。
+             */}
+            <div
+              className={cn(
+                "mt-2 rounded-lg border px-2.5 py-2 text-[11px] leading-relaxed",
+                proxyReady
+                  ? "border-emerald-500/25 bg-emerald-500/[0.07] text-emerald-700 dark:text-emerald-400"
+                  : "border-[var(--border)] bg-white/60 text-[var(--muted-foreground)]",
+              )}
+            >
+              {proxyReady ? (
+                <>
+                  <span className="font-medium">平台代理已就绪</span>
+                  <span className="ml-1">
+                    ——直接提问即可，无需配置任何 Key。下面这个输入框是
+                    可选的：填了就用你自己的额度，不消耗站点额度。
+                  </span>
+                </>
+              ) : (
+                <>
+                  当前站点未配置 AI 转发服务。填入 DeepSeek API Key 后，
+                  AI 助教就能直接回答你的问题——请求由你的浏览器发出，
+                  Key 只存在这台设备上。
+                </>
+              )}
+            </div>
+
+            <p className="mt-2 text-[11px] leading-relaxed text-[var(--muted-foreground)]">
               {staticMode
-                ? "当前是纯静态版本。在下面填入 DeepSeek API Key，AI 助教就能直接回答你的问题——请求由你的浏览器发出，Key 只存在这台设备上。"
-                : "填入 DeepSeek API Key 后，AI 助教会优先用你的 Key 回答；留空则使用平台配置的模型。"}
+                ? "纯静态版本：Key 不会离开你的浏览器，也不会写入本项目的任何代码。"
+                : "留空则使用平台配置的模型。"}
             </p>
 
             <div className="mt-2.5">

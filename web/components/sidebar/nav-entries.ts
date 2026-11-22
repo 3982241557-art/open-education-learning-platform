@@ -1,4 +1,5 @@
 import {
+  BookOpenCheck,
   CalendarCheck,
   GraduationCap,
   House,
@@ -39,6 +40,16 @@ export const PRIMARY_NAV: NavEntry[] = [
     label: "首页",
     icon: House,
     tooltipKey: "精选专题导览",
+    primary: true,
+  },
+  {
+    // ⚠️ K12 选课大厅是平台的**主体入口**——1–12 年级语文 / 数学
+    //    年级同步系列都在这里。它排在「课程」之前，因为对目标用户
+    //    来说，「按年级选课」才是第一动作。
+    href: "/k12",
+    label: "K12 选课",
+    icon: BookOpenCheck,
+    tooltipKey: "1–12 年级语文 · 数学同步系列",
     primary: true,
   },
   {

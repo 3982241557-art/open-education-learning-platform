@@ -230,3 +230,94 @@ export function formatTimestamp(seconds: number): string {
   const ss = String(secs).padStart(2, "0");
   return hours > 0 ? `${hours}:${mm}:${ss}` : `${mm}:${ss}`;
 }
+
+/**
+ * 「把我的直觉发给助教深挖」
+ * =============================
+ *
+ * 组装一条**自足的**指令——助教拿到就能直接作答，不需要再去猜
+ * 用户的意图。
+ *
+ * .. code-block:: text
+ *
+ *     > 我在《MIT 线性代数第一讲》[06:59] 处做了一道直觉题：
+ *     > 「行变换不改变解集」——你觉得它是原因还是结果？
+ *     > 我选的是：两者互为因果。
+ *
+ *     我的这个直觉对吗？如果不对，���说出我为什么会这样想，
+ *     以及正确的理解应该从哪里转过来。
+ *
+ * 为什么用 Markdown 引用块
+ * ----------------------
+ *
+ * 与 :func:`buildTimestampQuotePrompt` 同理——引用块是模型最熟悉的
+ * 「这是引文」的信号。它会知道上面那段是**用户提供的原始材料**
+ * （用户的直觉），而不是用户的指令。指令在引用块**之后**。
+ *
+ * 为什么不自动发送
+ * ----------------
+ *
+ * 用户的直觉本身只是「半句话」。他可能还想补一句「我觉得是因为
+ * ……」——那才是助教最该听到的。所以这里只填入 + 聚焦。
+ */
+export function buildPredictDeepenPrompt(input: {
+  /** 视频标题。 */
+  mediaTitle?: string;
+  /** 时间戳展示文本——「06:59」。 */
+  timestampLabel: string;
+  /** 直觉题。 */
+  question: string;
+  /** 用户选中的选项。 */
+  chosen: string;
+  /** 全部选项。 */
+  options?: string[];
+  /** 是否答对。 */
+  correct?: boolean;
+  /** 节点关键词。 */
+  keyword?: string;
+}): string {
+  const {
+    mediaTitle,
+    timestampLabel,
+    question,
+    chosen,
+    options: allOptions = [],
+    correct,
+    keyword,
+  } = input;
+
+  const lines: string[] = [];
+
+  if (mediaTitle) {
+    lines.push(`> 我在《${mediaTitle}》[${timestampLabel}] 处做了一道直觉题：`);
+  } else {
+    lines.push(`> 我在视频 [${timestampLabel}] 处做了一道直觉题：`);
+  }
+
+  lines.push(`> 「${question.trim()}」`);
+
+  if (allOptions.length > 1) {
+    lines.push(
+      `> 我看到的选项是：${allOptions.map((item) => `「${item}」`).join(" / ")}。`,
+    );
+  }
+
+  lines.push(`> 我的直觉是：${chosen.trim()}。`);
+
+  if (typeof correct === "boolean") {
+    lines.push(
+      correct
+        ? "> （我选了那个看起来对的选项。）"
+        : "> （我选了一个自己也不确定是否成立的选项。）",
+    );
+  }
+
+  lines.push("");
+  lines.push(
+    keyword
+      ? `请就「${keyword.trim()}」这一点深挖：我的这个直觉到底成不成立？如果不成立，说出我为什么会这样想，以及正确的理解应该从哪里转过来。`
+      : "请深挖这一点：我的这个直觉到底成不成立？如果不成立，说出我为什么会这样想，以及正确的理解应该从哪里转过来。",
+  );
+
+  return lines.join("\n");
+}

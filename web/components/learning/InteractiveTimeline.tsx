@@ -168,19 +168,23 @@ export function InteractiveTimeline({
   /**
    * 当前标签页的面板是否折叠。
    *
-   * **手风琴**：点已激活的标签页 = 收起它的面板。再点一次 = 展开。
+   * **默认 100% 折叠**——这是两级课程架构的第二层（沉浸学习页）
+   * 的硬性要求。
    *
-   * 为什么要这个
-   * ------------
+   * 为什么
+   * ----
    *
-   * 上一版（以及更早的版本）视频下方是三座大山首尾相连：重点导读 +
-   * 段落导读 + 逐字字幕。页面被拉到几千像素高，用户滚不到底，
-   * 视频本身也就被顶到了屏幕外——**看视频这件事变成了滚动网页**。
+   * 单集学习页要「极致减字，防止分心」。视频下方那三份辅助内容
+   * （知识节点 / 段落导读 / 完整字幕）加起来是几千像素高——用户
+   * 刚进来时看到的是**一屏字幕**，不是视频。
    *
-   * 现在收进 Tabs 并且**再套一层手风琴**：用户看完视频、想不起某句
-   * 字幕是什么，一键就能把整个面板收起来，视频重新回到视口正中。
+   * 所以进页时只展示**一行干净的折叠标签栏**（带明确的展开箭头
+   * ▸），用户主动点击才往下展开对应面板。
+   *
+   * 点已激活的标签 = 折叠 / 展开；点未激活的标签 = 切过去**并
+   * 保持折叠**——切换标签本身也是一种「还没决定要看什么」的信号。
    */
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
 
   const sortedNodes = useMemo(
     () =>
@@ -396,10 +400,10 @@ export function InteractiveTimeline({
                   setCollapsed((prev) => !prev);
                   return;
                 }
+                // 切到别的标签时**保持折叠**——切换标签不代表用户
+                // 想立刻看内容，他可能还在挑。
                 setTab(item.key);
-                // 切到别的标签时自动展开——否则用户会以为那个
-                // 标签也是空的。
-                setCollapsed(false);
+                setCollapsed(true);
               }}
               className="seek-tab inline-flex items-center gap-1.5 px-2.5 py-2.5 text-[12.5px]"
               data-active={isActive ? "true" : "false"}
@@ -410,17 +414,15 @@ export function InteractiveTimeline({
               <span className="text-[10.5px] tabular-nums opacity-60">
                 {item.count}
               </span>
-              {/* 折叠指示器——只有当前激活的标签有。 */}
-              {isActive ? (
-                <ChevronDown
-                  size={12}
-                  strokeWidth={2.2}
-                  className={cn(
-                    "ml-0.5 opacity-50 transition-transform duration-200",
-                    collapsed && "-rotate-90",
-                  )}
-                />
-              ) : null}
+              {/* 展开箭头——默认是 ▸（收起状态），展开时转为 ▾。 */}
+              <ChevronDown
+                size={12}
+                strokeWidth={2.2}
+                className={cn(
+                  "ml-0.5 opacity-50 transition-transform duration-200",
+                  (collapsed || !isActive) && "-rotate-90",
+                )}
+              />
             </button>
           );
         })}
@@ -449,14 +451,14 @@ export function InteractiveTimeline({
                   <li key={`${node.timestamp}-${node.keyword}`}>
                     <button
                       type="button"
-                      onClick={() =>
+                      onClick={() => {
                         askAbout(
                           node.keyword,
                           node.context ?? node.hint ?? "",
                           node.timestamp,
                           node.prompt ?? node.hint ?? "",
-                        )
-                      }
+                        );
+                      }}
                       title={`${formatTimestamp(node.timestamp)} · ${
                         node.prompt || node.context || node.hint || node.keyword
                       }`}

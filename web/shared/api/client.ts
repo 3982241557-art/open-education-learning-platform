@@ -125,7 +125,51 @@ export class ApiError extends Error {
   }
 }
 
-/** 解析 JSON 响应体；失败时抛出带后端 detail 的 ApiError。 */
+/**
+ * 判断一段响应体是不是「HTML 报错页」。
+ *
+ * 背景
+ * ----
+ *
+ * 静态站点（GitHub Pages）上，任何不存在的路径都会返回一段
+ * ``<!DOCTYPE html>...Error code: 404...`` 的**HTML 页面**，而且
+ * HTTP 状态码是 **200**（Pages 的 SPA 兜底行为）。
+ *
+ * 如果前端不做检查，这段 HTML 会被：
+ *
+ * 1. 当 JSON 解析 → 抛出一个毫无意义的 ``Unexpected token '<'``；
+ * 2. 或者更糟——被直接塞进界面，用户看到一整页源码。
+ *
+ * 所以在解析之前**必须**先判断 Content-Type 与首字符。
+ *
+ * @param contentType 响应头里的 ``Content-Type``
+ * @param text       响应体文本（只需前几个字符即可判断）
+ */
+export function looksLikeHtmlError(
+  contentType: string | null | undefined,
+  text: string | null | undefined,
+): boolean {
+  const type = (contentType ?? "").toLowerCase();
+  // 明确声明是 JSON 的，**不**当它是 HTML。
+  if (type.includes("application/json")) return false;
+
+  const head = (text ?? "").trimStart().slice(0, 200).toLowerCase();
+  if (!head) return false;
+  return (
+    head.startsWith("<!doctype html") ||
+    head.startsWith("<html") ||
+    head.startsWith("<?xml") ||
+    head.includes("<html")
+  );
+}
+
+/**
+ * 解析 JSON 响应体；失败时抛出带后端 detail 的 ApiError。
+ *
+ * ⚠️ **绝不能**把 HTML 报错源码当成 detail 抛给调用方——那会让
+ *    「学情中心 404」这类问题直接以「一整页 HTML」的形式显示给用户。
+ *    所以这里对 HTML 响应做了显式拦截，转成一句人话。
+ */
 export async function asJsonOrThrow(response: Response): Promise<any> {
   const text = await response.text();
   let payload: any = null;
@@ -136,6 +180,22 @@ export async function asJsonOrThrow(response: Response): Promise<any> {
       payload = text;
     }
   }
+
+  const contentType = response.headers.get("content-type");
+
+  // ── HTML 响应：不论状态码，一律不当成业务数据 ──
+  //
+  // 静态站点上的 404 兜底页是 **200 + HTML**。如果只看
+  // ``response.ok``，就会把 HTML 当成合法数据放行，然后在别处
+  // 渲染成一片源码。
+  if (looksLikeHtmlError(contentType, text)) {
+    throw new ApiError(
+      "服务返回了网页源码而不是数据（接口不存在或已下线）。",
+      response.status,
+      { connectivity: true },
+    );
+  }
+
   if (!response.ok) {
     // ── 上游没连上 ──────────────────────────────────────────────
     //
@@ -159,7 +219,8 @@ export async function asJsonOrThrow(response: Response): Promise<any> {
       payload && typeof payload === "object" && typeof payload.detail === "string"
         ? payload.detail
         : typeof payload === "string" && payload
-          ? payload
+          ? // 纯文本错误体也要**截断**——不让一整页内容进到界面里。
+            payload.slice(0, 300)
           : `Request failed: ${response.status}`;
     throw new ApiError(detail, response.status);
   }

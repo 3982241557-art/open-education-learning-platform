@@ -51,6 +51,14 @@ export const StorageKeys = {
   session: (sessionId: string) => `${PREFIX}.session.${sessionId}`,
   quiz: (courseId: string) => `${PREFIX}.quiz.${courseId}`,
   plans: (courseId: string) => `${PREFIX}.plans.${courseId}`,
+  /**
+   * 「先猜后看」的作答记录。
+   *
+   * 为功能 4「顿悟卡片」预留——那时这些记录会汇总成个人知识脉络图。
+   * 键名**不带课程 id**：跨课程的直觉记录放在一起，才能画出
+   * 跨学科的技能脉络。
+   */
+  predictHooks: `${PREFIX}.predict-hooks`,
 } as const;
 
 /**

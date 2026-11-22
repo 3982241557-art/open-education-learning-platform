@@ -18,6 +18,17 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+try:
+    # ``predict_hooks`` 与本文件同目录。用包相对导入（``__package__``）
+    # 在两种运行方式下都能找到它——直接 ``python3 tools/x.py`` 时
+    # ``__package__`` 是空的，此时退回绝对导入。
+    from .predict_hooks import apply_hooks
+except ImportError:  # pragma: no cover - 直接以脚本方式运行
+    import sys
+
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from predict_hooks import apply_hooks
+
 ROOT = Path(__file__).resolve().parents[1]
 TARGET = ROOT / "data" / "global_resource_hub.json"
 
@@ -1777,6 +1788,40 @@ CAT_FRONTIER = {
 
 
 def build() -> dict:
+    """构造整份中台数据。
+
+    构造完成后会把「先猜后看」定制钩子挂到对应课程的节点上——
+    见 :func:`predict_hooks.apply_hooks`。
+    """
+    data = _build_raw()
+
+    # ── 挂上「先猜后看」定制钩子 ──
+    #
+    # 只有核心示范课有手写钩子；其余课程的节点在**运行时**由前端
+    # 生成兜底题（见 ``web/lib/predict-hook.ts``），所以打开任何
+    # 一门课都能立刻体验到这个交互。
+    hooked = 0
+    for category in data["hub"]["categories"]:
+        for resource in category.get("resources", []):
+            nodes = resource.get("interactive_nodes")
+            if not isinstance(nodes, list):
+                continue
+            before = sum(1 for node in nodes if node.get("predict_hook"))
+            apply_hooks(resource.get("id", ""), nodes)
+            hooked += sum(1 for node in nodes if node.get("predict_hook")) - before
+
+    data["hub"]["metadata"]["predict_hooks"] = {
+        "authored": hooked,
+        "note": (
+            "手写定制钩子的数量。其余节点在运行时由前端按节点类型生成兜底题，"
+            "保证任意课程都能立即体验「先猜后看」。"
+        ),
+    }
+
+    return data
+
+
+def _build_raw() -> dict:
     return {
         "$schema": "../schemas/global_resource_hub.schema.json",
         "hub": {

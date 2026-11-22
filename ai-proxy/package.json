@@ -1,0 +1,18 @@
+{
+  "name": "oe-ai-proxy",
+  "version": "1.0.0",
+  "private": true,
+  "description": "开放教育学习平台 · DeepSeek 轻量转发代理（保护 API Key + CORS 白名单 + IP 限流）",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
