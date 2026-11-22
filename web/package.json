@@ -4,23 +4,25 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000",
-    "prebuild": "npm run sync:data && npm run build:k12",
+    "prebuild": "npm run sync:data && npm run build:k12 && npm run build:hanzi",
     "sync:data": "node ../scripts/sync-static-data.mjs",
     "build:k12": "node ../scripts/build-k12-static.mjs",
     "harvest:k12": "node ../scripts/harvest-k12.mjs --apply",
     "build": "NEXT_DIST_DIR=.next-build next build",
-    "prebuild:static": "npm run sync:data && npm run build:k12",
+    "prebuild:static": "npm run sync:data && npm run build:k12 && npm run build:hanzi",
     "build:static": "NEXT_DIST_DIR=.next-build NEXT_PUBLIC_STATIC_EXPORT=true next build && node ../scripts/patch-gh-pages-404.mjs",
     "start": "NEXT_DIST_DIR=.next-build next start -p 3000",
     "serve:static": "npx serve out -l 3000",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "build:hanzi": "node ../scripts/build-hanzi-data.mjs"
   },
   "dependencies": {
     "@types/mdast": "^4.0.4",
     "clsx": "^2.1.1",
     "framer-motion": "^14.14.0",
     "hanzi-writer": "^3.7.3",
+    "hanzi-writer-data": "^2.0.1",
     "html2canvas": "^1.4.1",
     "katex": "^0.19.1",
     "lucide-react": "^0.469.0",

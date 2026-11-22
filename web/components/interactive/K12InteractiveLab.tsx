@@ -186,6 +186,21 @@ function HanziLab({
    *
    * ⚠️ 它是**浏览器 API**（需要 SVG 容器 + 字体数据），
    *    所以只能在客户端、且容器挂载之后初始化。
+   *
+   * 字形数据来源
+   * ------------
+   *
+   * 默认走**本地打包**的 ``/data/hanzi-chars.json``——
+   * 那 400 个常用字在构建期一次性打包好了（见
+   * ``scripts/build-hanzi-data.mjs``）。
+   *
+   * 为什么不用 hanzi-writer 的默认 CDN：
+   *
+   * - 国内访问 jsdelivr **不稳**，而读者大多在国内；
+   * - 每个字一次请求 → 400 个字 400 个 HTTP 请求；
+   * - CDN 挂了，整个互动模块**静默失效**。
+   *
+   * 本地数据里没有的字，才回落到 CDN（并顺手缓存）。
    */
   useEffect(() => {
     if (!char || typeof window === "undefined") return;
@@ -193,9 +208,13 @@ function HanziLab({
     if (!container) return;
 
     let cancelled = false;
+
     void (async () => {
       try {
         const HanziWriter = (await import("hanzi-writer")).default;
+        if (cancelled || !containerRef.current) return;
+
+        const charData = await loadCharData(char);
         if (cancelled || !containerRef.current) return;
 
         containerRef.current.innerHTML = "";
@@ -210,6 +229,8 @@ function HanziLab({
           showOutline: true,
           strokeAnimationSpeed: 0.9,
           delayBetweenStrokes: 260,
+          // 本地数据——不走 CDN。
+          ...(charData ? { charData } : {}),
         });
         writerRef.current = writer;
 
@@ -1070,4 +1091,58 @@ function GeometryLab({
       </div>
     </div>
   );
+}
+
+/* ──────────────────────────────────────────────────────────────────
+ * 字形数据加载
+ * ────────────────────────────────────────────────────────────────── */
+
+/** 一个字的笔顺数据。 */
+interface CharData {
+  strokes: string[];
+  medians: number[][];
+}
+
+/** 本地打包的字库——一次拉取，全站复用。 */
+let localCharCache: Record<string, CharData> | null = null;
+/** 本地字库拉取失败时，退回 CDN。 */
+let localCharCacheFailed = false;
+
+/**
+ * 加载一个字的笔顺数据。
+ *
+ * 顺序：
+ *
+ * 1. 本地打包的 ``/data/hanzi-chars.json``（覆盖 K12 全部用字）；
+ * 2. hanzi-writer 官方 CDN（兜底）；
+ * 3. 都失败 → 返回 ``null``，组件降级为静态字形。
+ */
+async function loadCharData(char: string): Promise<CharData | null> {
+  // ── ① 本地打包 ──
+  if (!localCharCacheFailed) {
+    try {
+      if (!localCharCache) {
+        const response = await fetch("/data/hanzi-chars.json");
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        localCharCache = (await response.json()) as Record<string, CharData>;
+      }
+      const found = localCharCache[char];
+      if (found) return found;
+    } catch {
+      // 本地字库不可用——标记一次，别再重试。
+      localCharCacheFailed = true;
+    }
+  }
+
+  // ── ② CDN 兜底 ──
+  try {
+    const response = await fetch(
+      `https://cdn.jsdelivr.net/npm/hanzi-writer-data@2.0.1/${encodeURIComponent(char)}.json`,
+    );
+    if (!response.ok) return null;
+    const data = (await response.json()) as CharData;
+    return { strokes: data.strokes ?? [], medians: data.medians ?? [] };
+  } catch {
+    return null;
+  }
 }
