@@ -83,9 +83,26 @@ export function readStaticCourses(): StaticCourse[] {
 
 /**
  * 课程 id 列表——``generateStaticParams`` 用的。
+ *
+ * ⚠️ 必须包含 **K12 的 24 套系列**——不然 ``/learning/courses/[id]/edit``
+ *    这类页面的 ``generateStaticParams()`` 会返回**空数组**，
+ *    而 Next.js 在 ``output: "export"`` 下会直接报错：
+ *
+ *    .. code-block:: text
+ *
+ *        Page "/learning/courses/[courseId]/edit" is missing
+ *        "generateStaticParams()" so it cannot be used with
+ *        "output: export" config.
+ *
+ *    空数组不是「没课程」，而是「这个动态路由无法导出」——会**中断
+ *    整个构建**。所以这里永远要保证至少有一条。
  */
 export function staticCourseIds(): string[] {
-  return readStaticCourses().map((course) => course.id);
+  const ids = new Set<string>([
+    ...readStaticCourses().map((course) => course.id),
+    ...staticK12SeriesIds(),
+  ]);
+  return [...ids].sort();
 }
 
 /**

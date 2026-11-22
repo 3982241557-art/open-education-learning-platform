@@ -22,6 +22,7 @@
  */
 
 import { staticFetch } from "@/shared/api/client";
+import { editionOf } from "@/lib/k12-api";
 import type {
   K12Index,
   K12IndexEntry,
@@ -80,7 +81,12 @@ function normalizeEntry(raw: any): K12IndexEntry {
     ageRange: Array.isArray(raw?.ageRange)
       ? [Number(raw.ageRange[0]) || 0, Number(raw.ageRange[1]) || 0]
       : [0, 0],
-    edition: String(raw?.edition ?? ""),
+    edition: editionOf({
+      subject: (String(raw?.subject ?? "math") === "chinese"
+        ? "chinese"
+        : "math"),
+      stage: String(raw?.stage ?? "primary") as K12IndexEntry["stage"],
+    }),
     volumes: Array.isArray(raw?.volumes)
       ? raw.volumes.map((item: unknown) => String(item))
       : [],
@@ -119,7 +125,12 @@ export async function fetchK12Series(
       ageRange: Array.isArray(data.ageRange)
         ? [Number(data.ageRange[0]) || 0, Number(data.ageRange[1]) || 0]
         : [0, 0],
-      edition: String(data.edition ?? ""),
+      edition: editionOf({
+        subject: (String(data.subject ?? "math") === "chinese"
+          ? "chinese"
+          : "math"),
+        stage: String(data.stage ?? "primary") as K12SeriesDetail["stage"],
+      }),
       volumes: Array.isArray(data.volumes)
         ? data.volumes.map((item: unknown) => String(item))
         : [],

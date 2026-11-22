@@ -156,6 +156,27 @@ export function isPlayfulStage(stage: K12Stage): boolean {
   return stage === "primary";
 }
 
+/**
+ * 一套系列的**教材版本**——按学段取值。
+ *
+ * ⚠️ 高中数学用的是**人教 A 版**（必修 / 选择性必修是不同教材），
+ *    小学 / 初中数学是「人教版」。语文全学段统一「部编版」。
+ *
+ * 这个值会出现在目录页、证书上——所以它必须**准确**，
+ * 否则海外家长按版本买书会对不上。
+ *
+ * @param series 索引条目
+ */
+export function editionOf(series: {
+  subject: K12Subject;
+  stage: K12Stage;
+}): string {
+  if (series.subject === "chinese") return "国家统编版（部编版）";
+  return series.stage === "senior"
+    ? "人教版（人教 A 版）"
+    : "人教版";
+}
+
 /** 年级 + 年龄的展示标签。 */
 export function gradeLabel(grade: K12Grade): string {
   return `${grade.name}（${grade.ageRange[0]}–${grade.ageRange[1]}岁）`;

@@ -259,8 +259,20 @@ function readRevision() {
 function extractKeywords(raw) {
   let text = String(raw ?? "");
 
-  // 去掉版权 / 广告。
-  text = text.replace(/[©®]版权|版权声明|未经授权.*$/g, "");
+  // 版权 / 广告。
+  text = text.replace(/[©®]\s*版权[^\s|｜]*/g, "");
+  text = text.replace(/©[^\s|｜]{0,20}/g, "");
+
+  // 栏目前缀。
+  text = text.replace(
+    /^\s*[【\[]\s*(微课视频|微课|名师讲重点|名师讲解|名师精讲|扫码读课文|扫码听读|七彩课堂|课本精讲|同步讲解|精品课程|重难点突破|精品优课)\s*[】\]]\s*/g,
+    "",
+  );
+  text = text.replace(
+    /^\s*(扫码读课文|扫码听读|七彩课堂|微课视频|微课)\s*/g,
+    "",
+  );
+
   // 分隔符 → 空格。
   text = text.replace(/[｜|]/g, " ");
   // 括号内容单独处理（见下），这里先清掉结构符号。

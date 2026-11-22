@@ -68,7 +68,13 @@ export const GRADES = [
   { number: 12, name: "高三", alias: "高中三年级", ageRange: [17, 18], stage: "senior" },
 ];
 
-/** 两大核心学科——**全学段统一**。 */
+/**
+ * 两大核心学科——**全学段统一**。
+ *
+ * ⚠️ ``edition`` 只是**说明性**的——它描述的是「小学用哪套教材」。
+ *    真正写进标题的是 :func:`seriesTitle` 里按学段算出来的版本名
+ *    （小学「人教版」/ 高中「人教 A 版」）。
+ */
 export const SUBJECTS = [
   {
     id: "chinese",
@@ -81,7 +87,7 @@ export const SUBJECTS = [
     id: "math",
     name: "数学",
     enName: "Mathematics",
-    edition: "人教版（高中人教 A 版）",
+    edition: "人教版",
     editionEn: "PEP Edition",
   },
 ];
@@ -120,6 +126,11 @@ export function gradeLabel(number) {
  *
  * 这个名字会同时出现在课程目录页、诊断卡、结业证书上——所以它必须
  * **一眼说清**：学段 / 年级 / 学科 / 册次 / 教材版本。
+ *
+ * ⚠️ 教材版本**按学段**取值：
+ *    * 小学 / 初中数学 → 「人教版」；
+ *    * 高中数学 → 「人教 A 版」（高中分必修 / 选择性必修，教材不同）；
+ *    * 语文全学段 → 「部编版」（国家统编版）。
  */
 export function seriesTitle(spec) {
   const grade = gradeOf(spec.grade);
@@ -131,6 +142,11 @@ export function seriesTitle(spec) {
         ? "初中"
         : "高中";
   const volume = spec.volumes.join("+");
-  const editionName = subject.id === "chinese" ? "部编版" : "人教版";
+  const editionName =
+    spec.subject === "chinese"
+      ? "部编版"
+      : grade.stage === "senior"
+        ? "人教 A 版"
+        : "人教版";
   return `${stagePrefix}${grade.name}${subject.name}（${volume}）${editionName}同步精讲`;
 }

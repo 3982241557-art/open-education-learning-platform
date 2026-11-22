@@ -68,22 +68,36 @@ const TYPE_MARKERS: Array<[RegExp, LessonAnalysis["lessonType"]]> = [
  * ``古诗三首``。
  *
  * 保留的只有**真正有教学意义**的部分：单元号、课文/篇目名。
+ *
+ * ⚠️ 括号常常**不配对**（``名师讲重点1观潮（想象画面，感受钱塘江大潮的壮美``）。
+ *    所以不能简单地按括号截断——那会把标题砍掉一半。这里只在
+ *    **括号闭合**时才截断。
  */
 function stripNoise(raw: string): string {
   let text = raw;
 
   // 版权 / 广告标记。
-  text = text.replace(/[©®]版权|版权声明|未经授权.*$/g, "");
+  text = text.replace(/[©®]\s*版权[^\s|｜]*/g, "");
+  text = text.replace(/©[^\s|｜]{0,20}/g, "");
+
+  // 栏目前缀——「这个视频是什么形式」不是「这一讲讲什么」。
+  text = text.replace(
+    /^\s*[【\[]\s*(微课视频|微课|名师讲重点|名师讲解|名师精讲|扫码读课文|扫码听读|七彩课堂|课本精讲|同步讲解|精品课程|重难点突破|精品优课)\s*[】\]]\s*/g,
+    "",
+  );
+  text = text.replace(
+    /^\s*(扫码读课文|扫码听读|七彩课堂|微课视频|微课)\s*/g,
+    "",
+  );
 
   // 分隔符统一。
-  text = text.replace(/[｜|｜]/g, " ");
+  text = text.replace(/[｜|]/g, " ");
   text = text.replace(/[【】\[\]（）()《》「」]/g, " ");
 
   // 前导序号：``1.`` ``1_`` ``01 `` ``第1课``。
   text = text.replace(/^\s*\d{1,3}\s*[.、_\-]\s*/, "");
   text = text.replace(/^\s*第\s*\d{1,3}\s*[课讲]\s*/, "");
 
-  // 单元标记：``第一单元`` → 保留（它就是单元信息）。
   // 课时标记。
   text = text.replace(/第[一二三四五六七八九十\d]{1,3}课时/g, " ");
   text = text.replace(/课时\s*\d{1,3}/g, " ");
