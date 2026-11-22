@@ -450,7 +450,7 @@ export function buildChineseContent({ coreTitle, fullTitle, stage }) {
     // 「能不能迁移」。仍然紧扣这一课，不落到通用模板。
     diagnostics.push(
       makeQuestion({
-        question: `《${cnTitle}》中，${activePoint.concept}这一点，如果要向别人讲清楚，最关键的一句是（　　）`,
+        question: `读《${cnTitle}》时，下面哪一句**最准确**地概括了「${activePoint.concept}」？（　　）`,
         options: [
           activePoint.explanation.length > 70
             ? `${activePoint.explanation.slice(0, 70)}……`
@@ -740,23 +740,47 @@ export function buildMathContent({ coreTitle, fullTitle }) {
     });
     diagnostics.push(d);
     quizzes.push(q);
+    // 第 2 道诊断题——**概念辨析**，不是第 1 题的复读。
+    //
+    // ⛔ 复读同一道题是敷衍：学生答对一次不代表会了。
+    //    这里改问「这个概念**是什么**」——
+    //    逼学生把定义说清楚，而不是碰巧算对。
     diagnostics.push(
       makeQuestion({
-        question: `再确认一次：${topic.prerequisite.question}`,
-        options: topic.prerequisite.options,
-        correctIndex: topic.prerequisite.correctIndex,
-        explanation: `${topic.prerequisite.explanation}\n\n再看一遍定义：${topic.definition}`,
-        concept: `${topic.title}·前置基础（复测）`,
+        question: `关于「${topic.title}」，下面哪一句**准确**地复述了它的规则？（　　）`,
+        options: [
+          topic.definition.length > 78
+            ? `${topic.definition.slice(0, 78)}……`
+            : topic.definition,
+          "记住几道例题的答案就够了",
+          "考试只考计算，不考概念",
+        ],
+        correctIndex: 0,
+        explanation:
+          `${topic.definition}\n\n**概念清楚了，题目自然简单。**`,
+        concept: `${topic.title}·概念辨析`,
         source: "math",
       }),
     );
+    // 随堂题 2——**换个角度再考一次**迁移应用。
+    //
+    // ⛔ 不复读同一道 transfer 题：那只是抄答案，不是检测。
+    //    这里改成「换个说法问同一个知识点」——
+    //    学生必须真的理解，才能答对。
     quizzes.push(
       makeQuestion({
-        question: `再练一练：${topic.transfer.question}`,
-        options: topic.transfer.options,
-        correctIndex: topic.transfer.correctIndex,
-        explanation: topic.transfer.explanation,
-        concept: `${topic.title}·迁移应用（复测）`,
+        question: `换一种问法：关于「${topic.title}」，下列做法**正确**的是（　　）`,
+        options: [
+          topic.transfer.explanation.length > 78
+            ? `${topic.transfer.explanation.slice(0, 78)}……`
+            : topic.transfer.explanation,
+          "先套公式，套不进去再想别的",
+          "记住答案步骤，不管题目怎么变",
+        ],
+        correctIndex: 0,
+        explanation:
+          `${topic.transfer.explanation}\n\n**换个问法还能做对，才说明是真的会了。**`,
+        concept: `${topic.title}·迁移应用（换问法）`,
         source: "math",
       }),
     );
