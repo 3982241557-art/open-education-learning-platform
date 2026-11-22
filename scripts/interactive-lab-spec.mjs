@@ -50,6 +50,7 @@ export function coreLessonTitle(title) {
     .replace(/第\s*[一二三四五六七八九十\d]{1,3}\s*单元/g, " ")
     .replace(/第\s*[一二三四五六七八九十\d]{1,3}\s*[课讲]/g, " ")
     .replace(/单元\s*\d{1,3}/g, " ")
+    .replace(/[一二三四五六七八九十\d]{1,2}\s*[上下]\s*[\d一二三四五六七八九十]{0,2}\s*/g, " ")
     .replace(/(\p{Script=Han})\s*\d{1,3}(?![\u4e00-\u9fa5])/gu, "$1")
     .replace(/讲解|精讲|微课|同步课|同步|复习|导读|分析|赏析|背诵|朗读/g, " ")
     .replace(/\s+/g, " ")
@@ -79,7 +80,9 @@ export function coreLessonTitle(title) {
     return part;
   }
 
-  return parts[parts.length - 1] ?? cleaned;
+  // 兜底：整个标题都被剥光了（比如「01.第一单元导读」）——
+  // 返回**原始标题**，别返回空串。
+  return parts[parts.length - 1] || String(title ?? "").trim() || cleaned;
 }
 
 /** 从课时标题里抽生字候选（2–4 个）。 */
