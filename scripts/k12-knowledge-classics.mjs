@@ -650,12 +650,43 @@ export function matchClassic(
     const name = entry.title.replace(/[\s·、，,。:：]/g, "");
     if (name === needle) return entry;
   }
+  // ── 包含匹配 ──
+  //
+  // ⛔ **必须带边界检查**：「秋天的怀念」包含「秋」，
+  //    但它们是**两篇完全不同的课文**——
+  //    《秋》是现代诗，《秋天的怀念》是史铁生的散文。
+  //
+  //    所以只有当**较长的那个**标题**包含**较短的标题、
+  //    且短标题在长标题里是「完整的一段」时才认。
+  //    实现方式：短标题前后的字符若还是中文，就说明它只是长词的一部分。
+  const isContiguous = (longer, shorter) => {
+    const at = longer.indexOf(shorter);
+    if (at < 0) return false;
+    const before = at === 0 ? "" : longer[at - 1];
+    const after =
+      at + shorter.length >= longer.length
+        ? ""
+        : longer[at + shorter.length];
+    // 短标题不能被其他汉字「包住」——那说明它只是长词的一部分。
+    const isHan = (ch) => /[\u4e00-\u9fa5]/.test(ch);
+    if (isHan(before) && isHan(after)) return false;
+    return true;
+  };
+
   for (const entry of CLASSICS) {
     const name = entry.title.replace(/[\s·、，,。:：]/g, "");
-    if (needle.includes(name) || name.includes(needle)) return entry;
+    if (name.length < 2) continue;
+    if (isContiguous(needle, name) || isContiguous(name, needle)) {
+      return entry;
+    }
   }
+
+  // ── 全标题命中 ──
+  //
+  // 用**最长的**标题优先——避免《秋》抢在《秋天的怀念》前面。
   const haystack = `${coreTitle} ${fullTitle}`;
-  for (const entry of CLASSICS) {
+  const sorted = [...CLASSICS].sort((a, b) => b.title.length - a.title.length);
+  for (const entry of sorted) {
     if (haystack.includes(entry.title)) return entry;
   }
   return null;

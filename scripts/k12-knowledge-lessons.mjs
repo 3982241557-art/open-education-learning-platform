@@ -1955,6 +1955,234 @@ Object.assign(LESSON_POINTS, {
 /* ── 追加：剩余未覆盖篇目 ─────────────────────────────────── */
 
 Object.assign(LESSON_POINTS, {
+  "四语上-原文朗读-园地4": {
+    concept: "四年级上册原文朗读·第四单元",
+    question:
+      "朗读一篇课文时，把「重音」读准，最能帮助听者（　　）",
+    options: [
+      "抓住关键词，理解句子的情感与重点",
+      "把声音读大一点",
+      "读得快一点",
+    ],
+    correctIndex: 0,
+    explanation:
+      "**重音即强调**。把重音读准，句子的态度与重点就自然传达出来了。",
+  },
+  "四语上-原文朗读-园地8": {
+    concept: "四年级上册原文朗读·第八单元",
+    question:
+      "朗读时，遇到长句容易气不够，最有效的做法是（　　）",
+    options: [
+      "在标点处换气，按意群断句",
+      "从头到尾一口气读完",
+      "越读越快",
+    ],
+    correctIndex: 0,
+    explanation:
+      "**按意群断句**——换气要落在标点与语义停顿处，这样声音才有层次。",
+  },
+});
+
+
+
+Object.assign(LESSON_POINTS, {
+  "四语上-原文朗读-园地4": {
+    concept: "四年级上册原文朗读·第四单元",
+    question:
+      "朗读一篇课文时，把「重音」读准，最能帮助听者（　　）",
+    options: [
+      "抓住关键词，理解句子的情感与重点",
+      "把声音读大一点",
+      "读得快一点",
+    ],
+    correctIndex: 0,
+    explanation:
+      "**重音即强调**。把重音读准，句子的态度与重点就自然传达出来了。",
+  },
+  "四语上-原文朗读-园地8": {
+    concept: "四年级上册原文朗读·第八单元",
+    question:
+      "朗读时，遇到长句容易气不够，最有效的做法是（　　）",
+    options: [
+      "在标点处换气，按意群断句",
+      "从头到尾一口气读完",
+      "越读越快",
+    ],
+    correctIndex: 0,
+    explanation:
+      "**按意群断句**——换气要落在标点与语义停顿处，这样声音才有层次。",
+  },
+  "14-桥": {
+    concept: "《桥》的写法",
+    question:
+      "《桥》中，作者在结尾才点明老汉与小伙子是**父子**，这一手法叫（　　）",
+    options: ["设置悬念", "欲扬先抑", "对比"],
+    correctIndex: 0,
+    explanation:
+      "**先抑后扬 + 悬念**：先把老汉写成「揪人心魄的小吏」，最后一句才揭示身份——那一刻的震动，是课文最狠的一击。",
+  },
+  "17-盼": {
+    concept: "《盼》中的心理描写",
+    question:
+      "铁西《盼》中，雨来了，「我」在屋外一圈一圈地跑，作者这样写是为了表现（　　）",
+    options: [
+      "「我」盼雨的心情非常急切",
+      "「我」在锻炼身体",
+      "天气很热",
+    ],
+    correctIndex: 0,
+    explanation:
+      "**动作描写 = 心理描写**。一圈又一圈地跑，把「盼」这个抽象词写成了看得见的画面。",
+  },
+  "“飞天”凌空—跳水姑娘吕伟夺魁记": {
+    concept: "《“飞天”凌空——跳水姑娘吕伟夺魁记》的新闻特写",
+    question:
+      "《“飞天”凌空——跳水姑娘吕伟夺魁记》最突出的写法是（　　）",
+    options: [
+      "把一个 1.7 秒的动作拆成一组特写镜头",
+      "按时间顺序平铺直叙",
+      "以议论为主",
+    ],
+    correctIndex: 0,
+    explanation:
+      "课文用**镜头语言**写跳水：入水、抱膝、翻腾、腾空、入水——把 1.7 秒拆成一组慢镜头，这是新闻特写的看家本领。",
+  },
+  "中国石拱桥（第一课时）": {
+    concept: "《中国石拱桥》的说明顺序",
+    question:
+      "《中国石拱桥》介绍赵州桥时，主要按什么顺序说明？（　　）",
+    options: [
+      "由整体到局部（先总说石拱桥的特点，再具体说赵州桥）",
+      "由古到今",
+      "由远及近",
+    ],
+    correctIndex: 0,
+    explanation:
+      "课文先用**总起**的方式介绍石拱桥的总体特点，再以赵州桥为**典型**具体说明——这是说明文最常用的「总—分」结构。",
+  },
+  "中国石拱桥（第二课时）": {
+    concept: "《中国石拱桥》的说明方法",
+    question:
+      "《中国石拱桥》中「全桥只有一个大拱，长达 37.4 米」运用的说明方法是（　　）",
+    options: ["列数字", "打比方", "作比较"],
+    correctIndex: 0,
+    explanation:
+      "**列数字**让说明准确可信；而「其组成部分全由石料组成」「那就更感到其美 heaviest」这类句子用的是**作比较与引用**。",
+  },
+});
+
+
+
+Object.assign(LESSON_POINTS, {
+  "3.2 县委书记的榜样——焦裕禄": {
+    concept: "《焦裕禄》中的人物写法",
+    question:
+      "《焦裕禄》中「沙丘上的办公桌」这一细节，主要作用是（　　）",
+    options: [
+      "以具体场景表现他风沙里办公、为人民服务的精神",
+      "说明当地风沙很大",
+      "说明他的办公室很简陋",
+    ],
+    correctIndex: 0,
+    explanation:
+      "**一个细节胜过千言万语**。典型人物靠具体事例立起来，而不是靠形容词堆砌。",
+  },
+  "赵州桥": {
+    concept: "《赵州桥》的结构特点",
+    question:
+      "《赵州桥》最突出的结构特点是（　　）",
+    options: [
+      "全桥只有一个大拱，特点是不用拱桥的普通形状",
+      "用了很多柱子支撑",
+      "是纯木结构的",
+    ],
+    correctIndex: 0,
+    explanation:
+      "《赵州桥》由李春设计，**大拱的两肩上各有两个小拱**——这种「敞肩拱」既省了石料，又能在发大水时增加泄洪能力。",
+  },
+  "四语上-原文朗读-园地4": {
+    concept: "四年级上册原文朗读·第四单元",
+    question:
+      "朗读一篇课文时，把「重音」读准，最能帮助听者（　　）",
+    options: [
+      "抓住关键词，理解句子的情感与重点",
+      "把声音读大一点",
+      "读得快一点",
+    ],
+    correctIndex: 0,
+    explanation:
+      "**重音即强调**。把重音读准，句子的态度与重点就自然传达出来了。",
+  },
+  "四语上-原文朗读-园地8": {
+    concept: "四年级上册原文朗读·第八单元",
+    question:
+      "朗读时，遇到长句容易气不够，最有效的做法是（　　）",
+    options: [
+      "在标点处换气，按意群断句",
+      "从头到尾一口气读完",
+      "越读越快",
+    ],
+    correctIndex: 0,
+    explanation:
+      "**按意群断句**——换气要落在标点与语义停顿处，这样声音才有层次。",
+  },
+  "真理诞生于一百个问号之后": {
+    concept: "《真理诞生于一百个问号之后》的论证思路",
+    question:
+      "《真理诞生于一百个问号之后》中，作者用三个科学家的事例论证的观点是（　　）",
+    options: [
+      "善于提出问题、不断探索，才能发现真理",
+      "要多做实验",
+      "要多读书",
+    ],
+    correctIndex: 0,
+    explanation:
+      "课文用**三个事例**（洗澡水、漩涡、地动仪）反复论证同一个观点——**「发明是在否定中完成的，求知是在提问中深化的」**。这就是它的论证思路。",
+  },
+  "一个豆荚里的五粒豆": {
+    concept: "《一个豆荚里的五粒豆》的童话手法",
+    question:
+      "《一个豆荚里的五粒豆》中，作者借五粒豆的所见所感，表达的核心是（　　）",
+    options: [
+      "生命的价值在于给别人带来快乐",
+      "要珍惜粮食",
+      "团结力量大",
+    ],
+    correctIndex: 0,
+    explanation:
+      "安徒生把「生与死」的思考藏在一个小女孩的窗台前——**豌豆开出的小花，让生病的女孩重新有了活下去的力气**。这是童话最动人的地方。",
+  },
+  "骑鹅旅行记": {
+    concept: "《骑鹅旅行记》中的地理与游记手法",
+    question:
+      "《骑鹅旅行记》最独特的写法是（　　）",
+    options: [
+      "把地理知识融进主人公的旅行见闻中",
+      "按时间顺序平铺直叙",
+      "以议论为主",
+    ],
+    correctIndex: 0,
+    explanation:
+      "这是**地理知识与童话的结合**——尼尔斯骑鹅周游瑞典，把地形、气候、动物都「顺手」讲给你听。",
+  },
+  "汤姆·索亚历险记": {
+    concept: "《汤姆·索亚历险记》的冒险叙事",
+    question:
+      "《汤姆·索亚历险记》中，汤姆和伙伴们划船到杰克逊岛，最核心的体验是（　　）",
+    options: [
+      "在自然冒险中体会到自由、勇气与同伴情谊",
+      "学会游泳",
+      "认识了很多地理知识",
+    ],
+    correctIndex: 0,
+    explanation:
+      "密西西比河是密西西比河——**汤姆的「顽童」世界与《鲁滨逊漂流记》的「成人世界」形成对照**。课文要读的是「冒险中的成长」。",
+  },
+});
+
+
+
+Object.assign(LESSON_POINTS, {
   "2 文章梳理": {
     concept: "单元文章梳理的方法",
     question:
@@ -6777,14 +7005,95 @@ export function matchLessonPoint(coreTitle, fullTitle) {
   const direct = LESSON_POINTS[coreTitle];
   if (direct) return direct;
 
+  // ── 包含匹配（带边界检查） ──
+  //
+  // ⛔ **必须带边界检查**：课文名《秋天的怀念》包含《秋天》，
+  //    但这是**两篇完全不同的课文**——
+  //    《秋天》（小学·写景）与《秋天的怀念》（初中·史铁生）。
+  //
+  //    只有当短标题在长标题里是**完整的一段**（前后不是别的汉字）
+  //    才认；否则「秋」就会抢走「秋天的怀念」的题。
+  //
+  // 另外：候选标题必须**足够长**（≥ 2 个汉字）——
+  //    否则「的」「了」这种单字会乱匹配。
+  const isHan = (ch) => /[\u4e00-\u9fa5]/.test(ch);
+  const isContiguous = (longer, shorter) => {
+    const at = longer.indexOf(shorter);
+    if (at < 0) return false;
+    const before = at === 0 ? "" : longer[at - 1];
+    const after =
+      at + shorter.length >= longer.length
+        ? ""
+        : longer[at + shorter.length];
+    if (isHan(before) && isHan(after)) return false;
+    return true;
+  };
+
+  const needle = String(coreTitle ?? "").replace(/[\s·、，,。:：]/g, "");
   const haystack = `${coreTitle} ${fullTitle}`;
+
+  // ── 第一轮：**课名完全对上** ──
+  //
+  // 这是最可靠的一路。《秋天的怀念》→ LESSON_POINTS["秋天的怀念"]，
+  // 绝不会跑去看《秋天》。
+  for (const [title, point] of Object.entries(LESSON_POINTS)) {
+    const name = title.replace(/[\s·、，,。:：]/g, "");
+    if (name && name === needle) return point;
+  }
+
+  // ── 第二轮：**按「词段」匹配** ──
+  //
+  // ⛔ 课名里如果混着编号（「1.5数的产生和十进制计数法」、
+  //    「古代诗歌四首2」），就应该按**分隔符切段**再比。
+  //
+  //    关键约束：**短标题必须是一整个词段**，不能是长词的一部分。
+  //
+  //    「秋天的怀念」→ 词段 ["秋天的怀念"]
+  //        候选「秋天」≠ 整个词段 → ✘ 拒绝
+  //        （《秋》与《秋天的怀念》是两篇不同的课文）
+  //
+  //    「1.5数的产生和十进制计数法」→ 词段 ["1","5","数的产生和十进制计数法"]
+  //        候选「数的产生和十进制计数法」== 整个词段 → ✔ 命中
+  //
+  //    「从百草园到三味书屋」→ 词段 ["从百草园到三味书屋"]
+  //        候选「百草园」≠ 整个词段 → ✘ 拒绝
+  //        （《从百草园到三味书屋》与《百草园》不是同一课）
+  const segments = needle
+    .split(/[^\u4e00-\u9fa5]+/)
+    .filter((segment) => segment.length >= 2);
+
   let best = null;
   let bestLength = 0;
   for (const [title, point] of Object.entries(LESSON_POINTS)) {
-    if (haystack.includes(title) && title.length > bestLength) {
-      best = point;
-      bestLength = title.length;
-    }
+    const name = title.replace(/[\s·、，,。:：]/g, "");
+    // 单字标题太危险（「的」「了」），直接跳过。
+    if (name.length < 2) continue;
+    if (!segments.includes(name)) continue;
+    if (name.length <= bestLength) continue;
+
+    best = point;
+    bestLength = name.length;
   }
-  return best;
+  if (best) return best;
+
+  // ── 第三轮：**按词段**在全标题里找（取最长的那个） ──
+  //
+  // ⛔ 依然要求「完整词段」：
+  //    全标题「秋天的怀念 秋天的怀念」切成词段后是
+  //    ["秋天的怀念"]——「秋天」不是词段，所以不会被它抢走。
+  //
+  // ⛔ 至少 2 个汉字——单字（「1」「的」）会在任何标题里乱命中。
+  const fullSegments = new Set(
+    haystack
+      .split(/[^\u4e00-\u9fa5]+/)
+      .filter((segment) => segment.length >= 2),
+  );
+  const sorted = Object.entries(LESSON_POINTS)
+    .filter(([title]) => title.replace(/[\s·、，,。:：]/g, "").length >= 2)
+    .sort((a, b) => b[0].length - a[0].length);
+  for (const [title, point] of sorted) {
+    const name = title.replace(/[\s·、，,。:：]/g, "");
+    if (fullSegments.has(name)) return point;
+  }
+  return null;
 }

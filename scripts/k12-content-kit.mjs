@@ -107,13 +107,41 @@ export function extractCoreTitle(rawTitle) {
     )
     .trim();
 
+  // ── 折叠**重复标题** ──
+  //
+  // B 站的分集标题常常是「我是中国人 第 1集 我是中国人」——
+  // 去掉「第 N 集」之后会剩下「我是中国人 我是中国人」这种重复。
+  //
+  // 处理方式：如果一个**完全相同**的片段连续出现两次，就折叠成一个。
+  const deduped = title
+    .split(/\s+/)
+    .filter((word, index, list) => !(index > 0 && word === list[index - 1]));
+  if (deduped.length > 0) title = deduped.join(" ");
+
+  // ── 折叠**整段重复**（前后两半完全一样） ──
+  //
+  // 「第 1集 我是中国人 第 1集 我是中国人」去掉编号后，
+  // 可能整体是「我是中国人 我是中国人」——逐词去重已经能处理；
+  // 这里再兜一层：若整串能拆成两个相同的半串，就取一半。
+  const half = Math.floor(title.length / 2);
+  if (title.length % 2 === 0 && half > 1) {
+    const left = title.slice(0, half).trim();
+    const right = title.slice(half).trim();
+    if (left === right && left.length > 0) title = left;
+  }
+
   // 折叠残留标点。
   title = title.replace(/^[\s·、，,。:：\-—–|｜_]+/, "");
   title = title.replace(/[\s·、，,。:：\-—–|｜_]+$/, "");
 
   // 去掉尾部「-P2」「-P47-48」这类页码标记。
   title = title.replace(/[-–—]\s*[Pp]\s*\d+(-\d+)?\s*$/, "").trim();
-  title = title.replace(/[-–—]\s*\d+(-\d+)?\s*$/, "").trim();
+  // ⛔ **「-园地4」不是页码**——
+  //    「四语上-原文朗读-园地4」里的「4」是**语文园地的序号**
+  //    （第四单元的语文园地），剥掉它就再也认不出这一课了。
+  if (!/园地\d*$/.test(title)) {
+    title = title.replace(/[-–—]\s*\d+(-\d+)?\s*$/, "").trim();
+  }
   // 去掉「（人教新课标A）」这类版本标记。
   title = title.replace(/[（(]\s*人教[^）)]*\s*[)）]\s*$/, "").trim();
   title = title.replace(/[\s·、，,。:：\-—–|｜_]+$/, "");
@@ -246,6 +274,14 @@ export function stripTrailingIndex(title) {
   stripped = stripped.replace(/[-–—]*\s*P\d+\s*$/i, "").trim();
   stripped = stripped.replace(/[-–—]+\s*\d+\s*$/, "").trim();
 
+  // ⛔ **「园地N」不能被剥掉**——
+  //    「四语上-原文朗读-园地4」里的「4」是**语文园地的序号**
+  //    （第四单元的语文园地），不是分集编号。
+  //    剥掉它会变成「…园地」，反而找不到对应的课。
+  if (/园地\d*$/.test(stripped)) {
+    return stripped;
+  }
+
   // 「汉语拼音13」「语文园地三1」
   stripped = stripped.replace(/\s*\d+\s*$/, "").trim();
   // 「语文园地四-3」
@@ -325,29 +361,53 @@ export function buildChineseContent({ coreTitle, fullTitle, stage }) {
   const classic = matchClassic(cnTitle, fullTitle);
   // 匹配优先级：**课文级知识点 → 结构化单元课 → 分学段兜底**。
   // 匹配优先级：**课文级知识点 → 高中专题 → 结构化单元课 → 分学段兜底**。
-  const point =
-    matchLessonPoint(cnTitle, fullTitle) ??
-    matchSeniorPoint(cnTitle) ??
-    matchStructPoint(cnTitle, fullTitle) ??
-    (stage === "primary"
-      ? matchPrimaryChinesePoint(cnTitle, fullTitle)
-      : stage === "junior"
-        ? matchJuniorChinesePoint(cnTitle, fullTitle)
-        : matchSeniorChinesePoint(cnTitle, fullTitle));
+  // ⛔ **纯数字课名**（「21」「195」）——采集器拿不到主题。
+  //    对这类课只能给一个**方法性**的兜底题；
+  //    对**有名字**的课，绝不能用这个兜底——那是敷衍的假题。
+  const isNumericTitle = /^\d{1,4}$/.test(cnTitle.trim());
+
+  const point = isNumericTitle
+    ? null
+    : (matchLessonPoint(cnTitle, fullTitle) ??
+      matchSeniorPoint(cnTitle) ??
+      matchStructPoint(cnTitle, fullTitle) ??
+      (stage === "primary"
+        ? matchPrimaryChinesePoint(cnTitle, fullTitle)
+        : stage === "junior"
+          ? matchJuniorChinesePoint(cnTitle, fullTitle)
+          : matchSeniorChinesePoint(cnTitle, fullTitle)));
+
+  // 数字课名兜底——**仅用于**确实没有主题的课次。
+  const numericPoint = isNumericTitle
+    ? {
+        concept: "分集编号课次的学习方法",
+        question:
+          "遇到只标了数字、没有主题的课次，最该做的是（　　）",
+        options: [
+          "先看视频前 3 分钟的目录，确认本讲主题，再回到本单元的知识主线",
+          "随便选一个答案",
+          "跳过这一课",
+        ],
+        correctIndex: 0,
+        explanation:
+          "**先定主题，再做题**。哪怕只看一眼目录，也比盲答有效得多。",
+      }
+    : null;
 
   /* ── 诊断题 1：课文考点 ── */
-  if (point) {
+  const activePoint = point ?? numericPoint;
+  if (activePoint) {
     diagnostics.push(
       makeQuestion({
-        question: point.question,
-        options: point.options,
-        correctIndex: point.correctIndex,
-        explanation: point.explanation,
-        concept: point.concept,
+        question: activePoint.question,
+        options: activePoint.options,
+        correctIndex: activePoint.correctIndex,
+        explanation: activePoint.explanation,
+        concept: activePoint.concept,
         source: "textbook",
       }),
     );
-    notes.push(point.concept);
+    notes.push(activePoint.concept);
   }
 
   /* ── 诊断题 2：古诗首句 / 名篇关键词 ── */
@@ -385,27 +445,27 @@ export function buildChineseContent({ coreTitle, fullTitle, stage }) {
     notes.push(`${classic.title}（${classic.author}）`);
   }
 
-  if (diagnostics.length < 2 && point) {
+  if (diagnostics.length < 2 && activePoint) {
     // 第二道诊断题：同一课文的**另一个角度**——从「记住了什么」转到
     // 「能不能迁移」。仍然紧扣这一课，不落到通用模板。
     diagnostics.push(
       makeQuestion({
-        question: `《${cnTitle}》中，${point.concept}这一点，如果要向别人讲清楚，最关键的一句是（　　）`,
+        question: `《${cnTitle}》中，${activePoint.concept}这一点，如果要向别人讲清楚，最关键的一句是（　　）`,
         options: [
-          point.explanation.length > 70
-            ? `${point.explanation.slice(0, 70)}……`
-            : point.explanation,
+          activePoint.explanation.length > 70
+            ? `${activePoint.explanation.slice(0, 70)}……`
+            : activePoint.explanation,
           "课文一共分几段",
           "作者写于哪一年",
           "课文有几个生字",
         ],
         correctIndex: 0,
-        explanation: `${point.explanation}\n\n**讲得清楚，才算真懂了。** 这一题考的不是记忆，是理解。`,
-        concept: `${point.concept}·讲清楚`,
+        explanation: `${activePoint.explanation}\n\n**讲得清楚，才算真懂了。** 这一题考的不是记忆，是理解。`,
+        concept: `${activePoint.concept}·讲清楚`,
         source: "textbook",
       }),
     );
-    notes.push(`${cnTitle}·${point.concept}`);
+    notes.push(`${cnTitle}·${activePoint.concept}`);
   }
 
   if (diagnostics.length < 2) {
@@ -445,7 +505,7 @@ export function buildChineseContent({ coreTitle, fullTitle, stage }) {
   if (point) {
     quizzes.push(
       makeQuestion({
-        question: `再练一练：《${cnTitle}》中，${point.concept}的把握，关键在于（　　）`,
+        question: `再练一练：《${cnTitle}》中，${activePoint.concept}的把握，关键在于（　　）`,
         options: [
           "能说出作者为什么这样写，而不只是记住了课文内容",
           "记住课文的段落划分",
@@ -453,8 +513,8 @@ export function buildChineseContent({ coreTitle, fullTitle, stage }) {
           "记住课文一共多少字",
         ],
         correctIndex: 0,
-        explanation: `${point.explanation}\n\n迁移检验：能说清「为什么这样写」，才算真的读懂了这一篇。`,
-        concept: `${point.concept}·迁移`,
+        explanation: `${activePoint.explanation}\n\n迁移检验：能说清「为什么这样写」，才算真的读懂了这一篇。`,
+        concept: `${activePoint.concept}·迁移`,
         source: "textbook",
       }),
     );
@@ -529,7 +589,7 @@ export function buildChineseContent({ coreTitle, fullTitle, stage }) {
     );
   }
 
-  if (quizzes.length < 3 && point) {
+  if (quizzes.length < 3 && activePoint) {
     // 随堂测试要有**梯度**：
     //   第 1 题 —— 记住「是什么」（识记）；
     //   第 2 题 —— 理解「为什么」（分析）；
@@ -537,38 +597,38 @@ export function buildChineseContent({ coreTitle, fullTitle, stage }) {
     // 三题都锁死在这一课，不落通用模板。
     quizzes.push(
       makeQuestion({
-        question: `《${cnTitle}》中，${point.concept}——下面哪一句**准确**地复述了这一点？`,
+        question: `《${cnTitle}》中，${activePoint.concept}——下面哪一句**准确**地复述了这一点？`,
         options: [
-          point.explanation.length > 76
-            ? `${point.explanation.slice(0, 76)}……`
-            : point.explanation,
+          activePoint.explanation.length > 76
+            ? `${activePoint.explanation.slice(0, 76)}……`
+            : activePoint.explanation,
           "课文一共分几段",
           "作者写于哪一年",
           "课文有几个生字",
         ],
         correctIndex: 0,
-        explanation: `${point.explanation}\n\n**能准确复述，就是真的会了。**`,
-        concept: `${point.concept}·识记`,
+        explanation: `${activePoint.explanation}\n\n**能准确复述，就是真的会了。**`,
+        concept: `${activePoint.concept}·识记`,
         source: "textbook",
       }),
     );
     quizzes.push(
       makeQuestion({
-        question: `如果要把《${cnTitle}》里的「${point.concept}」讲给别人听，最容易讲错的地方是（　　）`,
+        question: `如果要把《${cnTitle}》里的「${activePoint.concept}」讲给别人听，最容易讲错的地方是（　　）`,
         options: [
           "只背结论，不理解作者为什么这样写",
           "讲得太长，超过了五分钟",
           "用了太多成语",
         ],
         correctIndex: 0,
-        explanation: `「${point.concept}」的关键在于**为什么**。${point.explanation}\n\n讲清楚「为什么」，才算读懂；只背结论，遇到变式就会懵。`,
-        concept: `${point.concept}·理解`,
+        explanation: `「${activePoint.concept}」的关键在于**为什么**。${activePoint.explanation}\n\n讲清楚「为什么」，才算读懂；只背结论，遇到变式就会懵。`,
+        concept: `${activePoint.concept}·理解`,
         source: "textbook",
       }),
     );
     quizzes.push(
       makeQuestion({
-        question: `读《${cnTitle}》时，哪一个做法最能帮你真正掌握「${point.concept}」？（　　）`,
+        question: `读《${cnTitle}》时，哪一个做法最能帮你真正掌握「${activePoint.concept}」？（　　）`,
         options: [
           "合上课本，用自己的话复述一遍，再回到课文核对",
           "把课文抄三遍",
@@ -576,7 +636,7 @@ export function buildChineseContent({ coreTitle, fullTitle, stage }) {
         ],
         correctIndex: 0,
         explanation: `**「先输出、再核对」**是最高效的读法。复述时卡住的地方，就是你没读懂的地方——回去精读那一段，比通读十遍都管用。`,
-        concept: `${point.concept}·方法`,
+        concept: `${activePoint.concept}·方法`,
         source: "textbook",
       }),
     );
@@ -629,8 +689,8 @@ export function buildChineseContent({ coreTitle, fullTitle, stage }) {
     summary.push(`关键句「${classic.keywords[0].term}」的白话：${classic.keywords[0].plain}`);
     summary.push(`思考题要点：${classic.answer}`);
   } else if (point) {
-    summary.push(`本课考点：${point.concept}。`);
-    summary.push(point.explanation);
+    summary.push(`本课考点：${activePoint.concept}。`);
+    summary.push(activePoint.explanation);
     summary.push(
       `复习建议：合上课文，用自己的话把「${cnTitle}」的这一点讲一遍——能讲清楚，就是真懂了。`,
     );
