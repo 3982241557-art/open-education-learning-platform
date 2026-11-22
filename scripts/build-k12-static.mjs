@@ -82,6 +82,12 @@ function main() {
     const fullTitle = seriesTitle(item);
     const short = shortTitle(item.grade, item.subject);
 
+    // ── 本套系列的知识节点 / 段落导读 ──
+    //
+    // 详细文件是**按需加载**的，所以可以给**全量**（中台那份只给前 12 集，
+    // 因为中台是首页级资源，不能膨胀）。
+    const { nodes, segments } = buildFullCourseNodes(item.episodes ?? []);
+
     const detail = {
       id: item.id,
       title: fullTitle,
@@ -93,6 +99,8 @@ function main() {
       edition: subject.edition,
       volumes: item.volumes,
       source: item.source ?? null,
+      interactiveNodes: nodes,
+      guidedSegments: segments,
       episodes: item.episodes ?? [],
     };
 
@@ -127,8 +135,10 @@ function main() {
     //
     // 从**真实课时标题**生成。单独存一份，不进索引——
     // 索引必须保持轻量（首屏只拉它）。
-    const { nodes, segments } = buildCourseNodes(detail.episodes);
-    courseNodes.set(item.id, { nodes, segments });
+    const { nodes: hubNodes, segments: hubSegments } = buildCourseNodes(
+      detail.episodes,
+    );
+    courseNodes.set(item.id, { nodes: hubNodes, segments: hubSegments });
   }
 
   // ── 2. 写索引 ──
@@ -346,6 +356,53 @@ function buildCourseNodes(episodes) {
     if (keywords.length > 1) {
       segments.push({
         timestamp: Math.max(0, Number(episode.start_time) || 0),
+        title: keywords[1],
+        content: `围绕「${keywords[0]}」展开的讲解要点。`,
+        origin: "generated",
+      });
+    }
+  }
+
+  return { nodes, segments };
+}
+
+/**
+ * 为**单套系列的详情文件**生成全量知识节点 / 段落导读。
+ *
+ * 与 :func:`buildCourseNodes`（中台版）的区别：
+ *
+ * - 中台版只取**前 12 集**——中台 JSON 是首页级资源，不能膨胀；
+ * - 详情版给**全集**——它是点进这套课才按需拉取的。
+ *
+ * 每集的节点带上 ``ep_id``，前端才能把它过滤到「本集专属」。
+ *
+ * @param {Array} episodes 分集列表
+ */
+function buildFullCourseNodes(episodes) {
+  const nodes = [];
+  const segments = [];
+
+  for (const episode of episodes) {
+    const keywords = extractKeywords(episode.title);
+    if (keywords.length === 0) continue;
+
+    const timestamp = Math.max(0, Number(episode.start_time) || 0);
+
+    nodes.push({
+      ep_id: episode.ep_id,
+      timestamp,
+      keyword: keywords[0],
+      type: "concept",
+      context: `本讲的核心概念——${keywords.slice(1).join("、") || keywords[0]}。`,
+      hint: `第 ${episode.index} 讲「${episode.title}」的关键点。`,
+      context_label: "知识节点",
+      origin: "generated",
+    });
+
+    if (keywords.length > 1) {
+      segments.push({
+        ep_id: episode.ep_id,
+        timestamp,
         title: keywords[1],
         content: `围绕「${keywords[0]}」展开的讲解要点。`,
         origin: "generated",

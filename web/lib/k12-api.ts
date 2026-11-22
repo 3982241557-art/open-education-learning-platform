@@ -131,6 +131,30 @@ export interface K12SeriesDetail {
     total_duration: number;
   };
   episodes: K12Episode[];
+  /**
+   * 本套系列的**全量**知识节点。
+   *
+   * 每条带 ``ep_id``——前端按本集 id 过滤，避免用户在第 3 讲
+   * 看到第 11 讲的知识点。
+   */
+  interactiveNodes: Array<{
+    ep_id: string;
+    timestamp: number;
+    keyword: string;
+    type: "concept" | "question" | "quote" | "warning";
+    context?: string;
+    hint?: string;
+    context_label?: string;
+    origin?: string;
+  }>;
+  /** 本套系列的**全量**段落导读（同样带 ``ep_id``）。 */
+  guidedSegments: Array<{
+    ep_id: string;
+    timestamp: number;
+    title: string;
+    content: string;
+    origin?: string;
+  }>;
 }
 
 /** 学段 → 中文名。 */

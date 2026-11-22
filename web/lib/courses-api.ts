@@ -185,6 +185,13 @@ export interface PredictHook {
  * 点它，视频暂停，右侧 AI 被唤醒并就当前语境讲解这个概念。
  */
 export interface InteractiveNode {
+  /**
+   * 本节点所属的**集 id**。
+   *
+   * K12 分片数据里每条节点都标了它属于哪一集——前端据此精确过滤，
+   * 避免用户在第 3 讲看到第 11 讲的知识点。
+   */
+  ep_id?: string;
   /** 触发时间（秒）。 */
   timestamp: number;
   /** 气泡上显示的关键词。 */
@@ -195,6 +202,10 @@ export interface InteractiveNode {
   context?: string;
   /** 给 AI 的额外提示。 */
   hint?: string;
+  /** 节点在 UI 上的分组标签。 */
+  context_label?: string;
+  /** 节点来源——`extracted` / `generated` / `manual`。 */
+  origin?: string;
   /**
    * 「先猜后看」认知钩子——可选。
    *
@@ -310,6 +321,10 @@ export interface SuggestedQuestion {
  * 就知道「这一段在讲什么」，也让导读轨永远不会是一片空白。
  */
 export interface GuidedSegment {
+  /**
+   * 本导读所属的**集 id**——K12 分片数据用它做精确过滤。
+   */
+  ep_id?: string;
   /** 这段的起始时间（秒）。 */
   timestamp: number;
   /** 这段的小标题。 */

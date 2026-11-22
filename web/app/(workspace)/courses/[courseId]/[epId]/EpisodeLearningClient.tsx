@@ -27,6 +27,7 @@ import {
   hasDiagnostic,
   MASTERY_LABEL,
   readDiagnostic,
+  type DiagnosticRecord,
 } from "@/lib/diagnostic-profile";
 import { analyzeLessonTitle } from "@/lib/lesson-analyzer";
 import { EpisodeDiagnosticModal } from "@/components/learning/EpisodeDiagnosticModal";
@@ -100,6 +101,9 @@ function EpisodeLearning({
   const [completionOpen, setCompletionOpen] = useState(false);
   /** 诊断是否已做过。 */
   const [diagnosed, setDiagnosed] = useState(false);
+  /** 本集诊断记录（来自 localStorage）。 */
+  const [diagnosticRecord, setDiagnosticRecord] =
+    useState<DiagnosticRecord | null>(null);
 
   const { setContext, setLearnerProfile } = useChat();
   const { upsertNote } = useReader();
@@ -140,11 +144,17 @@ function EpisodeLearning({
 
   /**
    * 读取观看记录 + 诊断状态。
+   *
+   * ⚠️ 诊断记录**必须走 state**，不能在 render 里直接读
+   * ``localStorage``——SSR 时读到 ``undefined``，客户端 hydrate 时
+   * 可能读到一条记录，两边渲染结果不一致就会触发 hydration mismatch。
    */
   useEffect(() => {
     const refresh = () => {
       setRecords(readEpisodeRecords(courseId));
-      setDiagnosed(hasDiagnostic(courseId, epId));
+      const record = readDiagnostic(courseId, epId);
+      setDiagnosticRecord(record ?? null);
+      setDiagnosed(Boolean(record));
     };
     refresh();
     window.addEventListener("focus", refresh);
@@ -171,7 +181,7 @@ function EpisodeLearning({
    */
   useEffect(() => {
     if (!episode) return;
-    const record = readDiagnostic(courseId, epId);
+    const record = diagnosticRecord;
     if (!record) {
       setLearnerProfile(null);
       return;
@@ -184,7 +194,7 @@ function EpisodeLearning({
       episodeIndex: episode.index,
     });
     return () => setLearnerProfile(null);
-  }, [bundle, courseId, epId, episode, setLearnerProfile]);
+  }, [bundle, courseId, epId, episode, diagnosticRecord, setLearnerProfile]);
 
   /**
    * 设置助教的会话上下文。
@@ -342,8 +352,6 @@ function EpisodeLearning({
       </div>
     );
   }
-
-  const diagnosticRecord = readDiagnostic(courseId, epId);
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-[var(--background)]">

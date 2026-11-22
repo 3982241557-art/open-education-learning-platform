@@ -213,8 +213,9 @@ export function formatEpisodeSlice(
  * 一条长视频被切成多集之后，资源上的节点是**整条视频**的——
  * 直接全量渲染会让用户在第 3 讲看到第 11 讲的知识点。
  *
- * 规则：
+ * 规则（按优先级）：
  *
+ * - 节点自带 ``ep_id``（K12 分片数据）→ **精确匹配**本集 id；
  * - 时间轴切片（``chapters``）→ 只取落在 ``[start, end]`` 区间内的；
  * - 独立分集（``playlist`` / ``pages``）→ 全部节点都算这一集的；
  * - 拿不到区间时 → 全量（宁可多给，不要给空）。
@@ -225,6 +226,15 @@ export function filterNodesForEpisode<T extends { timestamp: number }>(
 ): T[] {
   // 本集还没解析出来——先给全量，避免空白。
   if (!episode) return nodes;
+
+  // ── ① 节点自带 ``ep_id`` → 精确匹配 ──
+  //
+  // K12 的分片数据每条节点都标了它属于哪一集——这是最准的规则。
+  const tagged = nodes as Array<T & { ep_id?: string }>;
+  if (tagged.length > 0 && tagged.every((node) => Boolean(node.ep_id))) {
+    return tagged.filter((node) => node.ep_id === episode.ep_id);
+  }
+
   const start = Number(episode.start_time ?? 0) || 0;
   const end = Number(episode.end_time ?? 0) || 0;
 

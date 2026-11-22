@@ -159,6 +159,27 @@ function k12ToBundle(detail: K12SeriesDetail): CourseBundle {
 
   const subjectName = detail.subject === "chinese" ? "语文" : "数学";
 
+  /** 本套系列的知识节点 / 段落导读——详情文件里带的全量版本。 */
+  const interactiveNodes: InteractiveNode[] = (
+    detail.interactiveNodes ?? []
+  ).map((node) => ({
+    timestamp: node.timestamp,
+    keyword: node.keyword,
+    type: node.type,
+    context: node.context,
+    hint: node.hint,
+    context_label: node.context_label,
+    origin: node.origin,
+  }));
+
+  const guidedSegments: GuidedSegment[] = (detail.guidedSegments ?? []).map(
+    (segment) => ({
+      timestamp: segment.timestamp,
+      title: segment.title,
+      content: segment.content,
+    }),
+  );
+
   return {
     id: detail.id,
     title: detail.title,
@@ -185,14 +206,14 @@ function k12ToBundle(detail: K12SeriesDetail): CourseBundle {
         episode_count: episodes.length,
       },
       captions: [],
-      interactive_nodes: [],
-      guided_segments: [],
+      interactive_nodes: interactiveNodes,
+      guided_segments: guidedSegments,
       academic_intro: "",
       is_default: false,
     },
     episodes,
-    interactiveNodes: [],
-    guidedSegments: [],
+    interactiveNodes,
+    guidedSegments,
     fallbackUrl: undefined,
     stage: detail.stage,
     grade: detail.grade,

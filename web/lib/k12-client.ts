@@ -155,6 +155,33 @@ export async function fetchK12Series(
           : [],
         origin: String(raw?.origin ?? "single"),
       })),
+      interactiveNodes: Array.isArray(data.interactiveNodes)
+        ? data.interactiveNodes.map((raw: any) => ({
+            ep_id: String(raw?.ep_id ?? ""),
+            timestamp: Number(raw?.timestamp ?? 0) || 0,
+            keyword: String(raw?.keyword ?? ""),
+            type: (String(raw?.type ?? "concept") as
+              | "concept"
+              | "question"
+              | "quote"
+              | "warning"),
+            context: raw?.context ? String(raw.context) : undefined,
+            hint: raw?.hint ? String(raw.hint) : undefined,
+            context_label: raw?.context_label
+              ? String(raw.context_label)
+              : undefined,
+            origin: raw?.origin ? String(raw.origin) : undefined,
+          }))
+        : [],
+      guidedSegments: Array.isArray(data.guidedSegments)
+        ? data.guidedSegments.map((raw: any) => ({
+            ep_id: String(raw?.ep_id ?? ""),
+            timestamp: Number(raw?.timestamp ?? 0) || 0,
+            title: String(raw?.title ?? ""),
+            content: String(raw?.content ?? ""),
+            origin: raw?.origin ? String(raw.origin) : undefined,
+          }))
+        : [],
     };
   } catch {
     return null;
