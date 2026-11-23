@@ -168,7 +168,7 @@ export function ProfileDrawer({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex justify-start bg-black/45 backdrop-blur-[2px]"
+      className="fixed inset-0 z-50 flex justify-start bg-[rgba(30,36,43,0.45)]"
       onClick={onClose}
       role="dialog"
       aria-modal="true"

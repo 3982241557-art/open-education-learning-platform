@@ -383,7 +383,7 @@ export function EpisodeCompletionModal({
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/30 p-4 backdrop-blur-md motion-safe:animate-[diagnostic-backdrop-in_300ms_ease-out]"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-[rgba(30,36,43,0.42)] p-4 motion-safe:animate-[diagnostic-backdrop-in_300ms_ease-out]"
       role="dialog"
       aria-modal="true"
       aria-label="本集检测"
@@ -394,7 +394,6 @@ export function EpisodeCompletionModal({
           style.radius,
           "border border-slate-200 bg-white",
           "shadow-[0_24px_70px_-12px_rgba(15,23,42,0.35),0_2px_8px_rgba(15,23,42,0.10)]",
-          "backdrop-blur-2xl",
           "motion-safe:animate-[diagnostic-in_420ms_cubic-bezier(0.16,1,0.3,1)]",
         )}
       >
@@ -404,11 +403,11 @@ export function EpisodeCompletionModal({
         />
         <div
           aria-hidden
-          className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-blue-600/[0.07] blur-2xl"
+          className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-[#4e677d]/[0.05]"
         />
 
         {/* ── 步骤指示 ── */}
-        <div className="relative flex items-center gap-1.5 border-b border-slate-900/[0.07] px-6 pt-5 pb-3.5">
+        <div className="relative flex items-center gap-1.5 border-b border-text-[#1e242b]/[0.07] px-6 pt-5 pb-3.5">
           {STEPS.map((step, index) => {
             const current = STEPS.findIndex((item) => item.id === phase);
             const done = index < current;
@@ -419,10 +418,10 @@ export function EpisodeCompletionModal({
                   className={cn(
                     "flex items-center justify-center rounded-full text-[9.5px] font-medium tabular-nums transition-colors",
                     done
-                      ? "bg-blue-700 text-white"
+                      ? "bg-[#3d5468] text-white"
                       : active
-                        ? "bg-blue-50 text-blue-800 ring-1 ring-blue-700/35"
-                        : "bg-slate-900/[0.06] text-slate-400",
+                        ? "bg-bg-[#eff3f6] text-text-[#3d5468] ring-1 ring-[#3d5468]"
+                        : "bg-text-[#1e242b]/[0.06] text-slate-400",
                   )}
                   style={{ height: 18, width: 18 }}
                 >
@@ -431,7 +430,7 @@ export function EpisodeCompletionModal({
                 <span
                   className={cn(
                     "text-[11px] transition-colors",
-                    active || done ? "text-slate-700" : "text-slate-400",
+                    active || done ? "text-text-[#2c333b]" : "text-slate-400",
                   )}
                 >
                   {step.label}
@@ -440,7 +439,7 @@ export function EpisodeCompletionModal({
                   <ChevronRight
                     size={11}
                     strokeWidth={2.2}
-                    className="mx-0.5 text-slate-300"
+                    className="mx-0.5 text-bg-[#d5d1c8]"
                   />
                 ) : null}
               </div>
@@ -526,7 +525,7 @@ function QuizStage({
   return (
     <div>
       <div className="mb-5">
-        <h2 className="text-[17px] font-semibold leading-snug tracking-[-0.015em] text-slate-900">
+        <h2 className="text-[17px] font-semibold leading-snug tracking-[-0.015em] text-text-[#1e242b]">
           {tk("done.stepQuiz")}
         </h2>
         <p className="mt-1.5 text-[12.5px] leading-relaxed text-slate-600">
@@ -540,7 +539,7 @@ function QuizStage({
           const correct = answer === question.correctIndex;
           return (
             <div key={`${question.question}-${questionIndex}`}>
-              <p className="mb-2 flex items-start gap-2 text-[13px] font-medium leading-snug text-slate-900">
+              <p className="mb-2 flex items-start gap-2 text-[13px] font-medium leading-snug text-text-[#1e242b]">
                 <span className="mt-px shrink-0 tabular-nums text-slate-400">
                   {questionIndex + 1}/{questions.length}
                 </span>
@@ -562,12 +561,12 @@ function QuizStage({
                         playful && !submitted && "seek-press",
                         !playful && "transition-all",
                         submitted && isCorrect
-                          ? "border-emerald-600/40 bg-emerald-50 text-slate-900"
+                          ? "border-emerald-600/40 bg-emerald-50 text-text-[#1e242b]"
                           : submitted && selected
-                            ? "border-rose-500/40 bg-rose-50 text-slate-900"
+                            ? "border-rose-500/40 bg-rose-50 text-text-[#1e242b]"
                             : selected
-                              ? "border-blue-700/45 bg-blue-600/[0.09] text-slate-900"
-                              : "border-slate-200 bg-white text-slate-700 hover:border-blue-700 hover:bg-blue-50",
+                              ? "border-[#c3d0da] bg-[#4e677d]/[0.09] text-text-[#1e242b]"
+                              : "border-slate-200 bg-white text-text-[#2c333b] hover:border-[#c3d0da] hover:bg-bg-[#eff3f6]",
                       )}
                     >
                       <span
@@ -578,7 +577,7 @@ function QuizStage({
                             : submitted && selected
                               ? "border-rose-500 bg-rose-500 text-white"
                               : selected
-                                ? "border-blue-700 bg-blue-700 text-white"
+                                ? "border-[#c3d0da] bg-[#3d5468] text-white"
                                 : "border-slate-400/60",
                         )}
                       >
@@ -603,8 +602,8 @@ function QuizStage({
                     "ml-6 mt-2 border px-3 py-2 text-[11.5px] leading-relaxed",
                     style.radius,
                     correct
-                      ? "border-emerald-600/25 bg-emerald-50 text-slate-700"
-                      : "border-amber-500/30 bg-amber-50 text-slate-700",
+                      ? "border-emerald-600/25 bg-emerald-50 text-text-[#2c333b]"
+                      : "border-[#ddd0b4] bg-bg-[#f7f3ea] text-text-[#2c333b]",
                   )}
                 >
                   <span className="font-medium">
@@ -618,7 +617,7 @@ function QuizStage({
         })}
       </div>
 
-      <div className="mt-6 flex items-center justify-between gap-3 border-t border-slate-900/[0.07] pt-4">
+      <div className="mt-6 flex items-center justify-between gap-3 border-t border-text-[#1e242b]/[0.07] pt-4">
         <span className="text-[11.5px] text-slate-500">
           {submitted
             ? `答对 ${questions.filter((question, index) => answers[index] === question.correctIndex).length} / ${questions.length}`
@@ -629,7 +628,7 @@ function QuizStage({
             type="button"
             onClick={onNext}
             className={cn(
-              "inline-flex items-center gap-1.5 bg-blue-700 px-4 py-2 text-[12.5px] font-medium text-white shadow-[0_1px_2px_rgba(15,23,42,0.16)] transition-opacity hover:opacity-90",
+              "inline-flex items-center gap-1.5 bg-[#3d5468] px-4 py-2 text-[12.5px] font-medium text-white shadow-[0_1px_2px_rgba(15,23,42,0.16)] transition-opacity hover:opacity-90",
               style.radius,
             )}
           >
@@ -645,7 +644,7 @@ function QuizStage({
               "inline-flex items-center gap-1.5 px-4 py-2 text-[12.5px] font-medium transition-all",
               style.radius,
               allAnswered
-                ? "bg-blue-700 text-white shadow-[0_1px_2px_rgba(15,23,42,0.16)] hover:bg-blue-800"
+                ? "bg-[#3d5468] text-white shadow-[0_1px_2px_rgba(15,23,42,0.16)] hover:bg-text-[#3d5468]"
                 : "cursor-not-allowed bg-slate-200 text-slate-400",
             )}
           >
@@ -678,7 +677,7 @@ function SummaryStage({
   return (
     <div>
       <div className="mb-5">
-        <h2 className="text-[17px] font-semibold leading-snug tracking-[-0.015em] text-slate-900">
+        <h2 className="text-[17px] font-semibold leading-snug tracking-[-0.015em] text-text-[#1e242b]">
           {tk("done.stepSummary")}
         </h2>
         <p className="mt-1.5 text-[12.5px] leading-relaxed text-slate-600">
@@ -697,13 +696,13 @@ function SummaryStage({
           >
             <div className="flex items-start gap-2.5">
               <span
-                className="mt-0.5 flex shrink-0 items-center justify-center rounded-full bg-blue-100 text-[9.5px] font-medium tabular-nums text-blue-900 ring-1 ring-blue-200"
+                className="mt-0.5 flex shrink-0 items-center justify-center rounded-full bg-bg-[#eff3f6] text-[9.5px] font-medium tabular-nums text-text-[#3d5468] ring-1 ring-bg-[#d3dce3]"
                 style={{ height: 18, width: 18 }}
               >
                 {index + 1}
               </span>
               <div className="min-w-0 flex-1">
-                <p className="text-[13px] font-medium leading-snug text-slate-900">
+                <p className="text-[13px] font-medium leading-snug text-text-[#1e242b]">
                   {point.title}
                 </p>
                 <p className="mt-1 text-[12px] leading-relaxed text-slate-600">
@@ -715,7 +714,7 @@ function SummaryStage({
         ))}
       </ul>
 
-      <div className="mt-6 flex items-center justify-between gap-3 border-t border-slate-900/[0.07] pt-4">
+      <div className="mt-6 flex items-center justify-between gap-3 border-t border-text-[#1e242b]/[0.07] pt-4">
         <span className="text-[11.5px] text-slate-500">
           {noteSaved ? tk("done.saved") : tk("done.saveNote")}
         </span>
@@ -729,7 +728,7 @@ function SummaryStage({
               style.radius,
               noteSaved
                 ? "cursor-default border-emerald-600/30 bg-emerald-50 text-emerald-700"
-                : "border-slate-200 bg-white text-slate-700 hover:border-blue-700 hover:bg-blue-50",
+                : "border-slate-200 bg-white text-text-[#2c333b] hover:border-[#c3d0da] hover:bg-bg-[#eff3f6]",
             )}
           >
             {noteSaved ? (
@@ -743,7 +742,7 @@ function SummaryStage({
             type="button"
             onClick={onNext}
             className={cn(
-              "inline-flex items-center gap-1.5 bg-blue-700 px-4 py-2 text-[12.5px] font-medium text-white shadow-[0_1px_2px_rgba(15,23,42,0.16)] transition-opacity hover:opacity-90",
+              "inline-flex items-center gap-1.5 bg-[#3d5468] px-4 py-2 text-[12.5px] font-medium text-white shadow-[0_1px_2px_rgba(15,23,42,0.16)] transition-opacity hover:opacity-90",
               style.radius,
             )}
           >
@@ -795,10 +794,10 @@ function CelebrateStage({
             <Sparkles
               size={12}
               strokeWidth={2.2}
-              className="shrink-0 text-blue-700"
+              className="shrink-0 text-[#3d5468]"
             />
           )}
-          <span className="text-[10.5px] font-medium uppercase tracking-[0.14em] text-blue-800/70">
+          <span className="text-[10.5px] font-medium uppercase tracking-[0.14em] text-text-[#3d5468]/70">
             本课已完成
           </span>
         </div>
@@ -823,7 +822,7 @@ function CelebrateStage({
               cy="40"
               r="34"
               fill="none"
-              stroke={playful ? "#f59e0b" : "#1d4ed8"}
+              stroke={playful ? "#a48a5e" : "#4e677d"}
               strokeWidth="5"
               strokeLinecap="round"
               strokeDasharray={circumference}
@@ -837,7 +836,7 @@ function CelebrateStage({
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-[22px] font-semibold leading-none tabular-nums tracking-[-0.02em] text-slate-900">
+            <span className="text-[22px] font-semibold leading-none tabular-nums tracking-[-0.02em] text-text-[#1e242b]">
               {percent}%
             </span>
             <span className="mt-0.5 text-[10px] text-slate-500">
@@ -846,7 +845,7 @@ function CelebrateStage({
           </div>
         </div>
 
-        <h2 className="text-[17px] font-semibold leading-snug tracking-[-0.015em] text-slate-900">
+        <h2 className="text-[17px] font-semibold leading-snug tracking-[-0.015em] text-text-[#1e242b]">
           {episode.title}
         </h2>
         <p className="mt-1.5 text-[12.5px] leading-relaxed text-slate-600">
@@ -893,7 +892,7 @@ function AdvanceStage({
   return (
     <div>
       <div className="text-center">
-        <h2 className="text-[17px] font-semibold leading-snug tracking-[-0.015em] text-slate-900">
+        <h2 className="text-[17px] font-semibold leading-snug tracking-[-0.015em] text-text-[#1e242b]">
           本课已完成 · 当前系列进度 {done} / {total} 课（{percent}%）
         </h2>
         <p className="mt-1.5 text-[12.5px] leading-relaxed text-slate-600">
@@ -902,7 +901,7 @@ function AdvanceStage({
       </div>
 
       {/* ── 下一步 ── */}
-      <div className="mt-6 flex justify-center border-t border-slate-900/[0.07] pt-4">
+      <div className="mt-6 flex justify-center border-t border-text-[#1e242b]/[0.07] pt-4">
         <div className="flex w-full items-center justify-between gap-3">
           <span className="flex items-center gap-1.5 text-[11.5px] text-slate-500">
             <Lightbulb size={12} strokeWidth={2} />
@@ -918,7 +917,7 @@ function AdvanceStage({
             className={cn(
               "inline-flex items-center gap-1.5 px-4 py-2 text-[12.5px] font-medium text-white shadow-[0_1px_2px_rgba(15,23,42,0.16)] transition-opacity hover:opacity-90",
               style.radius,
-              "bg-blue-700",
+              "bg-[#3d5468]",
             )}
           >
             {isLast ? (
@@ -960,9 +959,9 @@ function ParticleField({ playful }: { playful: boolean }) {
           duration: `${1100 + (index % 5) * 160}ms`,
           // 小学部是彩星色，初高中是深蓝银白。
           color: playful
-            ? ["#f59e0b", "#38bdf8", "#fb7185", "#a78bfa"][index % 4]
+            ? ["#a48a5e", "#8fa8bd", "#b39085", "#9b8fa6"][index % 4]
             : index % 3 === 0
-              ? "#1d4ed8"
+              ? "#4e677d"
               : index % 3 === 1
                 ? "#e2e8f0"
                 : "#93c5fd",
@@ -983,7 +982,7 @@ function ParticleField({ playful }: { playful: boolean }) {
           key={index}
           className={cn(
             "absolute left-1/2 top-1/2",
-            particle.star ? "text-[#f59e0b]" : "rounded-full",
+            particle.star ? "text-[#a48a5e]" : "rounded-full",
           )}
           style={
             {

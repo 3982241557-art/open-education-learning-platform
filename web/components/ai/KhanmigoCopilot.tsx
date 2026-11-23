@@ -394,12 +394,12 @@ export default function KhanmigoCopilot({
       )}
     >
       {/* ── 状态条：实时感应左侧操作 ── */}
-      <div className="rounded-xl border border-[#E5E7EB] bg-white px-3.5 py-3">
-        <p className="flex items-center gap-1.5 text-[10px] font-medium tracking-[0.16em] text-[#B89B5E] uppercase">
+      <div className="rounded-xl border border-[#E5E2DA] bg-white px-3.5 py-3">
+        <p className="flex items-center gap-1.5 text-[10px] font-medium tracking-[0.16em] text-[#A48A5E] uppercase">
           <Sparkles size={10} strokeWidth={2.4} />
           Live Context
         </p>
-        <p className="mt-1.5 text-[12.5px] leading-relaxed text-[#0F172A]">
+        <p className="mt-1.5 text-[12.5px] leading-relaxed text-[#1E242B]">
           {labContext
             ? `正在使用「${labContext.title}」${
                 labContext.total > 0
@@ -409,7 +409,7 @@ export default function KhanmigoCopilot({
             : "正在等待左侧教具的动作…"}
         </p>
         {labContext?.message ? (
-          <p className="mt-1 text-[11.5px] leading-relaxed text-[#55606E]">
+          <p className="mt-1 text-[11.5px] leading-relaxed text-[#5C646D]">
             {labContext.message}
           </p>
         ) : null}
@@ -424,13 +424,13 @@ export default function KhanmigoCopilot({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-            className="rounded-xl border border-[#B89B5E] bg-[#FFFEFA] px-3.5 py-3.5"
+            className="rounded-xl border border-[#A48A5E] bg-[#FFFFFF] px-3.5 py-3.5"
           >
             <p className="flex items-center gap-1.5 text-[10px] font-medium tracking-[0.16em] text-[#8A6D3B] uppercase">
               <Lightbulb size={10} strokeWidth={2.4} />
               Socratic Prompt
             </p>
-            <p className="mt-2 text-[13px] leading-[1.85] text-[#0F172A]">
+            <p className="mt-2 text-[13px] leading-[1.85] text-[#1E242B]">
               {prompt.question}
             </p>
 
@@ -441,9 +441,9 @@ export default function KhanmigoCopilot({
                   key={option}
                   type="button"
                   onClick={answer}
-                  className="flex w-full items-start gap-2 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-left text-[12px] leading-relaxed text-[#1E293B] transition-colors hover:border-[#1D4ED8]"
+                  className="flex w-full items-start gap-2 rounded-lg border border-[#E5E2DA] bg-white px-3 py-2 text-left text-[12px] leading-relaxed text-[#1E293B] transition-colors hover:border-[#4E677D]"
                 >
-                  <span className="mt-[3px] h-2.5 w-2.5 shrink-0 rounded-full border border-[#CBD5E1]" />
+                  <span className="mt-[3px] h-2.5 w-2.5 shrink-0 rounded-full border border-[#D5D1C8]" />
                   {option}
                 </button>
               ))}
@@ -452,7 +452,7 @@ export default function KhanmigoCopilot({
             {/* 渐进提示。 */}
             <div className="mt-3 border-t border-[rgba(184,155,94,0.3)] pt-3">
               {hintLevel > 0 ? (
-                <p className="rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-[11.5px] leading-relaxed text-[#1E293B]">
+                <p className="rounded-lg border border-[#E5E2DA] bg-white px-3 py-2 text-[11.5px] leading-relaxed text-[#1E293B]">
                   {prompt.hints[Math.min(hintLevel - 1, prompt.hints.length - 1)]}
                 </p>
               ) : null}
@@ -460,7 +460,7 @@ export default function KhanmigoCopilot({
                 <button
                   type="button"
                   onClick={() => setHintLevel((v) => v + 1)}
-                  className="mt-2 inline-flex items-center gap-1 rounded-lg border border-[#CBD5E1] bg-white px-2.5 py-1.5 text-[11.5px] font-medium text-[#0F172A] transition-colors hover:border-[#1D4ED8]"
+                  className="mt-2 inline-flex items-center gap-1 rounded-lg border border-[#D5D1C8] bg-white px-2.5 py-1.5 text-[11.5px] font-medium text-[#1E242B] transition-colors hover:border-[#4E677D]"
                 >
                   <ChevronDown size={11} strokeWidth={2.4} />
                   {hintLevel === 0 ? "给我一个小提示" : "再给一点线索"}
@@ -472,13 +472,13 @@ export default function KhanmigoCopilot({
       </AnimatePresence>
 
       {/* ── 自由对话 ── */}
-      <div className="flex min-h-[220px] flex-1 flex-col rounded-xl border border-[#E5E7EB] bg-white">
-        <div className="flex items-center justify-between gap-2 border-b border-[#E5E7EB] px-3.5 py-2.5">
-          <p className="flex items-center gap-1.5 text-[11.5px] font-semibold text-[#0F172A]">
+      <div className="flex min-h-[220px] flex-1 flex-col rounded-xl border border-[#E5E2DA] bg-white">
+        <div className="flex items-center justify-between gap-2 border-b border-[#E5E2DA] px-3.5 py-2.5">
+          <p className="flex items-center gap-1.5 text-[11.5px] font-semibold text-[#1E242B]">
             <MessageCircle size={12} strokeWidth={2.2} />
             与伴学对话
           </p>
-          <span className="rounded-full border border-[#E5E7EB] bg-[#F8F7F4] px-2 py-0.5 text-[10px] text-[#55606E]">
+          <span className="rounded-full border border-[#E5E2DA] bg-[#F6F4EF] px-2 py-0.5 text-[10px] text-[#5C646D]">
             {hasAiProxy() ? "代理已连接" : "离线引导流"}
           </span>
         </div>
@@ -486,7 +486,7 @@ export default function KhanmigoCopilot({
         {/* 消息列表。 */}
         <div className="min-h-0 flex-1 space-y-2.5 overflow-y-auto px-3.5 py-3">
           {messages.length === 0 ? (
-            <p className="py-4 text-[12px] leading-relaxed text-[#55606E]">
+            <p className="py-4 text-[12px] leading-relaxed text-[#5C646D]">
               我不会直接告诉你答案。我会用问题带你自己发现——
               先试试上面的启发式追问，或者直接问我一个你卡住的地方。
             </p>
@@ -497,8 +497,8 @@ export default function KhanmigoCopilot({
                 className={cn(
                   "rounded-lg px-3 py-2 text-[12.5px] leading-relaxed",
                   message.role === "user"
-                    ? "ml-6 bg-[#0B162C] text-white"
-                    : "mr-6 border border-[#E5E7EB] bg-[#F8F7F4] text-[#1E293B]",
+                    ? "ml-6 bg-[#1E242B] text-white"
+                    : "mr-6 border border-[#E5E2DA] bg-[#F6F4EF] text-[#1E293B]",
                 )}
               >
                 {message.content}
@@ -506,12 +506,12 @@ export default function KhanmigoCopilot({
             ))
           )}
           {sending ? (
-            <p className="text-[11.5px] text-[#8A93A0]">伴学正在思考…</p>
+            <p className="text-[11.5px] text-[#8A8578]">伴学正在思考…</p>
           ) : null}
         </div>
 
         {/* 输入框。 */}
-        <div className="border-t border-[#E5E7EB] p-2.5">
+        <div className="border-t border-[#E5E2DA] p-2.5">
           <div className="flex items-end gap-2">
             <textarea
               value={input}
@@ -524,7 +524,7 @@ export default function KhanmigoCopilot({
               }}
               rows={2}
               placeholder="我卡在这一步了，你能给我一个方向吗？"
-              className="min-h-[52px] flex-1 resize-none rounded-lg border border-[#CBD5E1] bg-white px-3 py-2 text-[12.5px] leading-relaxed text-[#0F172A] outline-none transition-colors placeholder:text-[#8A93A0] focus:border-[#1D4ED8]"
+              className="min-h-[52px] flex-1 resize-none rounded-lg border border-[#D5D1C8] bg-white px-3 py-2 text-[12.5px] leading-relaxed text-[#1E242B] outline-none transition-colors placeholder:text-[#8A8578] focus:border-[#4E677D]"
             />
             <button
               type="button"
@@ -533,8 +533,8 @@ export default function KhanmigoCopilot({
               className={cn(
                 "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors",
                 sending || input.trim().length === 0
-                  ? "bg-[#F1F0EC] text-[#8A93A0]"
-                  : "bg-[#0B162C] text-white hover:bg-[#122344]",
+                  ? "bg-[#F2EFE9] text-[#8A8578]"
+                  : "bg-[#1E242B] text-white hover:bg-[#2c333b]",
               )}
               aria-label="发送"
             >

@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, type ReactNode } from "react";
-import TopNav from "@/components/layout/TopNav";
+import BottomFloatingDock from "@/components/layout/BottomFloatingDock";
 
 /**
  * 应用框架
@@ -10,31 +10,28 @@ import TopNav from "@/components/layout/TopNav";
  * .. code-block:: text
  *
  *     ┌──────────────────────────────────────────┐
- *     │  TopNav（64px 吸顶）                    │
- *     ├──────────────────────────────────────────┤
  *     │                                          │
- *     │  内容区（整页滚动）                     │
+ *     │            画布（100vh 铺满）            │
  *     │                                          │
+ *     │   ╭──────────────────────────────╮       │
+ *     │   │ OE 课程 报告 ⭐  ⎘ 简繁EN 档案 │       │
+ *     │   ╰──────────────────────────────╯       │
  *     └──────────────────────────────────────────┘
  *
- * 从「左侧固定窄栏」到「顶部吸顶栏」的意义
- * ---------------------------------------
+ * 零滚动契约
+ * ----------
  *
- * 旧结构是 ``220px 固定栏 + 右侧独立滚动容器``。它有两个副作用：
+ * 根容器锁死 ``h-screen w-screen overflow-hidden``。所有页面**不能**
+ * 靠整页滚动来容纳内容——超出的部分必须在页面内部自己滚。
  *
- * 1. **横向空间被吃掉**——1400px 的屏幕上，内容只剩 1180px；
- * 2. **滚动被切成两段**——侧栏不动、内容区自己滚，鼠标滚轮在某些
- *    浏览器里滚到侧栏就「卡住」。
+ * 底部预留 ``76px``（``pb-[76px]``）给悬浮岛：
+ * 岛高 52px + ``bottom-4`` 16px + 8px 余量 = 76px。
  *
- * 现在整页只有**一个滚动条**。内容区拿到完整宽度，实验台可以放到
- * 1440px——这是 PhET 级交互教具能铺开的前提。
+ * 取消了顶部栏与左侧栏
+ * --------------------
  *
- * 内容最大宽度
- * ------------
- *
- * 默认 ``1280px``；学习实验台这类页面自己可以突破到 ``1440px``
- * （通过 ``wide`` prop）。居中容器 + 上下 padding，让内容「浮」在
- * 象牙纸白画布上。
+ * 旧版有 64px 顶部栏 + 210px 左侧栏。两条常驻导航把横向空间切碎、
+ * 把滚动切成两段、还让视觉重心永远偏上。现在只剩底部一个胶囊。
  */
 export interface AppShellProps {
   /** 内容区上方的条（由 layout 决定显示什么）。 */
@@ -49,29 +46,34 @@ export interface AppShellProps {
 export default function AppShell({
   pageBar,
   children,
-  maxWidth = "default",
+  maxWidth = "wide",
 }: AppShellProps) {
   return (
-    <div className="flex min-h-dvh flex-col bg-[var(--background)]">
-      <TopNav />
-
+    <div className="flex h-screen w-screen flex-col overflow-hidden bg-[#f6f4ef] text-[#1e242b]">
       {pageBar}
 
-      <main className="min-h-0 flex-1">
+      <main className="min-h-0 min-w-0 flex-1 overflow-hidden">
         <Suspense
-          fallback={<div aria-busy="true" className="min-h-[60vh] bg-[var(--background)]" />}
+          fallback={
+            <div
+              aria-busy="true"
+              className="h-full w-full bg-[#f6f4ef]"
+            />
+          }
         >
           <div
             className={
               maxWidth === "wide"
-                ? "mx-auto w-full max-w-[1440px] px-4 py-6 sm:px-6"
-                : "mx-auto w-full max-w-[1280px] px-4 py-6 sm:px-6"
+                ? "mx-auto h-full w-full max-w-[1600px] px-4 pb-[76px] sm:px-6"
+                : "mx-auto h-full w-full max-w-[1280px] px-4 pb-[76px] sm:px-6"
             }
           >
             {children}
           </div>
         </Suspense>
       </main>
+
+      <BottomFloatingDock />
     </div>
   );
 }

@@ -53,9 +53,9 @@ const SEGMENT_STYLES: Record<
     dot: "bg-[var(--muted-foreground)]",
   },
   learning: {
-    bar: "bg-amber-500",
-    text: "text-amber-700 dark:text-amber-400",
-    dot: "bg-amber-500",
+    bar: "bg-[#a48a5e]",
+    text: "text-[#6e5a38] dark:text-[#c0a678]",
+    dot: "bg-[#a48a5e]",
   },
   mastered: {
     bar: "bg-emerald-500",
@@ -173,7 +173,7 @@ export function MasteryMiniBar({
       <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-[var(--muted)]">
         {/* 已开始（未达标）——琥珀色 */}
         <div
-          className="absolute inset-y-0 left-0 rounded-full bg-amber-500 transition-[width]"
+          className="absolute inset-y-0 left-0 rounded-full bg-[#a48a5e] transition-[width]"
           style={{ width: `${startedPct}%` }}
         />
         {/* 已达标——翠绿，压在上面 */}

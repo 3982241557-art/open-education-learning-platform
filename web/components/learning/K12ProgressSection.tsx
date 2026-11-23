@@ -249,7 +249,7 @@ function K12CourseRow({ course }: { course: K12CourseProgress }) {
               : course.status === "学习中"
                 ? "bg-[var(--seek-bean-soft)] text-[var(--primary)]"
                 : course.status === "薄弱需巩固"
-                  ? "bg-amber-50 text-amber-700"
+                  ? "bg-bg-[#f7f3ea] text-[#6e5a38]"
                   : "bg-[var(--muted)] text-[var(--muted-foreground)]",
           )}
         >

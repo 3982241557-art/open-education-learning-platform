@@ -104,7 +104,7 @@ export default function ConsolidationCard({
   return (
     <section
       className={cn(
-        "overflow-hidden rounded-xl border border-[#CBD5E1] bg-white",
+        "overflow-hidden rounded-xl border border-[#D5D1C8] bg-white",
         "shadow-[0_18px_44px_-18px_rgba(11,22,44,0.16)]",
         className,
       )}
@@ -114,7 +114,7 @@ export default function ConsolidationCard({
         aria-hidden
         className="h-[3px]"
         style={{
-          background: "linear-gradient(90deg, #0B162C 0%, #122344 55%, #B89B5E 100%)",
+          background: "linear-gradient(90deg, #1E242B 0%, #2c333b 55%, #A48A5E 100%)",
         }}
       />
 
@@ -123,12 +123,12 @@ export default function ConsolidationCard({
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
             <h3
-              className="text-[16px] text-[#0F172A]"
+              className="text-[16px] text-[#1E242B]"
               style={{ fontFamily: "var(--font-serif)" }}
             >
               本课巩固检测
             </h3>
-            <p className="mt-1 text-[12px] text-[#55606E]">
+            <p className="mt-1 text-[12px] text-[#5C646D]">
               {questions.length} 道题，答对全部即可点亮本课进度
             </p>
           </div>
@@ -140,7 +140,7 @@ export default function ConsolidationCard({
                 "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium",
                 labProgress.done >= labProgress.total
                   ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                  : "border-[#CBD5E1] bg-[#F8F7F4] text-[#55606E]",
+                  : "border-[#D5D1C8] bg-[#F6F4EF] text-[#5C646D]",
               )}
             >
               {labProgress.done >= labProgress.total ? (
@@ -153,8 +153,8 @@ export default function ConsolidationCard({
 
         {/* ── 本课核心总结 ── */}
         {takeaways.length > 0 ? (
-          <div className="mt-5 rounded-lg border border-[rgba(184,155,94,0.4)] bg-[#FFFEFA] px-4 py-3.5">
-            <p className="flex items-center gap-1.5 text-[10.5px] font-medium tracking-[0.14em] text-[#B89B5E] uppercase">
+          <div className="mt-5 rounded-lg border border-[rgba(184,155,94,0.4)] bg-[#FFFFFF] px-4 py-3.5">
+            <p className="flex items-center gap-1.5 text-[10.5px] font-medium tracking-[0.14em] text-[#A48A5E] uppercase">
               <Lightbulb size={11} strokeWidth={2.4} />
               本课要点
             </p>
@@ -164,7 +164,7 @@ export default function ConsolidationCard({
                   key={index}
                   className="flex gap-2 text-[12.5px] leading-[1.8] text-[#1E293B]"
                 >
-                  <span className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-[#B89B5E]" />
+                  <span className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-[#A48A5E]" />
                   <span>{stripMarkdown(item)}</span>
                 </li>
               ))}
@@ -181,8 +181,8 @@ export default function ConsolidationCard({
 
             return (
               <div key={index}>
-                <p className="flex gap-2.5 text-[13.5px] leading-[1.85] text-[#0F172A]">
-                  <span className="mt-[1px] flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#0B162C] text-[10px] font-semibold text-white tabular-nums">
+                <p className="flex gap-2.5 text-[13.5px] leading-[1.85] text-[#1E242B]">
+                  <span className="mt-[1px] flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#1E242B] text-[10px] font-semibold text-white tabular-nums">
                     {index + 1}
                   </span>
                   <span className="min-w-0">{item.question}</span>
@@ -194,17 +194,17 @@ export default function ConsolidationCard({
                     const isAnswer = optionIndex === item.correctIndex;
 
                     let tone =
-                      "border-[#E5E7EB] bg-white text-[#1E293B] hover:border-[#1D4ED8]";
+                      "border-[#E5E2DA] bg-white text-[#1E293B] hover:border-[#4E677D]";
                     if (revealedThis) {
                       if (isAnswer) {
                         tone = "border-emerald-300 bg-emerald-50 text-[#065F46]";
                       } else if (chosen) {
                         tone = "border-rose-300 bg-rose-50 text-[#9F1239]";
                       } else {
-                        tone = "border-[#E5E7EB] bg-white text-[#64748B]";
+                        tone = "border-[#E5E2DA] bg-white text-[#64748B]";
                       }
                     } else if (chosen) {
-                      tone = "border-[#1D4ED8] bg-[#EFF6FF] text-[#1E293B]";
+                      tone = "border-[#4E677D] bg-[#EFF6FF] text-[#1E293B]";
                     }
 
                     return (
@@ -235,8 +235,8 @@ export default function ConsolidationCard({
                               className={cn(
                                 "flex h-3.5 w-3.5 items-center justify-center rounded-full border",
                                 chosen
-                                  ? "border-[#1D4ED8] bg-[#1D4ED8]"
-                                  : "border-[#CBD5E1]",
+                                  ? "border-[#4E677D] bg-[#4E677D]"
+                                  : "border-[#D5D1C8]",
                               )}
                             >
                               {chosen ? (
@@ -262,13 +262,13 @@ export default function ConsolidationCard({
                     >
                       <div
                         className={cn(
-                          "mt-2.5 ml-[30px] rounded-lg border-l-2 bg-[#F8F7F4] px-3.5 py-2.5",
-                          isCorrect ? "border-emerald-500" : "border-[#B89B5E]",
+                          "mt-2.5 ml-[30px] rounded-lg border-l-2 bg-[#F6F4EF] px-3.5 py-2.5",
+                          isCorrect ? "border-emerald-500" : "border-[#A48A5E]",
                         )}
                       >
-                        <p className="text-[11px] font-medium text-[#0F172A]">
+                        <p className="text-[11px] font-medium text-[#1E242B]">
                           {isCorrect ? "答对了" : "再想想"}
-                          <span className="ml-1.5 font-normal text-[#55606E]">
+                          <span className="ml-1.5 font-normal text-[#5C646D]">
                             · {item.concept}
                           </span>
                         </p>
@@ -285,12 +285,12 @@ export default function ConsolidationCard({
         </div>
 
         {/* ── 底部操作 ── */}
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-[#E5E7EB] pt-5">
-          <div className="text-[12px] text-[#55606E]">
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-[#E5E2DA] pt-5">
+          <div className="text-[12px] text-[#5C646D]">
             {revealed ? (
               <span>
                 答对{" "}
-                <span className="font-semibold tabular-nums text-[#0F172A]">
+                <span className="font-semibold tabular-nums text-[#1E242B]">
                   {correctCount} / {questions.length}
                 </span>
                 {passed ? " · 全部通过，本课进度已点亮" : " · 全部答对才算通关"}
@@ -298,7 +298,7 @@ export default function ConsolidationCard({
             ) : (
               <span>
                 已作答{" "}
-                <span className="font-semibold tabular-nums text-[#0F172A]">
+                <span className="font-semibold tabular-nums text-[#1E242B]">
                   {answeredCount} / {questions.length}
                 </span>
               </span>
@@ -310,7 +310,7 @@ export default function ConsolidationCard({
               <button
                 type="button"
                 onClick={reset}
-                className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-[#CBD5E1] bg-white px-3.5 text-[12.5px] font-medium text-[#0F172A] transition-colors hover:border-[#1D4ED8]"
+                className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-[#D5D1C8] bg-white px-3.5 text-[12.5px] font-medium text-[#1E242B] transition-colors hover:border-[#4E677D]"
               >
                 <RotateCcw size={12} strokeWidth={2.4} />
                 再做一次
@@ -323,8 +323,8 @@ export default function ConsolidationCard({
                 className={cn(
                   "inline-flex h-9 items-center gap-1.5 rounded-lg px-4 text-[12.5px] font-medium text-white transition-opacity",
                   allAnswered
-                    ? "bg-[#0B162C] hover:bg-[#122344]"
-                    : "cursor-not-allowed bg-[#94A3B8]",
+                    ? "bg-[#1E242B] hover:bg-[#2c333b]"
+                    : "cursor-not-allowed bg-[#A2ABB4]",
                 )}
               >
                 提交答案

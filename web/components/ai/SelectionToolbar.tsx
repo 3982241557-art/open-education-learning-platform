@@ -800,7 +800,7 @@ export function SelectionToolbar({
         <div>
           <div
             data-selection-bar
-            className="flex items-center gap-0.5 rounded-full bg-[var(--glass)] p-1 shadow-[var(--shadow-float)] backdrop-blur-md ring-1 ring-[var(--glass-border)]"
+            className="flex items-center gap-0.5 rounded-full bg-white p-1 shadow-[var(--shadow-float)] ring-1 ring-[var(--border)]"
           >            {actions.map((action) => {
               const Icon = ACTION_ICON[action.id] ?? Sparkles;
               const active = activeAction === action.id && thinking;
@@ -959,7 +959,7 @@ export function SelectionToolbar({
         {expandedAction && expandedVariants.length > 0 && (
           <div
             data-selection-ui
-            className="pointer-events-auto absolute z-[9999] flex flex-wrap items-center gap-0.5 rounded-full bg-[var(--glass)] p-1 pt-2 shadow-[var(--shadow-float)] backdrop-blur-md ring-1 ring-[var(--glass-border)]"
+            className="pointer-events-auto absolute z-[9999] flex flex-wrap items-center gap-0.5 rounded-full bg-white p-1 pt-2 shadow-[var(--shadow-float)] ring-1 ring-[var(--border)]"
             style={{
               // 贴在工具条下方；若工具条在上方，则贴在工具条下方同向。
               top: barTop + TOOLBAR_HEIGHT + ANCHOR_GAP,
@@ -988,7 +988,7 @@ export function SelectionToolbar({
         {result !== null && (
           <div
             data-selection-ui
-            className="pointer-events-auto absolute z-[9999] w-[min(420px,calc(100vw-2rem))] rounded-2xl bg-[var(--glass)] p-3.5 shadow-[var(--shadow-panel)] backdrop-blur-md ring-1 ring-[var(--glass-border)]"
+            className="pointer-events-auto absolute z-[9999] w-[min(420px,calc(100vw-2rem))] rounded-2xl bg-white p-3.5 shadow-[var(--shadow-panel)] ring-1 ring-[var(--border)]"
             style={{
               // 解读卡片贴在工具条下方——工具条在选区上方时，卡片也在上方。
               top: barAbove ? barTop - 8 - 300 : barTop + TOOLBAR_HEIGHT + ANCHOR_GAP,

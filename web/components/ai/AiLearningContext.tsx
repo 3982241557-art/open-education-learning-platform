@@ -60,17 +60,17 @@ export default function AiLearningContext() {
       initial={{ opacity: 0, y: -6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-      className="shrink-0 rounded-xl border border-[#CBD5E1] bg-white p-3.5"
+      className="shrink-0 rounded-xl border border-[#D5D1C8] bg-white p-3.5"
     >
       <div className="flex items-center gap-2">
-        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-[#0B162C] text-white">
+        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-[#1E242B] text-white">
           <Activity size={12} strokeWidth={2.2} />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[11.5px] font-semibold text-[#0F172A]">
+          <p className="truncate text-[11.5px] font-semibold text-[#1E242B]">
             当前学习上下文
           </p>
-          <p className="truncate text-[10.5px] text-[#55606E]">
+          <p className="truncate text-[10.5px] text-[#5C646D]">
             {context.title}
           </p>
         </div>
@@ -80,14 +80,14 @@ export default function AiLearningContext() {
       {context.total > 0 ? (
         <div className="mt-3">
           <div className="flex items-baseline justify-between gap-2">
-            <span className="text-[11px] text-[#55606E]">{context.message}</span>
-            <span className="text-[11px] font-semibold tabular-nums text-[#0B162C]">
+            <span className="text-[11px] text-[#5C646D]">{context.message}</span>
+            <span className="text-[11px] font-semibold tabular-nums text-[#1E242B]">
               {percent}%
             </span>
           </div>
-          <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-[#E5E7EB]">
+          <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-[#E5E2DA]">
             <motion.div
-              className="h-full rounded-full bg-[#1D4ED8]"
+              className="h-full rounded-full bg-[#4E677D]"
               animate={{ width: `${percent}%` }}
               transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
             />
@@ -108,7 +108,7 @@ export default function AiLearningContext() {
                   "flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border",
                   task.done
                     ? "border-emerald-500 bg-emerald-500"
-                    : "border-[#CBD5E1]",
+                    : "border-[#D5D1C8]",
                 )}
               >
                 {task.done ? (
@@ -118,7 +118,7 @@ export default function AiLearningContext() {
               <span
                 className={cn(
                   "min-w-0 flex-1 truncate",
-                  task.done ? "text-[#0F172A]" : "text-[#55606E]",
+                  task.done ? "text-[#1E242B]" : "text-[#5C646D]",
                 )}
               >
                 {task.label}

@@ -1,15 +1,31 @@
 "use client";
 
-import K12HallPage from "@/components/k12/K12HallPage";
+import { Suspense } from "react";
+import { Loader2 } from "lucide-react";
+import CoursesHub from "@/components/learn/CoursesHub";
 
 /**
- * 课程大厅。
+ * 课程总台。
  *
- * **主导航里唯一的「课程」入口**。
+ * **纯静态顶级路由** ``/courses``——可选 ``?subject=math|chinese`` 与
+ * ``?grade=xxx``。
  *
- * 它就是 K12 年级同步系列（语文 / 数学，1–12 年级）——默认聚焦
- * 用户在引导里选定的年级，同时保留「查看全部年级」的下拉项。
+ * ⛔ 旧版的 ``/courses/[courseId]`` 深层动态目录路由在 GitHub Pages
+ *    子路径部署下会 404。现在全部课时统一走
+ *    ``/learn?course=<id>&lesson=<epId>``。
  */
 export default function CoursesPage() {
-  return <K12HallPage />;
+  // ⚠️ CoursesHub 用了 useSearchParams（?subject= / ?grade=），
+  //    所以必须包在 <Suspense> 里。
+  return (
+    <Suspense
+      fallback={
+        <div className="flex h-full items-center justify-center bg-[#f6f4ef]">
+          <Loader2 size={18} className="animate-spin text-[#5c646d]" />
+        </div>
+      }
+    >
+      <CoursesHub />
+    </Suspense>
+  );
 }

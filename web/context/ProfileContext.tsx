@@ -87,14 +87,14 @@ export interface ProfileMeta {
  */
 const STATIC_META: ProfileMeta = {
   avatars: [
-    { id: "aurora", name: "极光", colors: ["#1d4ed8", "#0f172a"] },
+    { id: "aurora", name: "极光", colors: ["#4e677d", "#1e242b"] },
     { id: "indigo", name: "靛蓝", colors: ["#1e3a8a", "#334155"] },
-    { id: "cobalt", name: "钴蓝", colors: ["#2563eb", "#0f172a"] },
-    { id: "slate", name: "石墨", colors: ["#475569", "#0f172a"] },
-    { id: "teal", name: "青碧", colors: ["#0f766e", "#0f172a"] },
-    { id: "plum", name: "紫檀", colors: ["#6d28d9", "#0f172a"] },
-    { id: "amber", name: "暖阳", colors: ["#b45309", "#0f172a"] },
-    { id: "rose", name: "赭红", colors: ["#9f1239", "#0f172a"] },
+    { id: "cobalt", name: "钴蓝", colors: ["#5f7a91", "#1e242b"] },
+    { id: "slate", name: "石墨", colors: ["#5c646d", "#1e242b"] },
+    { id: "teal", name: "青碧", colors: ["#0f766e", "#1e242b"] },
+    { id: "plum", name: "紫檀", colors: ["#6d28d9", "#1e242b"] },
+    { id: "amber", name: "暖阳", colors: ["#b45309", "#1e242b"] },
+    { id: "rose", name: "赭红", colors: ["#9f1239", "#1e242b"] },
   ],
   regions: [
     { id: "cn", name: "中国大陆" },

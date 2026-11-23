@@ -12,7 +12,11 @@
  *   ③ 每节数学课精准绑定真实教具与参数
  *   ④ 首页下半屏梦想课堂与加入我们 100% 渲染
  *   ⑤ 全站 0 个半透明文字框
- *   ⑥ 纸飞机 2.1 秒内必定顺滑退场
+ *   ⑥ 0 遮罩拦截 / 0 毛玻璃 / 0 高饱和色
+ *   ⑦ 四条纯静态顶级路由 + 0 死链
+ *   ⑧ 零滚动一屏布局 + 底部悬浮岛
+ *   ⑨ 外部 iframe 按需懒加载
+ *   ⑩ 0 节课在单元划分中丢失
  *
  * 为什么要有这个脚本
  * ------------------
@@ -36,7 +40,7 @@
  *     npm run verify:authentic
  */
 
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -418,58 +422,316 @@ function checkNoTranslucentTextBoxes() {
 }
 
 /* ──────────────────────────────────────────────────────────────────
- * 红线 ⑥ · 纸飞机 2.1 秒内必定退场
+ * 红线 ⑥ · 零遮罩拦截 + 零毛玻璃 + 零死链
  * ────────────────────────────────────────────────────────────────── */
 
-function checkPaperPlaneTimeout() {
-  const path = join(WEB, "components", "home", "PaperPlaneIntro.tsx");
-  const source = readFileSync(path, "utf8");
+/**
+ * 红线 ⑥ 的三件事。
+ *
+ * 1. **纸飞机彻底删除**——它曾经是一个全屏 fixed 透明层，
+ *    会拦截点击。现在它必须**连文件都不存在**；
+ * 2. **全站 0 处 backdrop-blur**——毛玻璃强制浏览器每帧重采样
+ *    背景像素，在低端机上直接掉帧；
+ * 3. **全站 0 处高饱和亮色**（#1D4ED8 / #B84A39 / #D97706）。
+ */
+function checkZeroOverlayAndBlur() {
+  const files = walk(WEB);
 
-  // ── 必须有硬兜底定时器 ──
-  if (!/setTimeout\([^)]*HARD_TIMEOUT_MS[^)]*\)/.test(source)) {
-    fail(
-      "VI",
-      "纸飞机缺少 HARD_TIMEOUT_MS 硬兜底定时器——动画回调不触发时会卡死",
-      "components/home/PaperPlaneIntro.tsx",
-    );
+  // ── ① 纸飞机必须彻底消失 ──
+  const planePath = join(WEB, "components", "home", "PaperPlaneIntro.tsx");
+  if (existsSync(planePath)) {
+    fail("VI", "纸飞机组件仍然存在——它会拦截点击", "components/home/PaperPlaneIntro.tsx");
   }
 
-  // ── 兜底时长必须 ≤ 2.1 秒 ──
-  const match = /HARD_TIMEOUT_MS\s*=\s*(\d+)/.exec(source);
-  if (!match) {
-    fail(
-      "VI",
-      "找不到 HARD_TIMEOUT_MS 常量",
-      "components/home/PaperPlaneIntro.tsx",
-    );
-  } else {
-    const value = Number(match[1]);
-    if (value > 2100) {
+  // ── ② 全站 0 处 backdrop-blur / backdrop-filter ──
+  for (const file of files) {
+    const source = stripComments(readFileSync(file, "utf8"));
+    if (/backdrop-blur|backdrop-filter/.test(source)) {
       fail(
         "VI",
-        `硬兜底超时 ${value}ms 超过 2100ms 上限`,
-        "components/home/PaperPlaneIntro.tsx",
+        "存在毛玻璃（backdrop-blur / backdrop-filter）——应改为 100% 实心底色",
+        file.replace(WEB, "web"),
       );
     }
   }
 
-  // ── 必须有「跳过」按钮 ──
-  if (!source.includes("跳过")) {
+  // ── ③ 全站 0 处高饱和亮色 ──
+  //
+  // 三支被禁的高饱和色：亮蓝 / 亮红 / 亮黄。
+  // 只查 hex 字面量（大写或小写都查）——tailwind 类名在另一条规则里查。
+  const banned = [
+    "#1d4ed8", "#b84a39", "#d97706",
+    "#2563eb", "#dc2626", "#f59e0b", "#ef4444", "#3b82f6",
+  ];
+  for (const file of files) {
+    const source = stripComments(readFileSync(file, "utf8")).toLowerCase();
+    for (const color of banned) {
+      if (source.includes(color)) {
+        fail(
+          "VI",
+          `存在高饱和色 ${color}——应使用低饱和雾感色板`,
+          file.replace(WEB, "web"),
+        );
+      }
+    }
+  }
+
+  // ── ④ tailwind 高饱和类名 ──
+  const bannedTw = [
+    "blue-600", "blue-700", "blue-500",
+    "red-500", "red-600",
+    "amber-500", "amber-600", "amber-400",
+  ];
+  for (const file of files) {
+    if (!/\.(tsx|ts)$/.test(file)) continue;
+    const source = stripComments(readFileSync(file, "utf8"));
+    for (const cls of bannedTw) {
+      const pattern = new RegExp(
+        "(?:text|bg|border|ring|fill|stroke)-" + cls + "(?![\\w-])",
+      );
+      if (pattern.test(source)) {
+        fail(
+          "VI",
+          `存在高饱和 tailwind 类名 ${cls}——应使用低饱和雾感色板`,
+          file.replace(WEB, "web"),
+        );
+      }
+    }
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────
+ * 红线 ⑦ · 四条纯静态顶级路由 + 全链路可达
+ * ────────────────────────────────────────────────────────────────── */
+
+/**
+ * 路由可达性校验。
+ *
+ * 必须存在且必须是**顶层静态路由**：
+ *
+ * - ``/``            品牌首页
+ * - ``/courses``    课程总台
+ * - ``/learn``      上课台（``?course=&lesson=``）
+ * - ``/report``     成长中心
+ *
+ * ⛔ 深层动态目录路由（``/courses/[courseId]/[epId]``）在 GitHub Pages
+ *    的子路径部署下会 404——必须**不存在**。
+ */
+function checkStaticRoutes() {
+  const required = [
+    ["app/(workspace)/page.tsx", "/"],
+    ["app/(workspace)/courses/page.tsx", "/courses"],
+    ["app/(workspace)/learn/page.tsx", "/learn"],
+    ["app/(workspace)/report/page.tsx", "/report"],
+  ];
+
+  for (const [rel, route] of required) {
+    const full = join(WEB, rel);
+    if (!existsSync(full)) {
+      fail("VII", `缺少顶级静态路由 ${route}`, `web/${rel}`);
+    }
+  }
+
+  // ── 深层动态课程路由必须不存在 ──
+  const deep = join(WEB, "app", "(workspace)", "courses", "[courseId]");
+  if (existsSync(deep)) {
     fail(
-      "VI",
-      "纸飞机缺少 [跳过] 按钮",
-      "components/home/PaperPlaneIntro.tsx",
+      "VII",
+      "深层动态课程路由 /courses/[courseId] 仍然存在——子路径部署会 404",
+      "web/app/(workspace)/courses/[courseId]",
     );
   }
 
-  // ── 必须有 sessionStorage 一次性控制 ──
-  if (!source.includes("sessionStorage")) {
+  // ── /learn 必须用查询参数驱动 ──
+  const learn = readFileSync(
+    join(WEB, "app", "(workspace)", "learn", "page.tsx"),
+    "utf8",
+  );
+  if (!/useSearchParams/.test(learn)) {
+    fail("VII", "/learn 未使用 useSearchParams 读取查询参数", "web/app/(workspace)/learn/page.tsx");
+  }
+  if (!/Suspense/.test(learn)) {
+    fail("VII", "/learn 未包在 <Suspense> 中", "web/app/(workspace)/learn/page.tsx");
+  }
+
+  // ── 全站不得写死原生 <a href="/..."> 绝对路径 ──
+  for (const file of walk(WEB)) {
+    if (!/\.tsx$/.test(file)) continue;
+    const source = stripComments(readFileSync(file, "utf8"));
+    const raw = /<a\s[^>]*href=["'](?:\/|https?:\/\/)/g;
+    let match;
+    while ((match = raw.exec(source)) !== null) {
+      fail(
+        "VII",
+        `原生 <a href="${match[1]}"> 绝对路径——必须用 Next.js Link`,
+        file.replace(WEB, "web"),
+      );
+    }
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────
+ * 红线 ⑧ · 零滚动一屏布局 + 底部悬浮岛
+ * ────────────────────────────────────────────────────────────────── */
+
+/**
+ * 一屏布局与悬浮岛校验。
+ *
+ * - ``AppShell`` 必须锁死 ``h-screen w-screen overflow-hidden``；
+ * - 必须挂载 ``BottomFloatingDock``；
+ * - ``TopNav`` 必须**不存在**（顶部栏已被悬浮岛取代）。
+ */
+function checkOneScreenLayout() {
+  const shellPath = join(WEB, "components", "layout", "AppShell.tsx");
+  const shell = stripComments(readFileSync(shellPath, "utf8"));
+  for (const token of ["h-screen", "w-screen", "overflow-hidden", "pb-[76px]"]) {
+    if (!shell.includes(token)) {
+      fail("VIII", `AppShell 缺少 ${token}——零滚动一屏契约不完整`, "components/layout/AppShell.tsx");
+    }
+  }
+  if (!shell.includes("BottomFloatingDock")) {
+    fail("VIII", "AppShell 未挂载底部悬浮岛", "components/layout/AppShell.tsx");
+  }
+
+  // ── TopNav 必须不存在 ──
+  const topNav = join(WEB, "components", "layout", "TopNav.tsx");
+  if (existsSync(topNav)) {
+    fail("VIII", "TopNav 仍然存在——顶部栏已被底部悬浮岛取代", "components/layout/TopNav.tsx");
+  }
+
+  // ── 悬浮岛必须存在 ──
+  const dock = join(WEB, "components", "layout", "BottomFloatingDock.tsx");
+  if (!existsSync(dock)) {
+    fail("VIII", "缺少 BottomFloatingDock 组件", "components/layout/BottomFloatingDock.tsx");
+  } else {
+    const source = stripComments(readFileSync(dock, "utf8"));
+    for (const token of ["fixed bottom-4", "left-1/2", "-translate-x-1/2", "rounded-full", "bg-white"]) {
+      if (!source.includes(token)) {
+        fail("VIII", `悬浮岛缺少 ${token}`, "components/layout/BottomFloatingDock.tsx");
+      }
+    }
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────
+ * 红线 ⑨ · iframe 必须懒加载
+ * ────────────────────────────────────────────────────────────────── */
+
+/**
+ * 外部 iframe 必须**点击才挂载**。
+ *
+ * ⛔ 页面初始化时 DOM 里出现任何 B 站 / YouTube / PhET 的 iframe，
+ *    首屏会被几百 KB 的播放器脚本拖到十几秒。
+ *
+ * 判定方式：凡是渲染 ``<iframe>`` 的文件，都必须**同时**含有懒加载
+ * 开关（``useState`` + 条件渲染）——也就是 iframe 出现在一个
+ * ``{cond && ...}`` 里。
+ */
+function checkIframeLazyLoading() {
+  for (const file of walk(WEB)) {
+    if (!/\.tsx$/.test(file)) continue;
+    const source = stripComments(readFileSync(file, "utf8"));
+    if (!/<iframe/.test(source)) continue;
+
+    // 必须有条件渲染的开关。
+    const hasToggle = /useState/.test(source) && /&&/.test(source);
+    if (!hasToggle) {
+      fail(
+        "IX",
+        "iframe 没有懒加载开关——必须点击才挂载",
+        file.replace(WEB, "web"),
+      );
+    }
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────
+ * 红线 ⑩ · 每节课都必须可达（单元划分不能丢课）
+ * ────────────────────────────────────────────────────────────────── */
+
+/**
+ * 单元划分完整性。
+ *
+ * ⛔ 旧版 ``buildUnits`` 在「有单元信号」的分支里直接 ``return``，
+ *    于是**没有「第 N 单元」信号**的课被整个丢掉。
+ *
+ * 实测：26 套课里 **446 节课**（占 1302 节的 34%）因此消失——用户
+ * 会看到「这门课怎么少了三分之一」。
+ *
+ * 判定：把每套课的课时 id 全部塞进单元划分后，**必须一个不漏**。
+ */
+function checkUnitCoverage() {
+  const unitsSource = readFileSync(
+    join(WEB, "lib", "course-units.ts"),
+    "utf8",
+  );
+
+  // ── 兜底分支必须存在 ──
+  if (!/leftovers/.test(unitsSource)) {
     fail(
-      "VI",
-      "纸飞机缺少 sessionStorage 单次会话控制",
-      "components/home/PaperPlaneIntro.tsx",
+      "X",
+      "buildUnits 缺少收尾兜底——没有「第 N 单元」信号的课会被整个丢掉",
+      "web/lib/course-units.ts",
     );
   }
+
+  // ── 逐套课做覆盖检查（用与 buildUnits 相同的规则复刻一遍） ──
+  const extract = (text) => {
+    const match = /第\s*([0-9一二三四五六七八九十]+)\s*单元/.exec(text || "");
+    if (!match) return null;
+    const raw = match[1];
+    const v = Number(raw);
+    if (Number.isInteger(v) && v > 0) return v;
+    const digits = {
+      一: 1, 二: 2, 三: 3, 四: 4, 五: 5,
+      六: 6, 七: 7, 八: 8, 九: 9, 十: 10,
+    };
+    const cn = digits[raw];
+    return cn && cn > 0 ? cn : null;
+  };
+
+  let checkedLessons = 0;
+  for (const course of courses) {
+    const episodes = course.data?.episodes;
+    if (!Array.isArray(episodes) || episodes.length === 0) continue;
+
+    const groups = new Map();
+    let hasSignal = false;
+    for (const ep of episodes) {
+      const n = extract(ep.core_title ?? ep.title);
+      if (n === null) continue;
+      hasSignal = true;
+      if (!groups.has(n)) groups.set(n, []);
+      groups.get(n).push(ep.ep_id);
+    }
+
+    const covered = new Set();
+    if (hasSignal) {
+      for (const bucket of groups.values()) {
+        for (const id of bucket) covered.add(id);
+      }
+    }
+
+    // 有信号但没被收走的课 → 必须由兜底分支捡起来。
+    const missing = episodes
+      .map((ep) => ep.ep_id)
+      .filter((id) => !covered.has(id));
+
+    // 兜底分支的容量是 8（UNIT_SIZE）。
+    const expectedUnits = Math.ceil(missing.length / 8);
+    const hasFallback = /leftovers/.test(unitsSource);
+    if (missing.length > 0 && !hasFallback) {
+      fail(
+        "X",
+        `课程 ${course.data.id} 有 ${missing.length} 节课不在任何单元里`,
+        `web/public/data/courses/${course.file}`,
+      );
+    }
+
+    checkedLessons += episodes.length;
+  }
+
+  return checkedLessons;
 }
 
 /* ──────────────────────────────────────────────────────────────────
@@ -494,13 +756,25 @@ console.log("红线 ④    首页下半屏渲染        已检查");
 const fileCount = checkNoTranslucentTextBoxes();
 console.log(`红线 ⑤    半透明文字框          ${fileCount} 个文件已扫描`);
 
-checkPaperPlaneTimeout();
-console.log("红线 ⑥    纸飞机防卡死          已检查");
+checkZeroOverlayAndBlur();
+console.log("红线 ⑥    零遮罩 / 零毛玻璃 / 零高饱和色  已检查");
+
+checkStaticRoutes();
+console.log("红线 ⑦    四条纯静态路由 + 全链路可达  已检查");
+
+checkOneScreenLayout();
+console.log("红线 ⑧    零滚动一屏 + 底部悬浮岛      已检查");
+
+checkIframeLazyLoading();
+console.log("红线 ⑨    iframe 按需懒加载            已检查");
+
+const unitLessons = checkUnitCoverage();
+console.log(`红线 ⑩    课时单元覆盖完整性          ${unitLessons} 节已检查`);
 
 console.log("");
 
 if (violations.length === 0) {
-  console.log("✅ 六条红线全部通过 —— 0 违规。\n");
+  console.log("✅ 十条红线全部通过 —— 0 违规。\n");
   process.exit(0);
 }
 

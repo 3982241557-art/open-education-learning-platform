@@ -240,7 +240,7 @@ export const LEARNING_LOOP = {
         zh: "进课先来两道真实考点题——不是「你懂不懂」，而是直接考这一讲的前置基础。助教会据此调整讲解的深浅。",
         en: "Two real exam-point questions come first — not “do you get it”, but directly testing the prerequisites of this lesson. The tutor adjusts its depth accordingly.",
       },
-      accent: "#0b162c",
+      accent: "#1e242b",
       tall: false,
     },
     {
@@ -250,7 +250,7 @@ export const LEARNING_LOOP = {
         zh: "按教材单元逐课时推进的名师同步课，每一集都有时间戳知识节点与段落导读，读到哪里、懂到哪里，一目了然。",
         en: "Teacher-led sync lessons advance unit by unit; each episode carries timestamped knowledge nodes and reading guidance.",
       },
-      accent: "#1d4ed8",
+      accent: "#4e677d",
       tall: true,
     },
     {
@@ -260,7 +260,7 @@ export const LEARNING_LOOP = {
         zh: "语文是笔顺描红与名篇赏析，数学是函数图像与动态几何——把这一课的核心概念亲手玩明白。",
         en: "Chinese: stroke order and classic-text appreciation. Mathematics: function graphs and dynamic geometry — hands-on grasp of this lesson's core idea.",
       },
-      accent: "#b89b5e",
+      accent: "#a48a5e",
       tall: false,
     },
     {
@@ -270,7 +270,7 @@ export const LEARNING_LOOP = {
         zh: "完成整册并通过随堂检测，即可领取带编号的 K12 同步修习证书——它记在「学情中心」里，随时可查。",
         en: "Complete the volume and pass the in-lesson check to receive a numbered K12 certificate, permanently recorded in the Growth Center.",
       },
-      accent: "#122344",
+      accent: "#2c333b",
       tall: true,
     },
   ],

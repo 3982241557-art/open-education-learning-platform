@@ -1013,7 +1013,7 @@ export function InteractiveVideoCanvas({
          * 真实进度。
          */}
         {isBilibiliFrame && (
-          <div className="absolute right-2 top-2 z-20 flex items-center gap-1.5 rounded-lg bg-black/62 px-2 py-1 text-white backdrop-blur-sm">
+          <div className="absolute right-2 top-2 z-20 flex items-center gap-1.5 rounded-lg bg-[#1e242b] px-2 py-1 text-white">
             <button
               type="button"
               onClick={() => companion.toggle()}
@@ -1047,11 +1047,11 @@ export function InteractiveVideoCanvas({
        * 白底 + 深炭黑文字。
        */}
       {video.kind === "iframe" && !isBilibiliFrame && nodes.length > 0 ? (
-        <div className="flex items-start gap-2 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2">
+        <div className="flex items-start gap-2 rounded-lg border border-[#E5E2DA] bg-white px-3 py-2">
           <AlertTriangle
             size={12}
             strokeWidth={2.2}
-            className="mt-0.5 shrink-0 text-[#B89B5E]"
+            className="mt-0.5 shrink-0 text-[#A48A5E]"
           />
           <p className="text-[11.5px] leading-relaxed text-[#1E293B]">
             此来源无法同步播放进度——重点导读需要 YouTube 或 B 站等可精确定位的片源。

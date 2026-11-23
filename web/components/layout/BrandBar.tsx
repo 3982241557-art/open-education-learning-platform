@@ -90,7 +90,7 @@ export function LocaleRegionSwitcher({
                 "h-7 px-1.5 text-[11px] transition-colors",
                 isBar
                   ? active
-                    ? "bg-white text-[#0f172a] font-medium"
+                    ? "bg-white text-[#1e242b] font-medium"
                     : "text-white/70 hover:text-white"
                   : active
                     ? "bg-[var(--primary)] text-white font-medium"
@@ -136,7 +136,7 @@ export function LocaleRegionSwitcher({
                 "h-7 px-1.5 text-[11px] transition-colors",
                 isBar
                   ? active
-                    ? "bg-white text-[#0f172a] font-medium"
+                    ? "bg-white text-[#1e242b] font-medium"
                     : "text-white/70 hover:text-white"
                   : active
                     ? "bg-[var(--primary)] text-white font-medium"

@@ -166,14 +166,14 @@ function Panel({
   right?: React.ReactNode;
 }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-[#E5E7EB] bg-[#FFFFFF]">
-      <div className="flex items-start justify-between gap-4 border-b border-[#E5E7EB] bg-[#FFFEFA] px-4 py-3">
+    <div className="overflow-hidden rounded-2xl border border-[#E5E2DA] bg-[#FFFFFF]">
+      <div className="flex items-start justify-between gap-4 border-b border-[#E5E2DA] bg-[#FFFFFF] px-4 py-3">
         <div className="min-w-0">
-          <h4 className="truncate text-[13px] font-semibold tracking-[-0.01em] text-[#0F172A]">
+          <h4 className="truncate text-[13px] font-semibold tracking-[-0.01em] text-[#1E242B]">
             {title}
           </h4>
           {hint ? (
-            <p className="mt-0.5 text-[11px] leading-relaxed text-[#1E293B]">
+            <p className="mt-0.5 text-[11px] leading-relaxed text-[#2C333B]">
               {hint}
             </p>
           ) : null}
@@ -204,10 +204,10 @@ function SmallButton({
       className={cn(
         "rounded-lg px-3 py-1.5 text-[12px] font-medium transition-colors",
         active
-          ? "bg-[#0B162C] text-white"
+          ? "bg-[#1E242B] text-white"
           : tone === "gold"
-            ? "border border-[#B89B5E] bg-[#FFFFFF] text-[#8A6D3B]"
-            : "border border-[#E5E7EB] bg-[#FFFFFF] text-[#1E293B] hover:bg-[#F8F7F4]",
+            ? "border border-[#A48A5E] bg-[#FFFFFF] text-[#6E5A38]"
+            : "border border-[#E5E2DA] bg-[#FFFFFF] text-[#2C333B] hover:bg-[#F6F4EF]",
       )}
     >
       {children}
@@ -261,9 +261,9 @@ function PrimaryCulturePanel({
           height: 170,
           padding: 8,
           strokeColor: "#1e3a8a",
-          radicalColor: "#dc2626",
-          outlineColor: "#cbd5e1",
-          drawingColor: "#1D4ED8",
+          radicalColor: "#8a6e63",
+          outlineColor: "#d5d1c8",
+          drawingColor: "#4E677D",
           showOutline: true,
           strokeAnimationSpeed: 0.9,
           delayBetweenStrokes: 280,
@@ -315,7 +315,7 @@ function PrimaryCulturePanel({
   if (chars.length === 0) {
     return (
       <Panel title="本课文化互动台">
-        <p className="text-[13px] leading-relaxed text-[#1E293B]">
+        <p className="text-[13px] leading-relaxed text-[#2C333B]">
           本课以文化通识与经典精读为主，没有需要书写掌握的生字。
           请回到视频完成精讲，课后测验会覆盖本讲要点。
         </p>
@@ -340,10 +340,10 @@ function PrimaryCulturePanel({
               className={cn(
                 "flex h-11 w-11 items-center justify-center rounded-xl border text-[19px] transition-colors",
                 active === index
-                  ? "border-[#0B162C] bg-[#0B162C] text-white"
-                  : "border-[#E5E7EB] bg-[#FFFFFF] text-[#0F172A] hover:bg-[#F8F7F4]",
+                  ? "border-[#1E242B] bg-[#1E242B] text-white"
+                  : "border-[#E5E2DA] bg-[#FFFFFF] text-[#1E242B] hover:bg-[#F6F4EF]",
               )}
-              style={traced.has(index) && active !== index ? { borderColor: "#B89B5E" } : undefined}
+              style={traced.has(index) && active !== index ? { borderColor: "#A48A5E" } : undefined}
             >
               {item}
             </button>
@@ -370,7 +370,7 @@ function PrimaryCulturePanel({
       >
         <div className="flex flex-wrap items-start gap-6">
           {/* 笔顺画布 */}
-          <div className="shrink-0 rounded-2xl border border-[#E5E7EB] bg-[#FFFFFF] p-2">
+          <div className="shrink-0 rounded-2xl border border-[#E5E2DA] bg-[#FFFFFF] p-2">
             <div ref={containerRef} className="h-[170px] w-[170px]" />
           </div>
 
@@ -378,18 +378,18 @@ function PrimaryCulturePanel({
           <div className="min-w-[220px] flex-1 space-y-3">
             <div className="flex items-baseline gap-3">
               <span
-                className="text-[40px] font-bold leading-none text-[#0B162C]"
+                className="text-[40px] font-bold leading-none text-[#1E242B]"
                 style={{ fontFamily: "var(--font-serif)" }}
               >
                 {char}
               </span>
               {pinyin ? (
-                <span className="text-[14px] text-[#64748B]">{pinyin}</span>
+                <span className="text-[14px] text-[#5C646D]">{pinyin}</span>
               ) : null}
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="rounded-md border border-[#E5E7EB] bg-[#F8F7F4] px-2 py-1 text-[11px] font-medium text-[#1E293B]">
+              <span className="rounded-md border border-[#E5E2DA] bg-[#F6F4EF] px-2 py-1 text-[11px] font-medium text-[#2C333B]">
                 已描红 {traced.size} / {chars.length}
               </span>
             </div>
@@ -398,13 +398,13 @@ function PrimaryCulturePanel({
             <button
               type="button"
               onClick={() => setShowEtymology((v) => !v)}
-              className="flex w-full items-center justify-between rounded-xl border border-[#B89B5E] bg-[#FFFEFA] px-3 py-2 text-left"
+              className="flex w-full items-center justify-between rounded-xl border border-[#A48A5E] bg-[#FFFFFF] px-3 py-2 text-left"
             >
-              <span className="flex items-center gap-2 text-[12px] font-medium text-[#8A6D3B]">
+              <span className="flex items-center gap-2 text-[12px] font-medium text-[#6E5A38]">
                 <BookOpen size={14} />
                 汉字字源演变
               </span>
-              <span className="text-[11px] text-[#8A6D3B]">
+              <span className="text-[11px] text-[#6E5A38]">
                 {showEtymology ? "收起" : "展开"}
               </span>
             </button>
@@ -418,18 +418,18 @@ function PrimaryCulturePanel({
                   transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
                   className="overflow-hidden"
                 >
-                  <div className="space-y-2 rounded-xl border border-[#E5E7EB] bg-[#FFFFFF] px-3 py-3">
+                  <div className="space-y-2 rounded-xl border border-[#E5E2DA] bg-[#FFFFFF] px-3 py-3">
                     {etymology ? (
                       <>
-                        <div className="text-[13px] font-semibold text-[#0F172A]">
+                        <div className="text-[13px] font-semibold text-[#1E242B]">
                           {etymology.glyph}
                         </div>
-                        <p className="text-[12px] leading-relaxed text-[#1E293B]">
+                        <p className="text-[12px] leading-relaxed text-[#2C333B]">
                           {etymology.story}
                         </p>
                       </>
                     ) : (
-                      <p className="text-[12px] leading-relaxed text-[#1E293B]">
+                      <p className="text-[12px] leading-relaxed text-[#2C333B]">
                         「{char}」的字源演变：汉字从甲骨文的象形逐步走向隶书、
                         楷书。书写形态在变，但承载的意义线索被保留了下来——
                         这正是汉字「形、音、义」三层结构的由来。
@@ -506,15 +506,15 @@ function SecondaryCulturePanel({ config }: { config: ChineseCultureLabConfig }) 
             : "点击高亮的词句，展开文化背景、修辞意象与双语思辨。"
         }
         right={
-          <span className="flex items-center gap-1.5 rounded-md border border-[#E5E7EB] bg-[#FFFFFF] px-2 py-1 text-[11px] text-[#1E293B]">
+          <span className="flex items-center gap-1.5 rounded-md border border-[#E5E2DA] bg-[#FFFFFF] px-2 py-1 text-[11px] text-[#2C333B]">
             <Languages size={12} />
             初高中段 · 无描红
           </span>
         }
       >
-        <div className="rounded-xl border border-[#E5E7EB] bg-[#FFFEFA] px-5 py-5">
+        <div className="rounded-xl border border-[#E5E2DA] bg-[#FFFFFF] px-5 py-5">
           <p
-            className="text-[15px] leading-[2.1] text-[#0F172A]"
+            className="text-[15px] leading-[2.1] text-[#1E242B]"
             style={{ fontFamily: "var(--font-serif)" }}
           >
             {segments.map((segment, index) =>
@@ -528,8 +528,8 @@ function SecondaryCulturePanel({ config }: { config: ChineseCultureLabConfig }) 
                   className={cn(
                     "mx-0.5 rounded px-0.5 transition-colors",
                     openTerm === segment.term
-                      ? "bg-[#0B162C] text-white"
-                      : "text-[#1D4ED8] underline decoration-[#B89B5E] decoration-2 underline-offset-4 hover:bg-[#F8F7F4]",
+                      ? "bg-[#1E242B] text-white"
+                      : "text-[#4E677D] underline decoration-[#A48A5E] decoration-2 underline-offset-4 hover:bg-[#F6F4EF]",
                   )}
                 >
                   {segment.text}
@@ -552,17 +552,17 @@ function SecondaryCulturePanel({ config }: { config: ChineseCultureLabConfig }) 
             transition={{ duration: 0.26, ease: [0.16, 1, 0.3, 1] }}
             className="overflow-hidden"
           >
-            <div className="rounded-2xl border border-[#B89B5E] bg-[#FFFFFF] p-4">
+            <div className="rounded-2xl border border-[#A48A5E] bg-[#FFFFFF] p-4">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-2">
                     <span
-                      className="text-[20px] font-semibold text-[#0B162C]"
+                      className="text-[20px] font-semibold text-[#1E242B]"
                       style={{ fontFamily: "var(--font-serif)" }}
                     >
                       {activeKeyword.term}
                     </span>
-                    <span className="rounded-md border border-[#B89B5E] bg-[#FFFEFA] px-2 py-0.5 text-[11px] font-medium text-[#8A6D3B]">
+                    <span className="rounded-md border border-[#A48A5E] bg-[#FFFFFF] px-2 py-0.5 text-[11px] font-medium text-[#6E5A38]">
                       {activeKeyword.device}
                     </span>
                   </div>
@@ -570,38 +570,38 @@ function SecondaryCulturePanel({ config }: { config: ChineseCultureLabConfig }) 
                 <button
                   type="button"
                   onClick={() => setOpenTerm(null)}
-                  className="rounded-md border border-[#E5E7EB] bg-[#FFFFFF] px-2 py-1 text-[11px] text-[#1E293B]"
+                  className="rounded-md border border-[#E5E2DA] bg-[#FFFFFF] px-2 py-1 text-[11px] text-[#2C333B]"
                 >
                   关闭
                 </button>
               </div>
 
               <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                <div className="rounded-xl border border-[#E5E7EB] bg-[#FFFEFA] p-3">
-                  <div className="text-[11px] font-medium uppercase tracking-[0.12em] text-[#64748B]">
+                <div className="rounded-xl border border-[#E5E2DA] bg-[#FFFFFF] p-3">
+                  <div className="text-[11px] font-medium uppercase tracking-[0.12em] text-[#5C646D]">
                     文化背景与意象
                   </div>
-                  <p className="mt-1 text-[12px] leading-relaxed text-[#1E293B]">
+                  <p className="mt-1 text-[12px] leading-relaxed text-[#2C333B]">
                     {activeKeyword.meaning}
                   </p>
                 </div>
-                <div className="rounded-xl border border-[#E5E7EB] bg-[#FFFEFA] p-3">
-                  <div className="text-[11px] font-medium uppercase tracking-[0.12em] text-[#64748B]">
+                <div className="rounded-xl border border-[#E5E2DA] bg-[#FFFFFF] p-3">
+                  <div className="text-[11px] font-medium uppercase tracking-[0.12em] text-[#5C646D]">
                     白话对照
                   </div>
-                  <p className="mt-1 text-[12px] leading-relaxed text-[#1E293B]">
+                  <p className="mt-1 text-[12px] leading-relaxed text-[#2C333B]">
                     {activeKeyword.plain}
                   </p>
                 </div>
               </div>
 
               {activeKeyword.en ? (
-                <div className="mt-3 rounded-xl border border-[#E5E7EB] bg-[#FFFFFF] p-3">
-                  <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.12em] text-[#64748B]">
+                <div className="mt-3 rounded-xl border border-[#E5E2DA] bg-[#FFFFFF] p-3">
+                  <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.12em] text-[#5C646D]">
                     <Languages size={12} />
                     Bilingual Reflection
                   </div>
-                  <p className="mt-1 text-[12px] leading-relaxed text-[#1E293B]">
+                  <p className="mt-1 text-[12px] leading-relaxed text-[#2C333B]">
                     {activeKeyword.en}
                   </p>
                 </div>
@@ -614,15 +614,15 @@ function SecondaryCulturePanel({ config }: { config: ChineseCultureLabConfig }) 
       {/* 思考题 */}
       {config.question ? (
         <Panel title="本讲思辨题">
-          <p className="text-[13px] leading-relaxed text-[#0F172A]">
+          <p className="text-[13px] leading-relaxed text-[#1E242B]">
             {config.question}
           </p>
           {config.answer ? (
             <details className="mt-3">
-              <summary className="cursor-pointer text-[12px] font-medium text-[#8A6D3B]">
+              <summary className="cursor-pointer text-[12px] font-medium text-[#6E5A38]">
                 展开参考解答
               </summary>
-              <p className="mt-2 whitespace-pre-line rounded-xl border border-[#E5E7EB] bg-[#FFFEFA] px-3 py-3 text-[12px] leading-relaxed text-[#1E293B]">
+              <p className="mt-2 whitespace-pre-line rounded-xl border border-[#E5E2DA] bg-[#FFFFFF] px-3 py-3 text-[12px] leading-relaxed text-[#2C333B]">
                 {config.answer}
               </p>
             </details>

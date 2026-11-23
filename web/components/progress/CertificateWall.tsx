@@ -97,7 +97,7 @@ export function CertificateWall({
                 className="group flex w-full flex-col overflow-hidden rounded-xl border border-[var(--border)] bg-white text-left transition-[border-color,transform] hover:border-[#c9a227]/50 hover:-translate-y-px"
               >
                 {/* 缩略图——用深蓝底 + 金色徽标暗示证书的样子。 */}
-                <div className="relative flex h-[112px] items-center justify-center overflow-hidden bg-[#0f172a]">
+                <div className="relative flex h-[112px] items-center justify-center overflow-hidden bg-[#1e242b]">
                   <div
                     aria-hidden
                     className="pointer-events-none absolute inset-0"

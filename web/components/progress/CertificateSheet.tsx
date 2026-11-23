@@ -37,7 +37,7 @@ import { BASE_PATH } from "@/lib/static-data";
  * 设计取向
  * --------
  *
- * **深蓝（``#0F172A``）为底，金（``#C9A227``）为线**。
+ * **深蓝（``#1E242B``）为底，金（``#C9A227``）为线**。
  *
  * 为什么是深蓝而不是白底
  * ----------------------
@@ -107,7 +107,7 @@ export function CertificateSheet({
   return (
     <div
       className={cn(
-        "relative overflow-hidden bg-[#0f172a] text-white",
+        "relative overflow-hidden bg-[#1e242b] text-white",
         className,
       )}
       style={{ aspectRatio: CERT_RATIO }}
@@ -343,7 +343,7 @@ export function CertificateDialog({
     try {
       const html2canvas = (await import("html2canvas")).default;
       const canvas = await html2canvas(node, {
-        backgroundColor: "#0f172a",
+        backgroundColor: "#1e242b",
         scale: 2,
         useCORS: true,
       });
@@ -389,7 +389,7 @@ export function CertificateDialog({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(30,36,43,0.55)] p-4"
       onClick={onClose}
       role="dialog"
       aria-modal="true"

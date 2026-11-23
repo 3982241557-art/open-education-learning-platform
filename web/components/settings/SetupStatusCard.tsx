@@ -140,10 +140,10 @@ export function SetupStatusCard() {
         </dl>
 
         {!proxyReady && !localKeyReady ? (
-          <div className="flex items-start gap-2.5 rounded-xl border border-amber-300 bg-amber-50 p-4">
+          <div className="flex items-start gap-2.5 rounded-xl border border-bg-[#ddd0b4] bg-bg-[#f7f3ea] p-4">
             <AlertTriangle
               size={16}
-              className="mt-0.5 shrink-0 text-amber-500"
+              className="mt-0.5 shrink-0 text-[#a48a5e]"
             />
             <div className="min-w-0">
               <p className="text-[13px] font-medium">AI 助教使用预装导读</p>
@@ -189,7 +189,7 @@ export function SetupStatusCard() {
         className={
           ready
             ? "flex items-start gap-2.5 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4"
-            : "flex items-start gap-2.5 rounded-xl border border-amber-500/25 bg-amber-50 p-4"
+            : "flex items-start gap-2.5 rounded-xl border border-[#ddd0b4] bg-bg-[#f7f3ea] p-4"
         }
       >
         {ready ? (
@@ -198,7 +198,7 @@ export function SetupStatusCard() {
             className="mt-0.5 shrink-0 text-emerald-500"
           />
         ) : (
-          <AlertTriangle size={16} className="mt-0.5 shrink-0 text-amber-500" />
+          <AlertTriangle size={16} className="mt-0.5 shrink-0 text-[#a48a5e]" />
         )}
         <div className="min-w-0">
           <p className="text-[13px] font-medium">

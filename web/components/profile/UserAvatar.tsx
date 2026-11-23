@@ -51,7 +51,7 @@ export function UserAvatar({
     );
   }
 
-  const [from, to] = preset?.colors ?? ["#1d4ed8", "#0f172a"];
+  const [from, to] = preset?.colors ?? ["#4e677d", "#1e242b"];
 
   return (
     <span

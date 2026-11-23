@@ -331,7 +331,7 @@ function StatusIcon({ status }: { status: string }) {
   }
   if (status === "学习中") {
     return (
-      <CircleDashed size={12} strokeWidth={2.2} className="shrink-0 text-amber-500" />
+      <CircleDashed size={12} strokeWidth={2.2} className="shrink-0 text-[#a48a5e]" />
     );
   }
   return (
@@ -424,7 +424,7 @@ function QuizPanel({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(30,36,43,0.55)] p-4"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
@@ -539,7 +539,7 @@ function QuizPanel({
                   "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[13px] font-semibold",
                   result.passed
                     ? "bg-emerald-500 text-white"
-                    : "bg-amber-500 text-white",
+                    : "bg-[#a48a5e] text-white",
                 )}
               >
                 {Math.round(result.accuracy * 100)}

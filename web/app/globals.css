@@ -23,204 +23,206 @@
 
    分区靠 1px 实线表达，层次靠留白表达，可点击性靠边框表达。
    没有任何一个像素是「为了好看」而存在的。 */
+/* ── 设计令牌 ──────────────────────────────────────────────────────────
+   同源低饱和雾感色板
+   =====================
+
+   这一版做的是一次**减色**：把整套高饱和色（亮蓝 #1D4ED8 / 亮红
+   #B84A39 / 亮黄 #D97706）整体换成**同源低饱和雾感**家族。
+
+   换掉的理由不是「低饱和更高级」，而是**饱和度是有认知成本的**：
+
+   * 高饱和蓝在按钮上 = 一个尖刺，视线会被反复拽过去；
+   * 亮红只该出现在「错了」上面，用多了就失效；
+   * 亮黄在浅底上对比度差，长时间看发虚。
+
+   新的规则：**一个墨炭负责所有主交互**，学科色只做「这里的归属
+   提示」，金色只做「你的成就」。任何地方都不再有刺眼的亮色。
+
+   ⛔ **全站 0 处 backdrop-blur**。毛玻璃在静态站上是最贵的东西——
+      它强制浏览器每帧重采样背后的像素，在低端机上直接掉到 20fps。
+      层级改用 1px 实线 + 极轻阴影表达。 */
 :root {
-  /* ── 深蓝黑白学术主题 ──────────────────────────────────────────────
-     这一版彻底放弃莫兰迪暖色调，换成「极度理性和专注」的深蓝黑白。
-
-     设计原则只有三条：
-
-     1. **底色几乎不可见**——页面是 ``#F8FAFC`` 的浅灰白，卡片是纯白。
-        层次靠**留白与 1px 实线**表达，不靠色块，也不靠阴影。
-     2. **颜色只用来强调**——整个界面只有一种彩色：学术深蓝
-        ``#1D4ED8``。它负责「可点击」「选中」「当前」三种状态。
-     3. **正文是纯黑灰**——``#0F172A`` 在 ``#FFFFFF`` 上对比度 ≈ 17:1，
-        长时间阅读不累。
-
-     换句话说：颜色是**信号**，不是**装饰**。屏幕上看到的每一处蓝，
-     都意味着「这里有交互」。 */
-  --background: #f8f7f4;
-  --foreground: #0f172a;
+  /* ── 画布与卡片 ────────────────────────────────────────────────────
+     画布是温润米灰纸白，卡片是纯白。两者对比极轻（≈3:1），
+     所以卡片靠 1px #E5E2DA 的边框「浮」起来，而不是靠阴影。 */
+  --background: #f6f4ef;
+  --foreground: #1e242b;
   --card: #ffffff;
-  --card-foreground: #0f172a;
-  --muted: #f1f0ec;
-  --muted-foreground: #55606e;
-  --primary: #1d4ed8;
-  --primary-foreground: #ffffff;
-  --border: #e5e7eb;
-  --ring: #1d4ed8;
-  --destructive: #dc2626;
-  --overlay: rgba(15, 23, 42, 0.5);
+  --card-foreground: #1e242b;
+  --muted: #f2efe9;
+  --muted-foreground: #5c646d;
 
-  /* ── 学院色板（语义令牌）────────────────────────────────────────── */
-  /* 深午夜牛津蓝——侧栏与权威标题。 */
-  --oxford: #0b162c;
-  --oxford-2: #122344;
-  /* 温润纸白——语文巨幕与书卷卡片。 */
-  --paper: #fffefa;
-  /* 哑光香槟金——证书纹饰 / 里程碑 / 语文点缀。 */
-  --gold: #b89b5e;
-  --gold-soft: rgba(184, 155, 94, 0.12);
-  --gold-line: rgba(184, 155, 94, 0.32);
+  /* 主交互色 = 主墨炭。**不是蓝色**——深墨炭做主按钮，
+     反而比蓝色更「重」，更像实体按键。 */
+  --primary: #1e242b;
+  --primary-foreground: #ffffff;
+  --border: #e5e2da;
+  --ring: #4e677d;
+  --destructive: #8a6e63;
+  --overlay: rgba(30, 36, 43, 0.45);
+
+  /* ── 学科语义色（低饱和雾感）──────────────────────────────────────
+     数学 = 雾霾蓝灰。语文 = 暖陶灰褐。两者的明度接近、饱和度都低，
+     所以并排出现时不会打架。 */
+  --math: #4e677d;
+  --math-soft: #eff3f6;
+  --math-line: #d3dce3;
+  --chinese: #8a6e63;
+  --chinese-soft: #f6f1ee;
+  --chinese-line: #e2d6cf;
+
+  /* ── 成就色（哑光浅麦金）─────────────────────────────────────────
+     星星、徽章、证书签章。**不是亮金**——浅麦金在米灰纸白上
+     依然可辨，但不会「发光」到抢走内容的注意力。 */
+  --gold: #a48a5e;
+  --gold-soft: #f7f3ea;
+  --gold-deep: #6e5a38;
+  --gold-line: #ddd0b4;
 
   /* 高级字体混排——衬线体负责「大标题 / 学科巨幕 / 古诗文」，
      无衬线体负责「正文 / 导航 / 公式 / 按钮」。 */
   --font-sans: "Inter", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
   --font-serif: "Noto Serif SC", "Songti SC", "STSong", Georgia, serif;
 
-  /* ── 玻璃与悬浮层 ────────────────────────────────────────────────────
-     AI 相关的浮层（选区魔法棒、任务看板、解读面板）统一用这套令牌，
-     靠半透明 + 模糊区分层级，而不是靠边框——边框会让
-     阅读界面显得支离破碎。 */
-  --glass: rgba(255, 255, 255, 0.9);
-  --glass-border: rgba(15, 23, 42, 0.1);
-  --shadow-float: 0 4px 16px rgba(15, 23, 42, 0.08);
-  --shadow-panel: 0 8px 28px rgba(15, 23, 42, 0.1);
-  --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.04);
-  --shadow-lift: 0 4px 14px rgba(15, 23, 42, 0.06);
+  /* ── 悬浮层：100% 实心，0 模糊 ───────────────────────────────────
+     ⛔ 这里**没有** ``--glass``。所有浮层一律用纯白实体 +
+         1px 边框 + 一层极轻阴影。 */
+  --shadow-float: 0 4px 16px rgba(30, 36, 43, 0.07);
+  --shadow-panel: 0 8px 28px rgba(30, 36, 43, 0.09);
+  --shadow-card: 0 1px 3px rgba(30, 36, 43, 0.04);
+  --shadow-lift: 0 4px 14px rgba(30, 36, 43, 0.06);
+  --shadow-dock: 0 8px 30px rgba(30, 36, 43, 0.08);
 
-  /* ── 划线色：全部收敛到蓝调 ─────────────────────────────────────────
-     曾经有琥珀 / 雾蓝 / 豆沙 / 玫瑰 / 淡紫五种低饱和配色。现在
-     它们统一成**同一支蓝色家族**的不同明度——
+  /* ── 划线色：全部收敛到雾感家族 ───────────────────────────────────
+     划线是「我标记了这里」，属于语义标记。五种高饱和色会让正文
+     变成万花筒；同一支雾感家族则安静下来。 */
+  --seek-color-amber: #4e677d;
+  --seek-color-haze: #5f7a91;
+  --seek-color-bean: #8a6e63;
+  --seek-color-rose: #6b7f8f;
+  --seek-color-lilac: #7a6a80;
 
-     划线是「我标记了这里」，它属于**语义标记**，不是装饰插画。
-     五种颜色会让正文变成万花筒；一支蓝色家族则让界面安静下来，
-     注意力全部还给内容。 */
-  --seek-color-amber: #1d4ed8;
-  --seek-color-haze: #2563eb;
-  --seek-color-bean: #1e40af;
-  --seek-color-rose: #3b82f6;
-  --seek-color-lilac: #1e3a8a;
+  --seek-bg-amber: #eff3f6;
+  --seek-bg-haze: #eff3f6;
+  --seek-bg-bean: #f6f1ee;
+  --seek-bg-rose: #f2efe9;
+  --seek-bg-lilac: #f2efe9;
 
-  --seek-bg-amber: rgba(29, 78, 216, 0.14);
-  --seek-bg-haze: rgba(37, 99, 235, 0.12);
-  --seek-bg-bean: rgba(30, 64, 175, 0.14);
-  --seek-bg-rose: rgba(59, 130, 246, 0.1);
-  --seek-bg-lilac: rgba(30, 58, 138, 0.14);
+  /* ── 三栏认知分区色：完全一致 ───────────────────────────────────
+     分区靠 1px 分隔线表达，不靠色块。 */
+  --seek-cream: #f6f4ef;
+  --seek-cool: #f6f4ef;
+  --seek-warm: #f6f4ef;
 
-  /* ── 三栏认知分区色 ──────────────────────────────────────────────────
-     三个区域各承担一种认知角色：
+  /* 强调色——主墨炭。 */
+  --seek-bean: #1e242b;
+  --seek-plum: #4e677d;
 
-     - **沉淀区（左）** ``--seek-cream``——放「我的东西」；
-     - **专注区（中）** ``--seek-cool``——大背景压下去，纯白卡片浮
-       在上面，形成「桌面上放着白纸」的悬浮感；
-     - **启发区（右）** ``--seek-warm``——放 AI 的回应。
+  /* 浅底按钮——「可点击」的信号，用语文/数学的浅底承载。 */
+  --seek-bean-soft: #eff3f6;
+  --seek-bean-soft-border: #d3dce3;
+  --seek-bean-soft-hover: #e6ecf1;
 
-     **这一版三块底色完全一致**（都是 ``#F8FAFC``）。
+  /* 未激活状态下的次要字色——比 muted-foreground 深一档。 */
+  --seek-muted-foreground: #5c646d;
 
-     上一版给三块底色安排了不同的冷暖关系（奶油 / 雅灰 / 暖白），
-     看起来「有分区」，实际效果是：屏幕上多出三种色相，注意力被
-     从内容上抢走。而现在**分区靠 1px 分隔线表达**——线比色块安静
-     得多，却一样能切开。 */
-  --seek-cream: #f8f7f4;
-  --seek-cool: #f8f7f4;
-  --seek-warm: #f8f7f4;
+  /* 分区之间的硬边界——1px 实线。 */
+  --seek-divider: #e5e2da;
+  --seek-divider-cool: #e5e2da;
+  --seek-divider-warm: #e5e2da;
 
-  /* 强调色——学术深蓝。整个界面只有这一种彩色。 */
-  --seek-bean: #1d4ed8;
-  --seek-plum: #1d4ed8;
-
-  /* 浅蓝按钮底——「可点击」的信号，但绝不喧宾夺主。 */
-  --seek-bean-soft: #eff6ff;
-  --seek-bean-soft-border: #bfdbfe;
-  --seek-bean-soft-hover: #dbeafe;
-
-  /* 未激活状态下的次要字色——比 ``--muted-foreground`` 深一档，
-     在浅底上仍然清晰可读。 */
-  --seek-muted-foreground: #475569;
-
-  /* 分区之间的硬边界——1px 实线，slate-200。
-     这是这一版**唯一**的分隔手段：没有色块，没有渐变，只有线。 */
-  --seek-divider: #e5e7eb;
-  --seek-divider-cool: #e5e7eb;
-  --seek-divider-warm: #e5e7eb;
-
-  /* 实体按键——1px 实线边框，**无阴影**。
-     上一版靠「淡描边 + 极轻投影」表达可点击性，在深蓝主题下会显得
-     冗余：边框已经是明确的信号了，再叠一层阴影只会让界面发脏。 */
-  --seek-key-border: #cbd5e1;
+  /* 实体按键——1px 实线边框。 */
+  --seek-key-border: #d5d1c8;
   --seek-key-shadow: none;
   --seek-key-shadow-sm: none;
 
-  /* 弥散阴影——几乎不存在。
-     纯白卡片压在 ``#F8FAFC`` 底上，本身就有足够的对比；阴影只保留
-     一层极淡的，用来在滚动时给一点「浮起」的暗示。 */
-  --seek-shadow-soft: 0 1px 2px rgba(15, 23, 42, 0.04);
-  --seek-shadow-paper: 0 1px 2px rgba(15, 23, 42, 0.04);
+  /* 弥散阴影——几乎不存在。 */
+  --seek-shadow-soft: 0 1px 2px rgba(30, 36, 43, 0.035);
+  --seek-shadow-paper: 0 1px 2px rgba(30, 36, 43, 0.035);
 
-  /* ── 左侧深蓝导航栏 ─────────────────────────────────────────────────
-     根导航栏是整个界面的「骨架」——它不该参与内容竞争。用**深午夜
-     牛津蓝**（不是刺眼的纯蓝）把它跟内容区彻底分开：内容区是象牙白
-     + 纯白卡片，导航栏是深午夜蓝 + 纯白图标。 */
-  --seek-rail: #0b162c;
+  /* 旧版左侧深蓝栏的残留令牌——保留但**不再被使用**，
+     以免旧组件编译失败。值改成雾感蓝灰。 */
+  --seek-rail: #1e242b;
   --seek-rail-foreground: #ffffff;
-  --seek-rail-muted: rgba(255, 255, 255, 0.66);
-  --seek-rail-active: #1d4ed8;
+  --seek-rail-muted: rgba(255, 255, 255, 0.62);
+  --seek-rail-active: #4e677d;
 }
 
 .dark {
-  /* 深色模式沿用同一套「深蓝黑白」逻辑，只是反过来：
-     底变深、正文变亮、强调色提亮。 */
-  --background: #0b1220;
-  --foreground: #e8edf5;
-  --card: #111a2c;
-  --card-foreground: #e8edf5;
-  --muted: #1a2438;
-  --muted-foreground: #94a3b8;
-  --primary: #3b82f6;
-  --primary-foreground: #0b1220;
-  --border: #1e2a40;
-  --ring: #3b82f6;
-  --destructive: #ef4444;
+  /* 深色模式沿用同一套「雾感低饱和」逻辑，只是反过来：
+     底变深、正文变亮、强调色提亮一档。 */
+  --background: #171b20;
+  --foreground: #e6e9ec;
+  --card: #1e242b;
+  --card-foreground: #e6e9ec;
+  --muted: #262d35;
+  --muted-foreground: #a2abb4;
+  --primary: #e6e9ec;
+  --primary-foreground: #1e242b;
+  --border: #333c45;
+  --ring: #7b95a9;
+  --destructive: #b39085;
   --overlay: rgba(0, 0, 0, 0.6);
 
-  --glass: rgba(17, 26, 44, 0.82);
-  --glass-border: rgba(255, 255, 255, 0.08);
   --shadow-float: 0 4px 16px rgba(0, 0, 0, 0.4);
   --shadow-panel: 0 8px 28px rgba(0, 0, 0, 0.5);
   --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3);
   --shadow-lift: 0 4px 14px rgba(0, 0, 0, 0.35);
+  --shadow-dock: 0 8px 30px rgba(0, 0, 0, 0.45);
+
+  --math: #8fa8bd;
+  --math-soft: #232c34;
+  --math-line: #38444f;
+  --chinese: #b99c8f;
+  --chinese-soft: #2b2725;
+  --chinese-line: #463c37;
+
+  --gold: #c0a678;
+  --gold-soft: #2c2820;
+  --gold-deep: #d3c19a;
+  --gold-line: #4a4133;
 
   /* 深色模式下划线色要更亮一点才看得见。 */
-  --seek-color-amber: #60a5fa;
-  --seek-color-haze: #93c5fd;
-  --seek-color-bean: #3b82f6;
-  --seek-color-rose: #bfdbfe;
-  --seek-color-lilac: #a5b4fc;
+  --seek-color-amber: #8fa8bd;
+  --seek-color-haze: #9db4c6;
+  --seek-color-bean: #b99c8f;
+  --seek-color-rose: #9aa9b5;
+  --seek-color-lilac: #a89cae;
 
-  --seek-bg-amber: rgba(96, 165, 250, 0.2);
-  --seek-bg-haze: rgba(147, 197, 253, 0.18);
-  --seek-bg-bean: rgba(59, 130, 246, 0.2);
-  --seek-bg-rose: rgba(191, 219, 254, 0.16);
-  --seek-bg-lilac: rgba(165, 180, 252, 0.2);
+  --seek-bg-amber: #232c34;
+  --seek-bg-haze: #232c34;
+  --seek-bg-bean: #2b2725;
+  --seek-bg-rose: #262d35;
+  --seek-bg-lilac: #262d35;
 
-  /* 三栏分区色——与浅色模式同理，统一深蓝灰。 */
-  --seek-cream: #0b1220;
-  --seek-cool: #0b1220;
-  --seek-warm: #0b1220;
-  --seek-bean: #3b82f6;
-  --seek-plum: #60a5fa;
+  --seek-cream: #171b20;
+  --seek-cool: #171b20;
+  --seek-warm: #171b20;
+  --seek-bean: #e6e9ec;
+  --seek-plum: #8fa8bd;
 
-  --seek-bean-soft: rgba(59, 130, 246, 0.16);
-  --seek-bean-soft-border: rgba(96, 165, 250, 0.24);
-  --seek-bean-soft-hover: rgba(59, 130, 246, 0.26);
+  --seek-bean-soft: #232c34;
+  --seek-bean-soft-border: #38444f;
+  --seek-bean-soft-hover: #2c363f;
 
-  --seek-muted-foreground: #a8b6c8;
+  --seek-muted-foreground: #a2abb4;
 
-  --seek-divider: #1e2a40;
-  --seek-divider-cool: #1e2a40;
-  --seek-divider-warm: #1e2a40;
+  --seek-divider: #333c45;
+  --seek-divider-cool: #333c45;
+  --seek-divider-warm: #333c45;
 
-  --seek-key-border: #2b3a54;
+  --seek-key-border: #3d4852;
   --seek-key-shadow: none;
   --seek-key-shadow-sm: none;
 
   --seek-shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.3);
   --seek-shadow-paper: 0 1px 2px rgba(0, 0, 0, 0.3);
 
-  --seek-rail: #060b16;
+  --seek-rail: #12171c;
   --seek-rail-foreground: #ffffff;
   --seek-rail-muted: rgba(255, 255, 255, 0.58);
-  --seek-rail-active: #3b82f6;
+  --seek-rail-active: #8fa8bd;
 }
 
 /* ── 划线渲染 ──────────────────────────────────────────────────────────
@@ -391,8 +393,8 @@
 /* 学院卡片投影——比普通卡片更有分量，但仍克制。 */
 .oe-card-shadow {
   box-shadow:
-    0 1px 2px rgba(11, 22, 44, 0.04),
-    0 16px 40px -22px rgba(11, 22, 44, 0.22);
+    0 1px 2px rgba(30, 36, 43, 0.035),
+    0 16px 40px -22px rgba(30, 36, 43, 0.2);
 }
 
 /* ── 实体按键 ──────────────────────────────────────────────────────────
@@ -530,12 +532,10 @@
    之前的方案是一个 460px 宽的白底卡片直接盖在画面正中，
    视频被遮掉一半，用户想看清讲师表情都做不到。 */
 .seek-pill {
-  background: rgba(15, 23, 42, 0.82);
-  backdrop-filter: blur(12px) saturate(140%);
-  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  background: #1e242b;
   color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.35);
+  border: 1px solid #3b444d;
+  box-shadow: 0 6px 20px rgba(30, 36, 43, 0.28);
   animation: seek-pill-in 220ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -560,9 +560,8 @@
    动画用「轻微上浮 + 淡入」——比胶囊慢一点点，因为卡片里有内容要
    被读完；太快会让人觉得闪了一下没看清。 */
 .seek-predict {
-  background: rgba(15, 23, 42, 0.88);
-  backdrop-filter: blur(14px) saturate(150%);
-  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  background: #1e242b;
+  border: 1px solid #3b444d;
   animation: seek-predict-in 260ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -604,11 +603,9 @@
 @keyframes diagnostic-backdrop-in {
   from {
     opacity: 0;
-    backdrop-filter: blur(0);
   }
   to {
     opacity: 1;
-    backdrop-filter: blur(12px);
   }
 }
 
@@ -922,10 +919,11 @@ body {
     background: #ffffff !important;
   }
 
-  /* 隐藏导航栏与所有工具按钮。 */
+  /* 隐藏悬浮岛与所有工具按钮。 */
   .no-print,
   header.sticky,
-  nav[aria-label="主导航"] {
+  nav[aria-label="主导航"],
+  [data-oe-dock] {
     display: none !important;
   }
 

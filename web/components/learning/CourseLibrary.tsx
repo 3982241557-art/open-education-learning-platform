@@ -302,7 +302,7 @@ function CourseMasteryStrip({ courseId }: { courseId: string }) {
       <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-[var(--muted)]">
         {/* 已开始但未达标——琥珀色 */}
         <div
-          className="absolute inset-y-0 left-0 rounded-full bg-amber-500"
+          className="absolute inset-y-0 left-0 rounded-full bg-[#a48a5e]"
           style={{ width: `${startedPct}%` }}
         />
         {/* 已达标——翠绿，压在上面 */}

@@ -329,7 +329,7 @@ function Section({
 const STATUS_STYLES: Record<string, string> = {
   已掌握: "bg-emerald-50 text-emerald-700 dark:text-emerald-400",
   学习中: "bg-sky-50 text-sky-700 dark:text-sky-400",
-  薄弱需巩固: "bg-amber-50 text-amber-700 dark:text-amber-400",
+  薄弱需巩固: "bg-bg-[#f7f3ea] text-[#6e5a38] dark:text-[#c0a678]",
   待学习: "bg-[var(--muted)] text-[var(--muted-foreground)]",
 };
 
@@ -444,7 +444,7 @@ function CourseProgressCard({ course }: { course: CourseProgress }) {
               course.status === "已掌握"
                 ? "bg-emerald-500"
                 : course.status === "薄弱需巩固"
-                  ? "bg-amber-500"
+                  ? "bg-[#a48a5e]"
                   : "bg-[var(--primary)]",
             )}
             style={{ width: `${Math.min(100, percent)}%` }}

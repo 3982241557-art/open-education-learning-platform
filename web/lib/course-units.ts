@@ -113,9 +113,24 @@ export function buildUnits(
     return units;
   }
 
-  /** 有单元信号 → 按单元号排序输出，但保持课序原样。 */
+  /**
+   * 有单元信号 → 按单元号排序输出，但保持课序原样。
+   *
+   * ⚠️ **必须收尾兜底**。
+   *
+   * 真实课程数据里，**部分课没有「第 N 单元」信号**——比如数学的
+   * 「基础篇 / 提升篇」编号课、语文的「第 1 集 / 第 2 集」。旧版
+   * 的实现直接 ``return``，这些课就被**整个丢掉了**：它们既不出
+   * 现在单元 Tab 里，也点不进去。
+   *
+   * 实测 26 套课里有 **446 节课**因此消失——占全部 1302 节的
+   * **34%**。用户会看到「这门课怎么少了三分之一」。
+   *
+   * 所以这里加一道收尾：把没被任何单元收走的课，按固定容量补成
+   * 兜底单元，**追加在最后**（不打断已有的单元顺序）。
+   */
   const numbers = [...groups.keys()].sort((a, b) => a - b);
-  return numbers.map((number, position) => {
+  const units: CourseUnit[] = numbers.map((number, position) => {
     const bucket = groups.get(number) ?? [];
     return {
       id: `u${number}`,
@@ -126,6 +141,25 @@ export function buildUnits(
       lessonTitles: bucket.map((item) => item.title),
     };
   });
+
+  /** 收尾兜底——没被任何单元收走的课。 */
+  const covered = new Set(units.flatMap((unit) => unit.lessonIds));
+  const leftovers = lessons.filter((item) => !covered.has(item.ep_id));
+  if (leftovers.length > 0) {
+    for (let i = 0; i < leftovers.length; i += UNIT_SIZE) {
+      const slice = leftovers.slice(i, i + UNIT_SIZE);
+      units.push({
+        id: `u_extra_${Math.floor(i / UNIT_SIZE) + 1}`,
+        index: units.length + 1,
+        title: fallbackUnitTitle(subject, units.length + 1),
+        titleEn: fallbackUnitTitleEn(subject, units.length + 1),
+        lessonIds: slice.map((item) => item.ep_id),
+        lessonTitles: slice.map((item) => item.title),
+      });
+    }
+  }
+
+  return units;
 }
 
 /** 兜底单元标题（中文）。 */

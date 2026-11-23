@@ -86,7 +86,7 @@ export default function MermaidChart({
           <AlertTriangle size={11} strokeWidth={2} />
           图表无法渲染，已退回源码
         </div>
-        <pre className="overflow-x-auto bg-[#1f2937] p-3 text-[12px] leading-relaxed text-[#e5e7eb]">
+        <pre className="overflow-x-auto bg-[#1f2937] p-3 text-[12px] leading-relaxed text-[#e5e2da]">
           <code className="font-mono">{chart}</code>
         </pre>
       </div>
@@ -112,7 +112,7 @@ export default function MermaidChart({
             onClick={() => setExpanded(true)}
             title="全屏放大"
             aria-label="全屏放大图表"
-            className="absolute right-2 top-2 z-10 inline-flex h-6 w-6 items-center justify-center rounded-md border border-[var(--border)] bg-[var(--card)]/90 text-[var(--muted-foreground)] opacity-0 shadow-sm backdrop-blur transition-opacity hover:text-[var(--foreground)] focus-visible:opacity-100 group-hover:opacity-100"
+            className="absolute right-2 top-2 z-10 inline-flex h-6 w-6 items-center justify-center rounded-md border border-[var(--border)] bg-[var(--card)] text-[var(--muted-foreground)] opacity-0 shadow-sm transition-opacity hover:text-[var(--foreground)] focus-visible:opacity-100 group-hover:opacity-100"
           >
             <Maximize2 size={11} strokeWidth={1.9} />
           </button>

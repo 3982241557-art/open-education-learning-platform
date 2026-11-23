@@ -80,7 +80,7 @@ function styleOf(playful: boolean): LabStyle {
   if (playful) {
     return {
       radius: "rounded-2xl",
-      accent: "#2563eb",
+      accent: "#5f7a91",
       button:
         "rounded-full px-3.5 py-1.5 text-[12px] font-medium transition-transform active:scale-95",
       titleSize: "text-[14px] font-bold",
@@ -88,7 +88,7 @@ function styleOf(playful: boolean): LabStyle {
   }
   return {
     radius: "rounded-xl",
-    accent: "#1d4ed8",
+    accent: "#4e677d",
     button:
       "rounded-lg px-3.5 py-1.5 text-[12px] font-medium transition-colors",
     titleSize: "text-[13px] font-semibold",
@@ -116,7 +116,7 @@ export default function K12InteractiveLab({
       <header
         className={cn(
           "flex items-center gap-2.5 border-b border-[var(--border)] px-4 py-3",
-          playful ? "bg-[#FFFEFA]" : "bg-white",
+          playful ? "bg-[#FFFFFF]" : "bg-white",
         )}
       >
         <span
@@ -209,7 +209,7 @@ function renderLab(
 
     default:
       return (
-        <p className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-6 text-center text-[13px] text-slate-700">
+        <p className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-6 text-center text-[13px] text-text-[#2c333b]">
           本讲的互动实验室正在按教材单元校准。回到视频完成精讲，课后测验会覆盖本讲要点。
         </p>
       );
@@ -406,9 +406,9 @@ function HanziLab({
           height: 160,
           padding: 8,
           strokeColor: "#1e3a8a",
-          radicalColor: "#dc2626",
-          outlineColor: "#cbd5e1",
-          drawingColor: "#1d4ed8",
+          radicalColor: "#8a6e63",
+          outlineColor: "#d5d1c8",
+          drawingColor: "#4e677d",
           showOutline: true,
           strokeAnimationSpeed: 0.9,
           delayBetweenStrokes: 260,
@@ -889,7 +889,7 @@ function FractionLab({
       <div className="flex flex-wrap items-center gap-5">
         {/* 披萨。 */}
         <svg viewBox="0 0 120 120" className="h-[150px] w-[150px] shrink-0">
-          <circle cx="60" cy="60" r="54" fill="#fef3c7" stroke="#d97706" strokeWidth="2" />
+          <circle cx="60" cy="60" r="54" fill="#fef3c7" stroke="#a48a5e" strokeWidth="2" />
           {Array.from({ length: slices }).map((_, index) => {
             const angle = (index / slices) * Math.PI * 2 - Math.PI / 2;
             const x = 60 + 54 * Math.cos(angle);
@@ -906,8 +906,8 @@ function FractionLab({
                 ).toFixed(2)} ${(
                   60 + 54 * Math.sin(angle + (Math.PI * 2) / slices)
                 ).toFixed(2)} Z`}
-                fill={filled ? "#f59e0b" : "transparent"}
-                stroke="#d97706"
+                fill={filled ? "#a48a5e" : "transparent"}
+                stroke="#a48a5e"
                 strokeWidth="1.2"
               />
             );
@@ -996,14 +996,14 @@ function SymmetryLab({
             y1={8}
             x2={size / 2}
             y2={size - 8}
-            stroke="#1d4ed8"
+            stroke="#4e677d"
             strokeWidth="1.4"
             strokeDasharray="5 4"
           />
           {/* 原始图形。 */}
           <polygon
             points={`${offset - 18},${size - 30} ${offset},${30} ${offset + 18},${size - 30}`}
-            fill="#1d4ed8"
+            fill="#4e677d"
             fillOpacity="0.85"
           />
           {/* 镜像。 */}
@@ -1092,8 +1092,8 @@ function FunctionLab({
         <svg viewBox={`0 0 ${size} ${size}`} className="h-[210px] w-[210px] shrink-0">
           <rect width={size} height={size} fill="#f8fafc" />
           {/* 坐标轴。 */}
-          <line x1={0} y1={size / 2} x2={size} y2={size / 2} stroke="#94a3b8" strokeWidth="1" />
-          <line x1={size / 2} y1={0} x2={size / 2} y2={size} stroke="#94a3b8" strokeWidth="1" />
+          <line x1={0} y1={size / 2} x2={size} y2={size / 2} stroke="#a2abb4" strokeWidth="1" />
+          <line x1={size / 2} y1={0} x2={size / 2} y2={size} stroke="#a2abb4" strokeWidth="1" />
           {/* 网格。 */}
           {Array.from({ length: 9 }).map((_, index) => (
             <g key={index} stroke="#e2e8f0" strokeWidth="0.6">
@@ -1207,7 +1207,7 @@ function GeometryLab({
           <motion.polygon
             animate={{ points: points.map((p) => `${p.x},${p.y}`).join(" ") }}
             transition={{ type: "spring", stiffness: 240, damping: 24 }}
-            fill="#1d4ed8"
+            fill="#4e677d"
             fillOpacity="0.16"
             stroke={style.accent}
             strokeWidth="2"
@@ -1232,13 +1232,13 @@ function GeometryLab({
               points[0].y - 18 * Math.sin((angle * Math.PI) / 180)
             ).toFixed(2)}`}
             fill="none"
-            stroke="#dc2626"
+            stroke="#8a6e63"
             strokeWidth="1.6"
           />
           <text
             x={points[0].x + 24}
             y={points[0].y - 8}
-            fill="#dc2626"
+            fill="#8a6e63"
             fontSize="11"
             fontWeight="600"
           >

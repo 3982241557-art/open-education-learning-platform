@@ -85,15 +85,15 @@ export default function GradeSelector({
         aria-expanded={open}
         aria-haspopup="listbox"
         className={cn(
-          "inline-flex items-center gap-2 rounded-full border border-[#CBD5E1] bg-white",
-          "text-[var(--foreground)] transition-colors hover:border-[#1D4ED8]",
+          "inline-flex items-center gap-2 rounded-full border border-[#D5D1C8] bg-white",
+          "text-[var(--foreground)] transition-colors hover:border-[#4E677D]",
           compact ? "h-8 px-3 text-[12px]" : "h-10 px-4 text-[13px]",
         )}
       >
         <GraduationCap
           size={compact ? 13 : 14}
           strokeWidth={2}
-          className="shrink-0 text-[#0B162C]"
+          className="shrink-0 text-[#1E242B]"
         />
         <span className="font-medium">{label}</span>
         <ChevronDown
@@ -111,12 +111,12 @@ export default function GradeSelector({
           role="listbox"
           className={cn(
             "absolute top-[calc(100%+6px)] z-50 w-[248px] overflow-hidden",
-            "rounded-xl border border-[#CBD5E1] bg-white",
+            "rounded-xl border border-[#D5D1C8] bg-white",
             "shadow-[0_20px_50px_-15px_rgba(11,22,44,0.18)]",
             align === "right" ? "right-0" : "left-0",
           )}
         >
-          <div className="border-b border-[#E5E7EB] px-3.5 py-2.5">
+          <div className="border-b border-[#E5E2DA] px-3.5 py-2.5">
             <p className="text-[10.5px] font-medium tracking-[0.14em] text-[var(--muted-foreground)] uppercase">
               当前年级
             </p>
@@ -138,14 +138,14 @@ export default function GradeSelector({
                   className={cn(
                     "flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left transition-colors",
                     active
-                      ? "bg-[#0B162C] text-white"
-                      : "text-[var(--foreground)] hover:bg-[#F8F7F4]",
+                      ? "bg-[#1E242B] text-white"
+                      : "text-[var(--foreground)] hover:bg-[#F6F4EF]",
                   )}
                 >
                   <span
                     className={cn(
                       "w-6 shrink-0 text-[12px] font-semibold tabular-nums",
-                      active ? "text-[#D8C49A]" : "text-[var(--muted-foreground)]",
+                      active ? "text-[#C0A678]" : "text-[var(--muted-foreground)]",
                     )}
                   >
                     {item.number}

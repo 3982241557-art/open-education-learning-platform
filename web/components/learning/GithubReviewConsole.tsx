@@ -238,7 +238,7 @@ function InspectDrawer({
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex justify-end bg-black/45 backdrop-blur-[2px]"
+      className="fixed inset-0 z-[60] flex justify-end bg-[rgba(30,36,43,0.45)]"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
@@ -614,7 +614,7 @@ export function GithubReviewConsole({
                           className="shrink-0 opacity-50"
                         />
                       </a>
-                      <span className="shrink-0 text-[11px] tracking-tight text-amber-500">
+                      <span className="shrink-0 text-[11px] tracking-tight text-[#a48a5e]">
                         {"★".repeat(plain?.stars ?? 0)}
                         <span className="text-[var(--muted-foreground)]/40">
                           {"★".repeat(5 - (plain?.stars ?? 0))}

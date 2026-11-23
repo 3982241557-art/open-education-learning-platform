@@ -59,7 +59,7 @@ import { cn } from "@/lib/cn";
  *
  * ⛔ **视觉铁律**
  *    所有承载文字的容器一律 **100% 不透明实心**
- *    （``#FFFFFF`` / ``#FFFEFA``），绝不使用半透明玻璃底。
+ *    （``#FFFFFF`` / ``#FFFFFF``），绝不使用半透明玻璃底。
  */
 
 /* ──────────────────────────────────────────────────────────────────
@@ -140,17 +140,17 @@ function Panel({
   right?: React.ReactNode;
 }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-[#E5E7EB] bg-[#FFFFFF]">
-      <div className="flex items-start justify-between gap-4 border-b border-[#E5E7EB] bg-[#FFFEFA] px-4 py-3">
+    <div className="overflow-hidden rounded-2xl border border-[#E5E2DA] bg-[#FFFFFF]">
+      <div className="flex items-start justify-between gap-4 border-b border-[#E5E2DA] bg-[#FFFFFF] px-4 py-3">
         <div className="min-w-0">
           <h4
-            className="truncate text-[13px] font-semibold tracking-[-0.01em] text-[#0F172A]"
+            className="truncate text-[13px] font-semibold tracking-[-0.01em] text-[#1E242B]"
             style={{ fontFamily: "var(--font-sans)" }}
           >
             {title}
           </h4>
           {hint ? (
-            <p className="mt-0.5 text-[11px] leading-relaxed text-[#1E293B]">
+            <p className="mt-0.5 text-[11px] leading-relaxed text-[#2C333B]">
               {hint}
             </p>
           ) : null}
@@ -166,15 +166,15 @@ function Panel({
 function Readout({
   label,
   value,
-  accent = "#1D4ED8",
+  accent = "#4E677D",
 }: {
   label: string;
   value: string;
   accent?: string;
 }) {
   return (
-    <div className="rounded-xl border border-[#E5E7EB] bg-[#FFFFFF] px-3 py-2">
-      <div className="text-[10px] font-medium uppercase tracking-[0.12em] text-[#64748B]">
+    <div className="rounded-xl border border-[#E5E2DA] bg-[#FFFFFF] px-3 py-2">
+      <div className="text-[10px] font-medium uppercase tracking-[0.12em] text-[#5C646D]">
         {label}
       </div>
       <div
@@ -208,8 +208,8 @@ function LabSlider({
   return (
     <label className="block">
       <div className="flex items-baseline justify-between">
-        <span className="text-[12px] font-medium text-[#1E293B]">{label}</span>
-        <span className="text-[12px] font-semibold tabular-nums text-[#1D4ED8]">
+        <span className="text-[12px] font-medium text-[#2C333B]">{label}</span>
+        <span className="text-[12px] font-semibold tabular-nums text-[#4E677D]">
           {value}
           {suffix ?? ""}
         </span>
@@ -221,7 +221,7 @@ function LabSlider({
         step={step}
         value={value}
         onChange={(event) => onChange(Number(event.target.value))}
-        className="mt-1.5 w-full accent-[#1D4ED8]"
+        className="mt-1.5 w-full accent-[#4E677D]"
       />
     </label>
   );
@@ -246,12 +246,12 @@ function LabButton({
       className={cn(
         "rounded-lg px-3 py-1.5 text-[12px] font-medium transition-colors",
         active
-          ? "bg-[#0B162C] text-white"
+          ? "bg-[#1E242B] text-white"
           : tone === "gold"
-            ? "border border-[#B89B5E] bg-[#FFFFFF] text-[#8A6D3B]"
-            : "border border-[#E5E7EB] bg-[#FFFFFF] text-[#1E293B] hover:bg-[#F8F7F4]",
+            ? "border border-[#A48A5E] bg-[#FFFFFF] text-[#6E5A38]"
+            : "border border-[#E5E2DA] bg-[#FFFFFF] text-[#2C333B] hover:bg-[#F6F4EF]",
       )}
-      style={active ? { background: "#0B162C" } : undefined}
+      style={active ? { background: "#1E242B" } : undefined}
     >
       {children}
     </button>
@@ -350,7 +350,7 @@ function ProtractorLab({
                 1,
               );
             }}
-            className="rounded-lg bg-[#0B162C] px-3 py-1.5 text-[12px] font-medium text-white"
+            className="rounded-lg bg-[#1E242B] px-3 py-1.5 text-[12px] font-medium text-white"
           >
             {verified ? "已验证 ✓" : "验证读数"}
           </button>
@@ -370,8 +370,8 @@ function ProtractorLab({
           <g transform={`translate(${vertex.x} ${vertex.y}) rotate(${protractorRotation})`}>
             <path
               d="M -130 0 A 130 130 0 0 1 130 0 Z"
-              fill="#F8F7F4"
-              stroke="#B89B5E"
+              fill="#F6F4EF"
+              stroke="#A48A5E"
               strokeWidth="1.5"
             />
             {/* 刻度 */}
@@ -387,7 +387,7 @@ function ProtractorLab({
                   y1={-r1 * Math.sin(rad)}
                   x2={130 * Math.cos(rad)}
                   y2={-130 * Math.sin(rad)}
-                  stroke={long ? "#0B162C" : "#94A3B8"}
+                  stroke={long ? "#1E242B" : "#A8A398"}
                   strokeWidth={long ? 1.2 : 0.7}
                 />
               );
@@ -401,7 +401,7 @@ function ProtractorLab({
                   x={95 * Math.cos(rad)}
                   y={-95 * Math.sin(rad)}
                   fontSize="9"
-                  fill="#0B162C"
+                  fill="#1E242B"
                   textAnchor="middle"
                   dominantBaseline="middle"
                 >
@@ -417,7 +417,7 @@ function ProtractorLab({
             y1={vertex.y}
             x2={pointA.x}
             y2={pointA.y}
-            stroke="#1D4ED8"
+            stroke="#4E677D"
             strokeWidth="3"
             strokeLinecap="round"
           />
@@ -426,13 +426,13 @@ function ProtractorLab({
             y1={vertex.y}
             x2={pointB.x}
             y2={pointB.y}
-            stroke="#B89B5E"
+            stroke="#A48A5E"
             strokeWidth="3"
             strokeLinecap="round"
           />
 
           {/* 顶点 */}
-          <circle cx={vertex.x} cy={vertex.y} r="5" fill="#0B162C" />
+          <circle cx={vertex.x} cy={vertex.y} r="5" fill="#1E242B" />
 
           {/* 拖拽手柄 */}
           <circle
@@ -440,7 +440,7 @@ function ProtractorLab({
             cy={pointA.y}
             r="11"
             fill="#FFFFFF"
-            stroke="#1D4ED8"
+            stroke="#4E677D"
             strokeWidth="3"
             style={{ cursor: "grab" }}
             onPointerDown={(event) => {
@@ -455,7 +455,7 @@ function ProtractorLab({
             cy={pointB.y}
             r="11"
             fill="#FFFFFF"
-            stroke="#B89B5E"
+            stroke="#A48A5E"
             strokeWidth="3"
             style={{ cursor: "grab" }}
             onPointerDown={(event) => {
@@ -472,7 +472,7 @@ function ProtractorLab({
             y={vertex.y - 30}
             fontSize="24"
             fontWeight="700"
-            fill="#0B162C"
+            fill="#1E242B"
           >
             {measure}°
           </text>
@@ -559,7 +559,7 @@ function TriangleLab({
       cy={point.y}
       r="10"
       fill="#FFFFFF"
-      stroke="#1D4ED8"
+      stroke="#4E677D"
       strokeWidth="3"
       style={{ cursor: "grab" }}
       onPointerDown={(event) => {
@@ -577,9 +577,9 @@ function TriangleLab({
         <rect width="420" height="260" fill="#FFFFFF" />
         <polygon
           points={points.map((p) => `${p.x},${p.y}`).join(" ")}
-          fill="#1D4ED8"
+          fill="#4E677D"
           fillOpacity="0.08"
-          stroke="#0B162C"
+          stroke="#1E242B"
           strokeWidth="2.5"
           strokeLinejoin="round"
         />
@@ -592,19 +592,19 @@ function TriangleLab({
         <Readout
           label="面积"
           value={`${area.toFixed(1)}`}
-          accent="#B89B5E"
+          accent="#A48A5E"
         />
       </div>
-      <p className="text-[11px] leading-relaxed text-[#1E293B]">
+      <p className="text-[11px] leading-relaxed text-[#2C333B]">
         三内角之和恒为{" "}
-        <strong className="font-semibold text-[#0F172A]">
+        <strong className="font-semibold text-[#1E242B]">
           {angles[0] + angles[1] + angles[2]}°
         </strong>
         ，但面积随顶点位置实时变化——这就是「三角形面积 = ½ × 底 × 高」的几何直观。
         <button
           type="button"
           onClick={() => onProgress?.("已完成动态三角形内角与面积验证", 1, 1)}
-          className="ml-2 rounded-md border border-[#B89B5E] px-2 py-0.5 text-[11px] font-medium text-[#8A6D3B]"
+          className="ml-2 rounded-md border border-[#A48A5E] px-2 py-0.5 text-[11px] font-medium text-[#6E5A38]"
         >
           完成探索
         </button>
@@ -721,7 +721,7 @@ function FunctionLab({
                 y1={0}
                 x2={sx}
                 y2={H}
-                stroke="#E5E7EB"
+                stroke="#E5E2DA"
                 strokeWidth="1"
               />
             );
@@ -736,21 +736,21 @@ function FunctionLab({
                 y1={sy}
                 x2={W}
                 y2={sy}
-                stroke="#E5E7EB"
+                stroke="#E5E2DA"
                 strokeWidth="1"
               />
             );
           })}
 
           {/* 坐标轴 */}
-          <line x1={0} y1={OY} x2={W} y2={OY} stroke="#0B162C" strokeWidth="1.6" />
-          <line x1={OX} y1={0} x2={OX} y2={H} stroke="#0B162C" strokeWidth="1.6" />
+          <line x1={0} y1={OY} x2={W} y2={OY} stroke="#1E242B" strokeWidth="1.6" />
+          <line x1={OX} y1={0} x2={OX} y2={H} stroke="#1E242B" strokeWidth="1.6" />
 
           {/* 曲线 */}
           <polyline
             points={path}
             fill="none"
-            stroke="#1D4ED8"
+            stroke="#4E677D"
             strokeWidth="2.6"
             strokeLinejoin="round"
             strokeLinecap="round"
@@ -762,7 +762,7 @@ function FunctionLab({
             cy={toSvg(point.x, point.y).sy}
             r="9"
             fill="#FFFFFF"
-            stroke="#1D4ED8"
+            stroke="#4E677D"
             strokeWidth="3"
             style={{ cursor: "grab" }}
             onPointerDown={(event) => {
@@ -784,7 +784,7 @@ function FunctionLab({
       </Panel>
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <div className="space-y-2.5 rounded-xl border border-[#E5E7EB] bg-[#FFFFFF] p-3">
+        <div className="space-y-2.5 rounded-xl border border-[#E5E2DA] bg-[#FFFFFF] p-3">
           <LabSlider
             label="系数 a（斜率 / 开口）"
             value={slope}
@@ -810,14 +810,14 @@ function FunctionLab({
                 1,
               )
             }
-            className="w-full rounded-lg bg-[#0B162C] px-3 py-1.5 text-[12px] font-medium text-white"
+            className="w-full rounded-lg bg-[#1E242B] px-3 py-1.5 text-[12px] font-medium text-white"
           >
             完成探索
           </button>
         </div>
 
         <Readout label="当前类型" value={type === "linear" ? "一次函数" : type === "quadratic" ? "二次函数" : "反比例函数"} />
-        <Readout label="控制点" value={`(${point.x}, ${point.y})`} accent="#B89B5E" />
+        <Readout label="控制点" value={`(${point.x}, ${point.y})`} accent="#A48A5E" />
       </div>
     </div>
   );
@@ -827,7 +827,7 @@ function FunctionLab({
  * 3 · 互动统计图表台（recharts）
  * ────────────────────────────────────────────────────────────────── */
 
-const PALETTE = ["#1D4ED8", "#B89B5E", "#0B162C", "#64748B", "#A16207"];
+const PALETTE = ["#4E677D", "#A48A5E", "#1E242B", "#5C646D", "#A48A5E"];
 
 /** 互动统计图表台。 */
 function ChartLab({
@@ -940,57 +940,57 @@ function ChartLab({
                   ))}
                 </Pie>
                 <Legend
-                  wrapperStyle={{ fontSize: 12, color: "#1E293B" }}
+                  wrapperStyle={{ fontSize: 12, color: "#2C333B" }}
                 />
                 <Tooltip
                   contentStyle={{
                     background: "#FFFFFF",
-                    border: "1px solid #E5E7EB",
+                    border: "1px solid #E5E2DA",
                     borderRadius: 8,
-                    color: "#0F172A",
+                    color: "#1E242B",
                     fontSize: 12,
                   }}
                 />
               </PieChart>
             ) : chartType === "line" ? (
               <LineChart data={data}>
-                <CartesianGrid stroke="#E5E7EB" />
+                <CartesianGrid stroke="#E5E2DA" />
                 <XAxis
                   dataKey="label"
-                  tick={{ fontSize: 11, fill: "#1E293B" }}
+                  tick={{ fontSize: 11, fill: "#2C333B" }}
                 />
-                <YAxis tick={{ fontSize: 11, fill: "#1E293B" }} />
+                <YAxis tick={{ fontSize: 11, fill: "#2C333B" }} />
                 <Tooltip
                   contentStyle={{
                     background: "#FFFFFF",
-                    border: "1px solid #E5E7EB",
+                    border: "1px solid #E5E2DA",
                     borderRadius: 8,
-                    color: "#0F172A",
+                    color: "#1E242B",
                     fontSize: 12,
                   }}
                 />
                 <Line
                   type="monotone"
                   dataKey="value"
-                  stroke="#1D4ED8"
+                  stroke="#4E677D"
                   strokeWidth={2.5}
-                  dot={{ r: 4, fill: "#1D4ED8" }}
+                  dot={{ r: 4, fill: "#4E677D" }}
                 />
               </LineChart>
             ) : (
               <BarChart data={data}>
-                <CartesianGrid stroke="#E5E7EB" vertical={false} />
+                <CartesianGrid stroke="#E5E2DA" vertical={false} />
                 <XAxis
                   dataKey="label"
-                  tick={{ fontSize: 11, fill: "#1E293B" }}
+                  tick={{ fontSize: 11, fill: "#2C333B" }}
                 />
-                <YAxis tick={{ fontSize: 11, fill: "#1E293B" }} />
+                <YAxis tick={{ fontSize: 11, fill: "#2C333B" }} />
                 <Tooltip
                   contentStyle={{
                     background: "#FFFFFF",
-                    border: "1px solid #E5E7EB",
+                    border: "1px solid #E5E2DA",
                     borderRadius: 8,
-                    color: "#0F172A",
+                    color: "#1E242B",
                     fontSize: 12,
                   }}
                 />
@@ -1011,7 +1011,7 @@ function ChartLab({
       <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
         <Readout label="总数" value={`${stats.total}`} />
         <Readout label="平均数" value={stats.mean.toFixed(2)} />
-        <Readout label="中位数" value={`${stats.median}`} accent="#B89B5E" />
+        <Readout label="中位数" value={`${stats.median}`} accent="#A48A5E" />
         <Readout label="众数" value={`${stats.mode}`} />
       </div>
 
@@ -1029,9 +1029,9 @@ function ChartLab({
           {data.map((row, index) => (
             <div
               key={`${row.label}-${index}`}
-              className="flex items-center gap-3 rounded-lg border border-[#E5E7EB] bg-[#FFFFFF] px-3 py-2"
+              className="flex items-center gap-3 rounded-lg border border-[#E5E2DA] bg-[#FFFFFF] px-3 py-2"
             >
-              <span className="w-16 shrink-0 text-[12px] text-[#1E293B]">
+              <span className="w-16 shrink-0 text-[12px] text-[#2C333B]">
                 {row.label}
               </span>
               <span
@@ -1041,7 +1041,7 @@ function ChartLab({
                   background: PALETTE[index % PALETTE.length],
                 }}
               />
-              <span className="w-8 shrink-0 text-right text-[13px] font-semibold tabular-nums text-[#0F172A]">
+              <span className="w-8 shrink-0 text-right text-[13px] font-semibold tabular-nums text-[#1E242B]">
                 {row.value}
               </span>
               <div className="ml-auto flex gap-1">
@@ -1060,7 +1060,7 @@ function ChartLab({
               1,
             )
           }
-          className="mt-3 w-full rounded-lg bg-[#0B162C] px-3 py-1.5 text-[12px] font-medium text-white"
+          className="mt-3 w-full rounded-lg bg-[#1E242B] px-3 py-1.5 text-[12px] font-medium text-white"
         >
           完成探索
         </button>
@@ -1095,21 +1095,21 @@ function DecimalBlocksLab({
         hint="用十格长条和一个个位方块拼出目标数——这是「凑十法」的实体模型。"
         right={
           <div className="flex items-center gap-2">
-            <span className="text-[12px] text-[#1E293B]">目标</span>
+            <span className="text-[12px] text-[#2C333B]">目标</span>
             <input
               type="number"
               value={target}
               min={1}
               max={99}
               onChange={(event) => setTarget(Number(event.target.value) || 1)}
-              className="w-16 rounded-lg border border-[#E5E7EB] bg-[#FFFFFF] px-2 py-1 text-[13px] font-semibold tabular-nums text-[#0F172A]"
+              className="w-16 rounded-lg border border-[#E5E2DA] bg-[#FFFFFF] px-2 py-1 text-[13px] font-semibold tabular-nums text-[#1E242B]"
             />
           </div>
         }
       >
         <div className="space-y-3">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="w-14 text-[12px] font-medium text-[#1E293B]">十格长条</span>
+            <span className="w-14 text-[12px] font-medium text-[#2C333B]">十格长条</span>
             {Array.from({ length: 9 }, (_, i) => (
               <button
                 key={i}
@@ -1118,8 +1118,8 @@ function DecimalBlocksLab({
                 className={cn(
                   "rounded-md border px-2 py-1 text-[11px] font-medium",
                   tens === i + 1
-                    ? "border-[#0B162C] bg-[#0B162C] text-white"
-                    : "border-[#E5E7EB] bg-[#FFFFFF] text-[#1E293B]",
+                    ? "border-[#1E242B] bg-[#1E242B] text-white"
+                    : "border-[#E5E2DA] bg-[#FFFFFF] text-[#2C333B]",
                 )}
               >
                 {i + 1} 条
@@ -1128,7 +1128,7 @@ function DecimalBlocksLab({
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <span className="w-14 text-[12px] font-medium text-[#1E293B]">个位方块</span>
+            <span className="w-14 text-[12px] font-medium text-[#2C333B]">个位方块</span>
             {Array.from({ length: 10 }, (_, i) => (
               <button
                 key={i}
@@ -1137,8 +1137,8 @@ function DecimalBlocksLab({
                 className={cn(
                   "h-7 w-7 rounded-md border text-[11px] font-medium",
                   ones === i + 1
-                    ? "border-[#B89B5E] bg-[#B89B5E] text-white"
-                    : "border-[#E5E7EB] bg-[#FFFFFF] text-[#1E293B]",
+                    ? "border-[#A48A5E] bg-[#A48A5E] text-white"
+                    : "border-[#E5E2DA] bg-[#FFFFFF] text-[#2C333B]",
                 )}
               >
                 {i + 1}
@@ -1147,18 +1147,18 @@ function DecimalBlocksLab({
           </div>
 
           {/* 积木可视化 */}
-          <div className="rounded-xl border border-[#E5E7EB] bg-[#FFFEFA] p-4">
+          <div className="rounded-xl border border-[#E5E2DA] bg-[#FFFFFF] p-4">
             <div className="flex flex-wrap gap-2">
               {Array.from({ length: tens }, (_, i) => (
                 <div
                   key={`t${i}`}
-                  className="grid grid-cols-5 gap-0.5 rounded-md border border-[#0B162C] p-0.5"
+                  className="grid grid-cols-5 gap-0.5 rounded-md border border-[#1E242B] p-0.5"
                 >
                   {Array.from({ length: 10 }, (_, j) => (
                     <span
                       key={j}
                       className="h-3.5 w-3.5 rounded-[2px]"
-                      style={{ background: "#1D4ED8" }}
+                      style={{ background: "#4E677D" }}
                     />
                   ))}
                 </div>
@@ -1166,8 +1166,8 @@ function DecimalBlocksLab({
               {Array.from({ length: ones }, (_, i) => (
                 <span
                   key={`o${i}`}
-                  className="h-6 w-6 rounded-[3px] border border-[#B89B5E]"
-                  style={{ background: "#E8D9B8" }}
+                  className="h-6 w-6 rounded-[3px] border border-[#A48A5E]"
+                  style={{ background: "#DDD0B4" }}
                 />
               ))}
             </div>
@@ -1177,11 +1177,11 @@ function DecimalBlocksLab({
 
       <div className="grid grid-cols-3 gap-2.5">
         <Readout label="十位部分" value={`${tens} × 10`} />
-        <Readout label="个位部分" value={`${ones}`} accent="#B89B5E" />
+        <Readout label="个位部分" value={`${ones}`} accent="#A48A5E" />
         <Readout
           label="当前合计"
           value={`${sum} / ${target}`}
-          accent={done ? "#15803D" : "#1D4ED8"}
+          accent={done ? "#4E677D" : "#4E677D"}
         />
       </div>
 
@@ -1194,8 +1194,8 @@ function DecimalBlocksLab({
         className={cn(
           "w-full rounded-lg px-3 py-2 text-[12px] font-medium",
           done
-            ? "bg-[#0B162C] text-white"
-            : "border border-[#E5E7EB] bg-[#F8F7F4] text-[#94A3B8]",
+            ? "bg-[#1E242B] text-white"
+            : "border border-[#E5E2DA] bg-[#F6F4EF] text-[#A8A398]",
         )}
       >
         {done ? "完成探索 ✓" : `还差 ${target - sum}`}
@@ -1234,7 +1234,7 @@ function FractionDiscLab({
         hint="改变等分份数，再点选扇形涂色——分数的分母与分子就这样建立起来。"
         right={
           <div className="flex items-center gap-2">
-            <span className="text-[12px] text-[#1E293B]">等分</span>
+            <span className="text-[12px] text-[#2C333B]">等分</span>
             <input
               type="range"
               min={2}
@@ -1245,9 +1245,9 @@ function FractionDiscLab({
                 setParts(next);
                 setShaded((prev) => Math.min(prev, next));
               }}
-              className="w-24 accent-[#1D4ED8]"
+              className="w-24 accent-[#4E677D]"
             />
-            <span className="text-[13px] font-semibold tabular-nums text-[#1D4ED8]">
+            <span className="text-[13px] font-semibold tabular-nums text-[#4E677D]">
               {parts}
             </span>
           </div>
@@ -1256,13 +1256,13 @@ function FractionDiscLab({
         <div className="flex flex-wrap items-center gap-6">
           <svg viewBox="0 0 300 300" className="w-[260px]" role="img" aria-label="分数圆盘">
             <rect width="300" height="300" fill="#FFFFFF" />
-            <circle cx="150" cy="150" r={radius} fill="#F8F7F4" stroke="#0B162C" strokeWidth="2" />
+            <circle cx="150" cy="150" r={radius} fill="#F6F4EF" stroke="#1E242B" strokeWidth="2" />
             {segments.map((d, index) => (
               <path
                 key={index}
                 d={d}
-                fill={index < shaded ? "#1D4ED8" : "#FFFFFF"}
-                stroke="#0B162C"
+                fill={index < shaded ? "#4E677D" : "#FFFFFF"}
+                stroke="#1E242B"
                 strokeWidth="1.2"
                 style={{ cursor: "pointer" }}
                 onClick={() => setShaded(index + 1)}
@@ -1270,7 +1270,7 @@ function FractionDiscLab({
             ))}
           </svg>
           <div className="space-y-2.5">
-            <Readout label="分数" value={`${shaded}/${parts}`} accent="#B89B5E" />
+            <Readout label="分数" value={`${shaded}/${parts}`} accent="#A48A5E" />
             <Readout
               label="十进制"
               value={(shaded / parts).toFixed(3)}
@@ -1280,7 +1280,7 @@ function FractionDiscLab({
               onClick={() =>
                 onProgress?.(`已完成分数圆盘等分探索（${shaded}/${parts}）`, 1, 1)
               }
-              className="w-full rounded-lg bg-[#0B162C] px-3 py-1.5 text-[12px] font-medium text-white"
+              className="w-full rounded-lg bg-[#1E242B] px-3 py-1.5 text-[12px] font-medium text-white"
             >
               完成探索
             </button>
@@ -1332,25 +1332,25 @@ function NumberLineLab({
             y1={60}
             x2={startX + spacing * (count - 1) + 16}
             y2={60}
-            stroke="#0B162C"
+            stroke="#1E242B"
             strokeWidth="2"
           />
           <polygon
             points={`${startX + spacing * (count - 1) + 16},60 ${startX + spacing * (count - 1) + 30},54 ${startX + spacing * (count - 1) + 30},66`}
-            fill="#0B162C"
+            fill="#1E242B"
           />
           {Array.from({ length: count }, (_, i) => {
             const x = startX + spacing * i;
             const value = valueAt(i);
             return (
               <g key={i}>
-                <line x1={x} y1={54} x2={x} y2={66} stroke="#0B162C" strokeWidth="1.6" />
+                <line x1={x} y1={54} x2={x} y2={66} stroke="#1E242B" strokeWidth="1.6" />
                 <text
                   x={x}
                   y={86}
                   fontSize="11"
                   textAnchor="middle"
-                  fill={value === 0 ? "#B89B5E" : "#1E293B"}
+                  fill={value === 0 ? "#A48A5E" : "#2C333B"}
                   fontWeight={value === 0 ? 700 : 400}
                 >
                   {value}
@@ -1362,7 +1362,7 @@ function NumberLineLab({
             cx={startX + spacing * pos}
             cy={60}
             r="9"
-            fill="#1D4ED8"
+            fill="#4E677D"
             stroke="#FFFFFF"
             strokeWidth="2.5"
           />
@@ -1370,7 +1370,7 @@ function NumberLineLab({
 
         <div className="mt-3 flex items-center justify-center gap-3">
           <LabButton onClick={() => setPos((v) => Math.max(0, v - 1))}>← 左移</LabButton>
-          <Readout label="当前位置" value={`${valueAt(pos)}`} accent="#B89B5E" />
+          <Readout label="当前位置" value={`${valueAt(pos)}`} accent="#A48A5E" />
           <LabButton onClick={() => setPos((v) => Math.min(count - 1, v + 1))}>右移 →</LabButton>
         </div>
       </Panel>
@@ -1380,7 +1380,7 @@ function NumberLineLab({
         onClick={() =>
           onProgress?.(`已完成数轴跳格探索（当前位置 ${valueAt(pos)}）`, 1, 1)
         }
-        className="w-full rounded-lg bg-[#0B162C] px-3 py-1.5 text-[12px] font-medium text-white"
+        className="w-full rounded-lg bg-[#1E242B] px-3 py-1.5 text-[12px] font-medium text-white"
       >
         完成探索
       </button>
@@ -1423,16 +1423,16 @@ function BalanceScaleLab({
           <div className="grid grid-cols-2 gap-4">
             {(
               [
-                ["left", "左边", left, leftSum, "#1D4ED8"],
-                ["right", "右边", right, rightSum, "#B89B5E"],
+                ["left", "左边", left, leftSum, "#4E677D"],
+                ["right", "右边", right, rightSum, "#A48A5E"],
               ] as const
             ).map(([side, label, weights, sum, color]) => (
               <div
                 key={side}
-                className="rounded-xl border border-[#E5E7EB] bg-[#FFFFFF] p-3"
+                className="rounded-xl border border-[#E5E2DA] bg-[#FFFFFF] p-3"
               >
                 <div className="flex items-baseline justify-between">
-                  <span className="text-[12px] font-medium text-[#1E293B]">{label}</span>
+                  <span className="text-[12px] font-medium text-[#2C333B]">{label}</span>
                   <span
                     className="text-[16px] font-semibold tabular-nums"
                     style={{ color }}
@@ -1467,23 +1467,23 @@ function BalanceScaleLab({
             <rect width="400" height="140" fill="#FFFFFF" />
             <polygon
               points="200,20 185,120 215,120"
-              fill="#F8F7F4"
-              stroke="#0B162C"
+              fill="#F6F4EF"
+              stroke="#1E242B"
               strokeWidth="2"
             />
-            <rect x="120" y="116" width="160" height="10" rx="4" fill="#0B162C" />
+            <rect x="120" y="116" width="160" height="10" rx="4" fill="#1E242B" />
             <g
               transform={`rotate(${balanced ? 0 : (leftSum > rightSum ? -6 : 6)} 200 24)`}
             >
-              <rect x="60" y="20" width="280" height="8" rx="4" fill="#B89B5E" />
-              <line x1="70" y1="28" x2="70" y2="52" stroke="#0B162C" strokeWidth="1.6" />
-              <line x1="330" y1="28" x2="330" y2="52" stroke="#0B162C" strokeWidth="1.6" />
-              <path d="M 50 52 L 70 28 L 90 52 Z" fill="#F8F7F4" stroke="#0B162C" strokeWidth="1.6" />
-              <path d="M 310 52 L 330 28 L 350 52 Z" fill="#F8F7F4" stroke="#0B162C" strokeWidth="1.6" />
-              <text x="70" y="70" fontSize="13" textAnchor="middle" fontWeight="700" fill="#1D4ED8">
+              <rect x="60" y="20" width="280" height="8" rx="4" fill="#A48A5E" />
+              <line x1="70" y1="28" x2="70" y2="52" stroke="#1E242B" strokeWidth="1.6" />
+              <line x1="330" y1="28" x2="330" y2="52" stroke="#1E242B" strokeWidth="1.6" />
+              <path d="M 50 52 L 70 28 L 90 52 Z" fill="#F6F4EF" stroke="#1E242B" strokeWidth="1.6" />
+              <path d="M 310 52 L 330 28 L 350 52 Z" fill="#F6F4EF" stroke="#1E242B" strokeWidth="1.6" />
+              <text x="70" y="70" fontSize="13" textAnchor="middle" fontWeight="700" fill="#4E677D">
                 {leftSum}
               </text>
-              <text x="330" y="70" fontSize="13" textAnchor="middle" fontWeight="700" fill="#8A6D3B">
+              <text x="330" y="70" fontSize="13" textAnchor="middle" fontWeight="700" fill="#6E5A38">
                 {rightSum}
               </text>
             </g>
@@ -1493,7 +1493,7 @@ function BalanceScaleLab({
               fontSize="13"
               textAnchor="middle"
               fontWeight="700"
-              fill={balanced ? "#15803D" : "#B91C1C"}
+              fill={balanced ? "#4E677D" : "#8A6E63"}
             >
               {balanced ? "平衡 ✓ 等式成立" : "不平衡 — 两边还不相等"}
             </text>
@@ -1501,7 +1501,7 @@ function BalanceScaleLab({
 
           {/* 砝码选择 */}
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[12px] font-medium text-[#1E293B]">加砝码</span>
+            <span className="text-[12px] font-medium text-[#2C333B]">加砝码</span>
             {[1, 2, 3, 5].map((weight) => (
               <LabButton key={weight} onClick={() => addWeight("left", weight)}>
                 左 +{weight}
@@ -1518,7 +1518,7 @@ function BalanceScaleLab({
             type="text"
             value={equation}
             onChange={(event) => setEquation(event.target.value)}
-            className="w-full rounded-lg border border-[#E5E7EB] bg-[#FFFFFF] px-3 py-2 text-[13px] text-[#0F172A]"
+            className="w-full rounded-lg border border-[#E5E2DA] bg-[#FFFFFF] px-3 py-2 text-[13px] text-[#1E242B]"
             placeholder="写下你从天平读到的方程"
           />
         </div>
@@ -1537,8 +1537,8 @@ function BalanceScaleLab({
         className={cn(
           "w-full rounded-lg px-3 py-2 text-[12px] font-medium",
           balanced
-            ? "bg-[#0B162C] text-white"
-            : "border border-[#E5E7EB] bg-[#F8F7F4] text-[#94A3B8]",
+            ? "bg-[#1E242B] text-white"
+            : "border border-[#E5E2DA] bg-[#F6F4EF] text-[#A8A398]",
         )}
       >
         {balanced ? "完成探索 ✓" : "先让天平平衡"}
@@ -1584,7 +1584,7 @@ export default function MathManipulativeEngine({
 
   if (!body) {
     return (
-      <div className="rounded-2xl border border-[#E5E7EB] bg-[#FFFFFF] px-4 py-6 text-center text-[13px] text-[#1E293B]">
+      <div className="rounded-2xl border border-[#E5E2DA] bg-[#FFFFFF] px-4 py-6 text-center text-[13px] text-[#2C333B]">
         本讲的数学教具正在装配中。
       </div>
     );

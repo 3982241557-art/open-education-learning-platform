@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -104,9 +105,22 @@ function gradeWord(grade: number): string {
   return `小学${["一", "二", "三", "四", "五", "六"][grade - 1] ?? grade}年级`;
 }
 
-/** 组件。 */
-export default function ReportPage() {
+/**
+ * 组件本体。
+ *
+ * ⚠️ 它用了 ``useSearchParams``（学科筛选），所以外层
+ *    ``ReportPage`` 必须包在 ``<Suspense>`` 里——否则静态导出会
+ *    报「missing suspense boundary」。
+ */
+function ReportContent() {
   const { locale } = useLocale();
+  /**
+   * 学科筛选——``/report?subject=math`` 只看数学。
+   *
+   * 课程总台的「生成本学科 Result Report →」就是用它进来的。
+   */
+  const searchParams = useSearchParams();
+  const subjectFilter = searchParams.get("subject");
   const { displayName, profile } = useProfile();
   const [ledger, setLedger] = useState<StarLedger>({ courses: {} });
   const [courses, setCourses] = useState<ReportCourse[]>([]);
@@ -149,6 +163,10 @@ export default function ReportPage() {
     for (const id of courseIds) {
       const entry = index?.series.find((item) => item.id === id);
       if (!entry) continue;
+      // 学科筛选——只看一个学科时，别的学科整条跳过。
+      if (subjectFilter === "math" || subjectFilter === "chinese") {
+        if (entry.subject !== subjectFilter) continue;
+      }
       const detail = await fetchK12Series(id);
       const episodes = detail?.episodes ?? [];
       const units = buildUnits(
@@ -197,7 +215,7 @@ export default function ReportPage() {
 
     setCourses(rows);
     setLoading(false);
-  }, []);
+  }, [subjectFilter]);
 
   useEffect(() => {
     void load();
@@ -357,21 +375,21 @@ export default function ReportPage() {
   }
 
   return (
-    <div className="-mx-4 -my-6 sm:-mx-6">
+    <div className="h-full overflow-y-auto pb-2">
       {/* ── 报告工具条（打印时隐藏） ── */}
       <div className="no-print mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-[22px] font-semibold tracking-[-0.02em] text-[#0B162C]">
+          <h1 className="text-[22px] font-semibold tracking-[-0.02em] text-[#1E242B]">
             {isCn ? "成长与报告" : "Growth & Report"}
           </h1>
-          <p className="mt-1 text-[12.5px] text-[#55606E]">
+          <p className="mt-1 text-[12.5px] text-[#5C646D]">
             {isCn
               ? "梦想课堂 × Open Education · 中英双语结业证书与综合学情评估"
               : "Dream Classroom × Open Education · Bilingual certificate and comprehensive assessment"}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <div className="flex items-center overflow-hidden rounded-lg border border-[#E5E7EB] bg-white">
+          <div className="flex items-center overflow-hidden rounded-lg border border-[#E5E2DA] bg-white">
             {(["cn", "en"] as const).map((lang) => (
               <button
                 key={lang}
@@ -381,8 +399,8 @@ export default function ReportPage() {
                 className={cn(
                   "h-8 px-3 text-[12px] font-medium transition-colors",
                   reportLang === lang
-                    ? "bg-[#0B162C] text-white"
-                    : "text-[#55606E] hover:text-[#0B162C]",
+                    ? "bg-[#1E242B] text-white"
+                    : "text-[#5C646D] hover:text-[#1E242B]",
                 )}
               >
                 {lang === "cn" ? "中文" : "English"}
@@ -392,14 +410,14 @@ export default function ReportPage() {
           <button
             type="button"
             onClick={() => window.print()}
-            className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-[#CBD5E1] bg-white px-3 text-[12px] font-medium text-[#0F172A] transition-colors hover:border-[#1D4ED8]"
+            className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-[#D5D1C8] bg-white px-3 text-[12px] font-medium text-[#1E242B] transition-colors hover:border-[#4E677D]"
           >
             <Printer size={12} strokeWidth={2.2} />
             {isCn ? "导出 / 打印 PDF" : "Export / Print PDF"}
           </button>
           <Link
             href="/courses"
-            className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[#0B162C] px-3 text-[12px] font-medium text-white transition-colors hover:bg-[#122344]"
+            className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[#1E242B] px-3 text-[12px] font-medium text-white transition-colors hover:bg-[#2c333b]"
           >
             <Download size={12} strokeWidth={2.2} />
             {isCn ? "去点亮更多星星" : "Earn More Stars"}
@@ -410,7 +428,7 @@ export default function ReportPage() {
       {/* ══ 报告正文 ══ */}
       <div className="space-y-5">
         {/* ── ① 官方结业证书 ── */}
-        <section className="relative overflow-hidden rounded-2xl border border-[#B89B5E] bg-[#FFFEFA] p-7 oe-card-shadow sm:p-10">
+        <section className="relative overflow-hidden rounded-2xl border border-[#A48A5E] bg-[#FFFFFF] p-7 oe-card-shadow sm:p-10">
           {/* 香槟金边框。 */}
           <span
             aria-hidden
@@ -427,21 +445,21 @@ export default function ReportPage() {
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <p
-                  className="text-[11px] font-medium tracking-[0.24em] text-[#B89B5E] uppercase"
+                  className="text-[11px] font-medium tracking-[0.24em] text-[#A48A5E] uppercase"
                 >
                   {isCn ? "结业证书" : "Certificate of Completion"}
                 </p>
                 <h2
-                  className="mt-2 text-[28px] leading-tight text-[#0B162C] sm:text-[34px]"
+                  className="mt-2 text-[28px] leading-tight text-[#1E242B] sm:text-[34px]"
                   style={{ fontFamily: "var(--font-serif)" }}
                 >
                   {DREAM_CLASSROOM.name} Dream Classroom
-                  <span className="mx-2 text-[#B89B5E]">×</span>
+                  <span className="mx-2 text-[#A48A5E]">×</span>
                   Open Education
                 </h2>
               </div>
               {/* 电子印章。 */}
-              <div className="flex h-20 w-20 shrink-0 flex-col items-center justify-center rounded-full border-2 border-[#B89B5E] bg-white">
+              <div className="flex h-20 w-20 shrink-0 flex-col items-center justify-center rounded-full border-2 border-[#A48A5E] bg-white">
                 <span
                   className="text-[10px] font-semibold tracking-[0.1em] text-[#8A6D3B]"
                 >
@@ -479,11 +497,11 @@ export default function ReportPage() {
                 <p className="text-[10px] font-medium tracking-[0.16em] text-[#8A6D3B] uppercase">
                   {isCn ? "唯一防伪验证编号" : "Unique Verification Code"}
                 </p>
-                <p className="mt-1 font-mono text-[15px] tracking-[0.1em] text-[#0B162C]">
+                <p className="mt-1 font-mono text-[15px] tracking-[0.1em] text-[#1E242B]">
                   {verifyCode}
                 </p>
               </div>
-              <p className="max-w-[280px] text-[11px] leading-relaxed text-[#55606E]">
+              <p className="max-w-[280px] text-[11px] leading-relaxed text-[#5C646D]">
                 {isCn
                   ? "凭此编号可向梦想课堂官方核验本报告的真实性。"
                   : "Use this code to verify the authenticity of this report with Dream Classroom."}
@@ -496,25 +514,25 @@ export default function ReportPage() {
         <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Metric
             icon={<Star size={13} strokeWidth={2.2} />}
-            accent="#B89B5E"
+            accent="#A48A5E"
             value={`${totals.stars} / ${totals.maxStars}`}
             label={isCn ? "总计获得星星" : "Total Stars"}
           />
           <Metric
             icon={<TrendingUp size={13} strokeWidth={2.2} />}
-            accent="#1D4ED8"
+            accent="#4E677D"
             value={`${totals.mastery}%`}
             label={isCn ? "平均掌握度" : "Average Mastery"}
           />
           <Metric
             icon={<Award size={13} strokeWidth={2.2} />}
-            accent="#0B162C"
+            accent="#1E242B"
             value={String(totals.badges)}
             label={isCn ? "已解锁学术徽章" : "Badges Unlocked"}
           />
           <Metric
             icon={<Target size={13} strokeWidth={2.2} />}
-            accent="#B89B5E"
+            accent="#A48A5E"
             value={String(courses.length)}
             label={isCn ? "已参与课程" : "Courses in Progress"}
           />
@@ -522,14 +540,14 @@ export default function ReportPage() {
 
         {/* ── ③ 核心能力维度 ── */}
         {(dimensions.math.length > 0 || dimensions.chinese.length > 0) ? (
-          <section className="rounded-2xl border border-[#E5E7EB] bg-white p-6 oe-card-shadow sm:p-8">
+          <section className="rounded-2xl border border-[#E5E2DA] bg-white p-6 oe-card-shadow sm:p-8">
             <h3
-              className="text-[18px] text-[#0B162C]"
+              className="text-[18px] text-[#1E242B]"
               style={{ fontFamily: "var(--font-serif)" }}
             >
               {isCn ? "核心能力维度" : "Core Competency Dimensions"}
             </h3>
-            <p className="mt-1 text-[12px] text-[#55606E]">
+            <p className="mt-1 text-[12px] text-[#5C646D]">
               {isCn
                 ? "由真实作答与动手记录推导——没有数据的维度显示为 0，不做美化。"
                 : "Derived from real answers and hands-on records — dimensions with no data show 0. Nothing is embellished."}
@@ -539,13 +557,13 @@ export default function ReportPage() {
               <DimensionChart
                 title={isCn ? "数学" : "Mathematics"}
                 items={dimensions.math}
-                accent="#1D4ED8"
+                accent="#4E677D"
                 reportLang={reportLang}
               />
               <DimensionChart
                 title={isCn ? "语文" : "Chinese"}
                 items={dimensions.chinese}
-                accent="#B89B5E"
+                accent="#A48A5E"
                 reportLang={reportLang}
               />
             </div>
@@ -554,9 +572,9 @@ export default function ReportPage() {
 
         {/* ── ④ 逐课明细 ── */}
         {courses.length > 0 ? (
-          <section className="rounded-2xl border border-[#E5E7EB] bg-white p-6 oe-card-shadow sm:p-8">
+          <section className="rounded-2xl border border-[#E5E2DA] bg-white p-6 oe-card-shadow sm:p-8">
             <h3
-              className="text-[18px] text-[#0B162C]"
+              className="text-[18px] text-[#1E242B]"
               style={{ fontFamily: "var(--font-serif)" }}
             >
               {isCn ? "逐课学习明细" : "Lesson-by-Lesson Detail"}
@@ -565,18 +583,18 @@ export default function ReportPage() {
             <div className="mt-5 space-y-6">
               {courses.map((course) => (
                 <div key={course.entry.id}>
-                  <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-[#E5E7EB] pb-2.5">
-                    <h4 className="text-[14px] font-semibold text-[#0F172A]">
+                  <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-[#E5E2DA] pb-2.5">
+                    <h4 className="text-[14px] font-semibold text-[#1E242B]">
                       {course.entry.shortTitle}
                     </h4>
-                    <span className="text-[11.5px] tabular-nums text-[#55606E]">
+                    <span className="text-[11.5px] tabular-nums text-[#5C646D]">
                       {course.stars} / {course.maxStars} ⭐ ·{" "}
                       {course.badges} / {course.maxBadges} 徽章
                     </span>
                   </div>
 
                   {course.lessonRows.length === 0 ? (
-                    <p className="mt-3 text-[12.5px] text-[#55606E]">
+                    <p className="mt-3 text-[12.5px] text-[#5C646D]">
                       {isCn ? "尚未点亮星星。" : "No stars yet."}
                     </p>
                   ) : (
@@ -584,18 +602,18 @@ export default function ReportPage() {
                       {course.lessonRows.map((row, index) => (
                         <li
                           key={index}
-                          className="flex flex-wrap items-center gap-2.5 rounded-lg border border-[#E5E7EB] bg-[#F8F7F4] px-3 py-2"
+                          className="flex flex-wrap items-center gap-2.5 rounded-lg border border-[#E5E2DA] bg-[#F6F4EF] px-3 py-2"
                         >
                           <span className="min-w-0 flex-1 truncate text-[12.5px] text-[#1E293B]">
                             {row.title}
                           </span>
                           {row.tool ? (
-                            <span className="shrink-0 rounded-full border border-[#CBD5E1] bg-white px-2 py-0.5 text-[10px] text-[#55606E]">
+                            <span className="shrink-0 rounded-full border border-[#D5D1C8] bg-white px-2 py-0.5 text-[10px] text-[#5C646D]">
                               {row.tool}
                             </span>
                           ) : null}
                           {row.accuracy > 0 ? (
-                            <span className="shrink-0 text-[10.5px] tabular-nums text-[#55606E]">
+                            <span className="shrink-0 text-[10.5px] tabular-nums text-[#5C646D]">
                               {Math.round(row.accuracy * 100)}%
                             </span>
                           ) : null}
@@ -605,9 +623,9 @@ export default function ReportPage() {
                                 key={i}
                                 size={11}
                                 strokeWidth={2}
-                                fill={i < row.stars ? "#B89B5E" : "none"}
+                                fill={i < row.stars ? "#A48A5E" : "none"}
                                 className={
-                                  i < row.stars ? "text-[#B89B5E]" : "text-[#D3D8E0]"
+                                  i < row.stars ? "text-[#A48A5E]" : "text-[#DDD8CC]"
                                 }
                               />
                             ))}
@@ -624,16 +642,16 @@ export default function ReportPage() {
 
         {/* ── ⑤ 个性化评语 ── */}
         {commentary ? (
-          <section className="rounded-2xl border border-[#B89B5E] bg-[#FFFEFA] p-6 oe-card-shadow sm:p-8">
+          <section className="rounded-2xl border border-[#A48A5E] bg-[#FFFFFF] p-6 oe-card-shadow sm:p-8">
             <h3
-              className="text-[18px] text-[#0B162C]"
+              className="text-[18px] text-[#1E242B]"
               style={{ fontFamily: "var(--font-serif)" }}
             >
               {isCn ? "个性化评语" : "Personal Commentary"}
             </h3>
             <div className="mt-5 grid gap-4 md:grid-cols-2">
-              <div className="rounded-xl border border-[#E5E7EB] bg-white p-4">
-                <p className="flex items-center gap-1.5 text-[10.5px] font-medium tracking-[0.14em] text-[#B89B5E] uppercase">
+              <div className="rounded-xl border border-[#E5E2DA] bg-white p-4">
+                <p className="flex items-center gap-1.5 text-[10.5px] font-medium tracking-[0.14em] text-[#A48A5E] uppercase">
                   <TrendingUp size={11} strokeWidth={2.4} />
                   {isCn ? "优势亮点" : "Strengths"}
                 </p>
@@ -644,16 +662,16 @@ export default function ReportPage() {
                         key={item.key}
                         className="text-[12.5px] leading-[1.8] text-[#1E293B]"
                       >
-                        <span className="font-medium text-[#0F172A]">
+                        <span className="font-medium text-[#1E242B]">
                           {isCn ? item.zh : item.en}
                         </span>
-                        <span className="ml-1.5 tabular-nums text-[#55606E]">
+                        <span className="ml-1.5 tabular-nums text-[#5C646D]">
                           {item.score}
                         </span>
                       </li>
                     ))
                   ) : (
-                    <li className="text-[12.5px] text-[#55606E]">
+                    <li className="text-[12.5px] text-[#5C646D]">
                       {isCn
                         ? "继续点亮更多星星，这里会显示你的优势维度。"
                         : "Light up more stars — your strongest dimensions will appear here."}
@@ -662,8 +680,8 @@ export default function ReportPage() {
                 </ul>
               </div>
 
-              <div className="rounded-xl border border-[#E5E7EB] bg-white p-4">
-                <p className="flex items-center gap-1.5 text-[10.5px] font-medium tracking-[0.14em] text-[#1D4ED8] uppercase">
+              <div className="rounded-xl border border-[#E5E2DA] bg-white p-4">
+                <p className="flex items-center gap-1.5 text-[10.5px] font-medium tracking-[0.14em] text-[#4E677D] uppercase">
                   <Target size={11} strokeWidth={2.4} />
                   {isCn ? "下阶段探究建议" : "Next Exploration"}
                 </p>
@@ -674,16 +692,16 @@ export default function ReportPage() {
                         key={item.key}
                         className="text-[12.5px] leading-[1.8] text-[#1E293B]"
                       >
-                        <span className="font-medium text-[#0F172A]">
+                        <span className="font-medium text-[#1E242B]">
                           {isCn ? item.zh : item.en}
                         </span>
-                        <span className="ml-1.5 tabular-nums text-[#55606E]">
+                        <span className="ml-1.5 tabular-nums text-[#5C646D]">
                           {item.score}
                         </span>
                       </li>
                     ))
                   ) : (
-                    <li className="text-[12.5px] text-[#55606E]">
+                    <li className="text-[12.5px] text-[#5C646D]">
                       {isCn
                         ? "各维度表现均衡——可以尝试更高年级的课程。"
                         : "Balanced across all dimensions — consider a higher grade."}
@@ -697,23 +715,23 @@ export default function ReportPage() {
 
         {/* ── 空状态 ── */}
         {totals.stars === 0 ? (
-          <section className="rounded-2xl border border-dashed border-[#CBD5E1] bg-white px-6 py-14 text-center">
+          <section className="rounded-2xl border border-dashed border-[#D5D1C8] bg-white px-6 py-14 text-center">
             <Globe2
               size={24}
               strokeWidth={1.3}
-              className="mx-auto mb-2.5 text-[#8A93A0]"
+              className="mx-auto mb-2.5 text-[#8A8578]"
             />
-            <p className="text-[13px] font-medium text-[#0F172A]">
+            <p className="text-[13px] font-medium text-[#1E242B]">
               {isCn ? "还没有学习记录" : "No learning record yet"}
             </p>
-            <p className="mx-auto mt-1.5 max-w-sm text-[12px] leading-relaxed text-[#55606E]">
+            <p className="mx-auto mt-1.5 max-w-sm text-[12px] leading-relaxed text-[#5C646D]">
               {isCn
                 ? "去星轨学习地图上完成任意一课——完成教具操作、通过巩固题，这里就会自动生成一份属于你的成长报告。"
                 : "Complete any lesson on the star track map — the report builds itself from your hands-on work and quiz results."}
             </p>
             <Link
               href="/courses"
-              className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-[#0B162C] px-3.5 py-2 text-[12.5px] font-medium text-white transition-colors hover:bg-[#122344]"
+              className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-[#1E242B] px-3.5 py-2 text-[12.5px] font-medium text-white transition-colors hover:bg-[#2c333b]"
             >
               {isCn ? "去星轨学习地图" : "Go to the Star Track Map"}
             </Link>
@@ -731,7 +749,7 @@ function Field({ label, value }: { label: string; value: string }) {
       <p className="text-[10px] font-medium tracking-[0.16em] text-[#8A6D3B] uppercase">
         {label}
       </p>
-      <p className="mt-1 text-[14px] text-[#0B162C]">{value}</p>
+      <p className="mt-1 text-[14px] text-[#1E242B]">{value}</p>
     </div>
   );
 }
@@ -749,12 +767,12 @@ function Metric({
   label: string;
 }) {
   return (
-    <div className="rounded-xl border border-[#E5E7EB] bg-white px-4 py-3.5 oe-card-shadow">
-      <p className="flex items-center gap-1.5 text-[11px] text-[#55606E]">
+    <div className="rounded-xl border border-[#E5E2DA] bg-white px-4 py-3.5 oe-card-shadow">
+      <p className="flex items-center gap-1.5 text-[11px] text-[#5C646D]">
         <span style={{ color: accent }}>{icon}</span>
         {label}
       </p>
-      <p className="mt-1.5 text-[22px] leading-none font-semibold tabular-nums text-[#0B162C]">
+      <p className="mt-1.5 text-[22px] leading-none font-semibold tabular-nums text-[#1E242B]">
         {value}
       </p>
     </div>
@@ -775,8 +793,8 @@ function DimensionChart({
 }) {
   if (items.length === 0) {
     return (
-      <div className="rounded-xl border border-[#E5E7EB] bg-[#F8F7F4] px-4 py-8 text-center">
-        <p className="text-[12.5px] text-[#55606E]">
+      <div className="rounded-xl border border-[#E5E2DA] bg-[#F6F4EF] px-4 py-8 text-center">
+        <p className="text-[12.5px] text-[#5C646D]">
           {reportLang === "cn" ? "暂无该学科数据" : "No data for this subject yet"}
         </p>
       </div>
@@ -786,8 +804,8 @@ function DimensionChart({
   const max = Math.max(...items.map((item) => item.score), 100);
 
   return (
-    <div className="rounded-xl border border-[#E5E7EB] bg-[#F8F7F4] p-5">
-      <p className="text-[13px] font-semibold text-[#0B162C]">{title}</p>
+    <div className="rounded-xl border border-[#E5E2DA] bg-[#F6F4EF] p-5">
+      <p className="text-[13px] font-semibold text-[#1E242B]">{title}</p>
       <ul className="mt-4 space-y-3.5">
         {items.map((item) => (
           <li key={item.key}>
@@ -795,7 +813,7 @@ function DimensionChart({
               <span className="text-[12.5px] text-[#1E293B]">
                 {reportLang === "cn" ? item.zh : item.en}
               </span>
-              <span className="text-[12px] font-semibold tabular-nums text-[#0F172A]">
+              <span className="text-[12px] font-semibold tabular-nums text-[#1E242B]">
                 {item.score}
               </span>
             </div>
@@ -812,5 +830,22 @@ function DimensionChart({
         ))}
       </ul>
     </div>
+  );
+}
+
+/**
+ * 页面入口——包一层 ``<Suspense>``。
+ */
+export default function ReportPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex h-full items-center justify-center bg-[#f6f4ef]">
+          <Loader2 size={18} className="animate-spin text-[#5c646d]" />
+        </div>
+      }
+    >
+      <ReportContent />
+    </Suspense>
   );
 }

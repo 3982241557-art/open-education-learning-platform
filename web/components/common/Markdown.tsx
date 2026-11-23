@@ -109,7 +109,7 @@ function buildComponents(): Record<string, React.ComponentType<any>> {
       );
     }
     return (
-      <pre className="my-3 overflow-x-auto rounded-xl border border-[var(--border)] bg-[#1f2937] p-4 text-[12.5px] leading-relaxed text-[#e5e7eb]">
+      <pre className="my-3 overflow-x-auto rounded-xl border border-[var(--border)] bg-[#1f2937] p-4 text-[12.5px] leading-relaxed text-[#e5e2da]">
         <code className="font-mono" {...props}>
           {raw}
         </code>

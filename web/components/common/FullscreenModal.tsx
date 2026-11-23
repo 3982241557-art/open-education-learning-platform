@@ -81,7 +81,7 @@ export function FullscreenModal({
     >
       {/* 遮罩 */}
       <div
-        className="absolute inset-0 bg-black/55 backdrop-blur-sm"
+        className="absolute inset-0 bg-[rgba(30,36,43,0.55)]"
         onClick={onClose}
         aria-hidden
       />

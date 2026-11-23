@@ -42,7 +42,7 @@ export interface PlayfulStyle {
 /** 小学部的风格。 */
 export const PLAYFUL_STYLE: PlayfulStyle = {
   radius: "rounded-2xl",
-  successColor: "#f59e0b",
+  successColor: "#a48a5e",
   particleCount: 12,
   showMascot: true,
 };
@@ -50,7 +50,7 @@ export const PLAYFUL_STYLE: PlayfulStyle = {
 /** 初高中的风格。 */
 export const ACADEMIC_STYLE: PlayfulStyle = {
   radius: "rounded-lg",
-  successColor: "#1d4ed8",
+  successColor: "#4e677d",
   particleCount: 7,
   showMascot: false,
 };
@@ -91,8 +91,8 @@ export function SuccessBurst({
         size: playful ? 4 + (index % 3) * 2 : 2 + (index % 2),
         // 小学部是彩星（琥珀 / 天蓝 / 玫红），初高中是深蓝银白。
         color: playful
-          ? ["#f59e0b", "#38bdf8", "#fb7185", "#a78bfa"][index % 4]
-          : ["#1d4ed8", "#e2e8f0", "#93c5fd"][index % 3],
+          ? ["#a48a5e", "#8fa8bd", "#b39085", "#9b8fa6"][index % 4]
+          : ["#4e677d", "#e2e8f0", "#93c5fd"][index % 3],
         star: playful && index % 3 === 0,
       };
     });
@@ -110,7 +110,7 @@ export function SuccessBurst({
           key={index}
           className={cn(
             "absolute left-1/2 top-1/2",
-            particle.star ? "text-[#f59e0b]" : "rounded-full",
+            particle.star ? "text-[#a48a5e]" : "rounded-full",
           )}
           style={
             {
@@ -162,7 +162,7 @@ export function StudyBuddy({
       <path
         d="M24 4l5.2 10.6 11.7 1.7-8.5 8.2 2 11.6L24 30.8 13.6 36.1l2-11.6-8.5-8.2 11.7-1.7L24 4z"
         fill="#fef3c7"
-        stroke="#f59e0b"
+        stroke="#a48a5e"
         strokeWidth="1.6"
         strokeLinejoin="round"
       />
@@ -200,11 +200,11 @@ export function StudyBuddy({
         <>
           <path
             d="M9 20l-4-5"
-            stroke="#f59e0b"
+            stroke="#a48a5e"
             strokeWidth="2"
             strokeLinecap="round"
           />
-          <path d="M39 20l4-5" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" />
+          <path d="M39 20l4-5" stroke="#a48a5e" strokeWidth="2" strokeLinecap="round" />
         </>
       ) : null}
     </svg>
@@ -244,7 +244,7 @@ export function NodePath({
                 : "h-1.5 w-5 rounded-sm",
               on
                 ? playful
-                  ? "scale-110 bg-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.55)]"
+                  ? "scale-110 bg-[#c0a678] shadow-[0_0_8px_rgba(245,158,11,0.55)]"
                   : "bg-[var(--primary)]"
                 : playful
                   ? "bg-slate-200"

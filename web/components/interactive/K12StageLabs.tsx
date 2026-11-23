@@ -52,7 +52,7 @@ function PanelTitle({
 }) {
   return (
     <div className="mb-3">
-      <h4 className="text-[14px] font-bold text-[#0B162C]">{children}</h4>
+      <h4 className="text-[14px] font-bold text-[#1E242B]">{children}</h4>
       {hint ? (
         <p className="mt-0.5 text-[12px] leading-relaxed text-slate-600">
           {hint}
@@ -82,7 +82,7 @@ function Slider({
 }) {
   return (
     <label className="flex items-center gap-3">
-      <span className="w-[92px] shrink-0 text-[12px] font-medium text-slate-700">
+      <span className="w-[92px] shrink-0 text-[12px] font-medium text-text-[#2c333b]">
         {label}
       </span>
       <input
@@ -92,9 +92,9 @@ function Slider({
         step={step}
         value={value}
         onChange={(event) => onChange(Number(event.target.value))}
-        className="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-slate-200 accent-[#1D4ED8]"
+        className="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-slate-200 accent-[#4E677D]"
       />
-      <span className="w-[62px] shrink-0 text-right font-mono text-[12px] font-semibold text-[#0B162C]">
+      <span className="w-[62px] shrink-0 text-right font-mono text-[12px] font-semibold text-[#1E242B]">
         {value}
         {suffix ?? ""}
       </span>
@@ -120,8 +120,8 @@ function ToolButton({
       className={cn(
         "rounded-lg border px-3 py-1.5 text-[12px] font-medium transition-colors",
         active
-          ? "border-[#0B162C] bg-[#122344] text-white"
-          : "border-slate-300 bg-white text-slate-700 hover:border-[#1D4ED8] hover:bg-blue-50",
+          ? "border-[#1E242B] bg-[#2c333b] text-white"
+          : "border-bg-[#d5d1c8] bg-white text-text-[#2c333b] hover:border-[#4E677D] hover:bg-bg-[#eff3f6]",
       )}
     >
       {children}
@@ -221,7 +221,7 @@ export function LiteraryLab({ lab }: LiteraryLabProps) {
   if (!classic) {
     return (
       <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-6 text-center">
-        <p className="text-[13px] text-slate-700">
+        <p className="text-[13px] text-text-[#2c333b]">
           本讲未匹配到名篇原文——请回到视频完成精读，课后测验会覆盖本讲要点。
         </p>
       </div>
@@ -233,7 +233,7 @@ export function LiteraryLab({ lab }: LiteraryLabProps) {
       {/* 篇名铭牌。 */}
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 border-b border-slate-200 pb-3">
         <h3
-          className="text-[20px] font-bold text-[#0B162C]"
+          className="text-[20px] font-bold text-[#1E242B]"
           style={{ fontFamily: "var(--font-serif)" }}
         >
           《{classic.title}》
@@ -244,7 +244,7 @@ export function LiteraryLab({ lab }: LiteraryLabProps) {
         <button
           type="button"
           onClick={() => speak(classic.excerpt)}
-          className="ml-auto inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-[12px] font-medium text-slate-700 transition-colors hover:border-[#1D4ED8] hover:bg-blue-50"
+          className="ml-auto inline-flex items-center gap-1.5 rounded-lg border border-bg-[#d5d1c8] bg-white px-2.5 py-1.5 text-[12px] font-medium text-text-[#2c333b] transition-colors hover:border-[#4E677D] hover:bg-bg-[#eff3f6]"
         >
           <Volume2 size={13} />
           {speakState ? "朗读中…" : "朗读选段"}
@@ -252,9 +252,9 @@ export function LiteraryLab({ lab }: LiteraryLabProps) {
       </div>
 
       {/* 选段原文——关键词可点击高亮。 */}
-      <div className="rounded-xl border border-slate-200 bg-[#FFFEFA] px-4 py-4">
+      <div className="rounded-xl border border-slate-200 bg-[#FFFFFF] px-4 py-4">
         <p
-          className="text-[15px] leading-[2.1] text-slate-800"
+          className="text-[15px] leading-[2.1] text-text-[#1e242b]"
           style={{ fontFamily: "var(--font-serif)" }}
         >
           {classic.excerpt}
@@ -277,8 +277,8 @@ export function LiteraryLab({ lab }: LiteraryLabProps) {
                 className={cn(
                   "rounded-lg border px-2.5 py-1.5 text-[13px] font-medium transition-colors",
                   index === activeKeyword
-                    ? "border-[#B89B5E] bg-[#F5EFE2] text-[#0B162C]"
-                    : "border-slate-300 bg-white text-slate-700 hover:border-[#B89B5E] hover:bg-[#FBF7EE]",
+                    ? "border-[#A48A5E] bg-[#F5EFE2] text-[#1E242B]"
+                    : "border-bg-[#d5d1c8] bg-white text-text-[#2c333b] hover:border-[#A48A5E] hover:bg-[#FBF7EE]",
                 )}
                 style={{ fontFamily: "var(--font-serif)" }}
               >
@@ -297,28 +297,28 @@ export function LiteraryLab({ lab }: LiteraryLabProps) {
             >
               <dl className="space-y-2.5 text-[13px]">
                 <div className="flex gap-3">
-                  <dt className="w-[68px] shrink-0 font-semibold text-[#0B162C]">
+                  <dt className="w-[68px] shrink-0 font-semibold text-[#1E242B]">
                     修辞手法
                   </dt>
-                  <dd className="flex-1 text-slate-700">
+                  <dd className="flex-1 text-text-[#2c333b]">
                     <span className="rounded-md bg-[#F5EFE2] px-1.5 py-0.5 text-[12px] font-semibold text-[#7A6236]">
                       {keyword.device}
                     </span>
                   </dd>
                 </div>
                 <div className="flex gap-3">
-                  <dt className="w-[68px] shrink-0 font-semibold text-[#0B162C]">
+                  <dt className="w-[68px] shrink-0 font-semibold text-[#1E242B]">
                     意象解析
                   </dt>
-                  <dd className="flex-1 leading-relaxed text-slate-700">
+                  <dd className="flex-1 leading-relaxed text-text-[#2c333b]">
                     {keyword.meaning}
                   </dd>
                 </div>
                 <div className="flex gap-3">
-                  <dt className="w-[68px] shrink-0 font-semibold text-[#0B162C]">
+                  <dt className="w-[68px] shrink-0 font-semibold text-[#1E242B]">
                     白话对照
                   </dt>
-                  <dd className="flex-1 leading-relaxed text-slate-700">
+                  <dd className="flex-1 leading-relaxed text-text-[#2c333b]">
                     {keyword.plain}
                   </dd>
                 </div>
@@ -332,12 +332,12 @@ export function LiteraryLab({ lab }: LiteraryLabProps) {
       {point ? (
         <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
           <div className="mb-3 flex items-start gap-2">
-            <Lightbulb size={15} className="mt-0.5 shrink-0 text-[#B89B5E]" />
+            <Lightbulb size={15} className="mt-0.5 shrink-0 text-[#A48A5E]" />
             <div>
-              <h4 className="text-[13px] font-bold text-[#0B162C]">
+              <h4 className="text-[13px] font-bold text-[#1E242B]">
                 互动思考题
               </h4>
-              <p className="mt-1 text-[13px] leading-relaxed text-slate-800">
+              <p className="mt-1 text-[13px] leading-relaxed text-text-[#1e242b]">
                 {point.question}
               </p>
             </div>
@@ -357,7 +357,7 @@ export function LiteraryLab({ lab }: LiteraryLabProps) {
                   className={cn(
                     "block w-full rounded-lg border px-3 py-2 text-left text-[13px] transition-colors",
                     chosen === null
-                      ? "border-slate-300 bg-white text-slate-700 hover:border-[#1D4ED8] hover:bg-blue-50"
+                      ? "border-bg-[#d5d1c8] bg-white text-text-[#2c333b] hover:border-[#4E677D] hover:bg-bg-[#eff3f6]"
                       : isChosen && isCorrect
                         ? "border-emerald-600 bg-emerald-50 font-medium text-emerald-900"
                         : isChosen
@@ -381,7 +381,7 @@ export function LiteraryLab({ lab }: LiteraryLabProps) {
                 "mt-3 rounded-lg border px-3 py-2 text-[12.5px] leading-relaxed",
                 chosen === point.correctIndex
                   ? "border-emerald-200 bg-emerald-50 text-emerald-900"
-                  : "border-amber-200 bg-amber-50 text-amber-900",
+                  : "border-bg-[#ddd0b4] bg-bg-[#f7f3ea] text-text-[#6e5a38]",
               )}
             >
               {chosen === point.correctIndex
@@ -469,7 +469,7 @@ function NumberLineLab({ lab }: { lab: InteractiveLab }) {
               y1="54"
               x2={toX(n)}
               y2="66"
-              stroke="#94A3B8"
+              stroke="#A8A398"
               strokeWidth="1.5"
             />
             <text
@@ -477,7 +477,7 @@ function NumberLineLab({ lab }: { lab: InteractiveLab }) {
               y="84"
               fontSize="11"
               textAnchor="middle"
-              fill={n === 0 ? "#0B162C" : "#64748B"}
+              fill={n === 0 ? "#1E242B" : "#5C646D"}
               fontWeight={n === 0 ? 700 : 400}
             >
               {n}
@@ -488,7 +488,7 @@ function NumberLineLab({ lab }: { lab: InteractiveLab }) {
           animate={{ cx: toX(value), cy: 60 }}
           transition={{ type: "spring", stiffness: 220, damping: 22 }}
           r="8"
-          fill="#1D4ED8"
+          fill="#4E677D"
         />
       </svg>
 
@@ -519,9 +519,9 @@ function NumberLineLab({ lab }: { lab: InteractiveLab }) {
         <ToolButton onClick={() => setValue(0)}>回到 0</ToolButton>
       </div>
 
-      <p className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 font-mono text-[13px] text-slate-800">
+      <p className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 font-mono text-[13px] text-text-[#1e242b]">
         {value} {delta >= 0 ? "+" : "−"} {Math.abs(delta)} ={" "}
-        <strong className="text-[#0B162C]">{value + delta}</strong>
+        <strong className="text-[#1E242B]">{value + delta}</strong>
       </p>
     </div>
   );
@@ -546,7 +546,7 @@ function BlocksLab({ lab }: { lab: InteractiveLab }) {
       <div className="flex flex-wrap gap-4">
         {/* 十捆。 */}
         <div>
-          <p className="mb-1.5 text-[12px] font-semibold text-slate-700">
+          <p className="mb-1.5 text-[12px] font-semibold text-text-[#2c333b]">
             十捆（1 捆 = 10 根）
           </p>
           <div className="flex flex-wrap gap-1.5">
@@ -557,7 +557,7 @@ function BlocksLab({ lab }: { lab: InteractiveLab }) {
                 animate={{ scale: 1, opacity: 1 }}
                 className="flex h-9 w-9 flex-col justify-center rounded-md border border-[#1E3A8A] bg-[#DBEAFE] text-center"
               >
-                <span className="text-[10px] font-bold leading-none text-[#122344]">
+                <span className="text-[10px] font-bold leading-none text-[#2c333b]">
                   10
                 </span>
               </motion.div>
@@ -575,7 +575,7 @@ function BlocksLab({ lab }: { lab: InteractiveLab }) {
 
         {/* 单根。 */}
         <div>
-          <p className="mb-1.5 text-[12px] font-semibold text-slate-700">
+          <p className="mb-1.5 text-[12px] font-semibold text-text-[#2c333b]">
             单根（1 根 = 1 个一）
           </p>
           <div className="flex flex-wrap gap-1">
@@ -584,7 +584,7 @@ function BlocksLab({ lab }: { lab: InteractiveLab }) {
                 key={`o${i}`}
                 initial={{ scale: 0.5, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                className="h-9 w-[7px] rounded-sm bg-[#1D4ED8]"
+                className="h-9 w-[7px] rounded-sm bg-[#4E677D]"
               />
             ))}
           </div>
@@ -600,13 +600,13 @@ function BlocksLab({ lab }: { lab: InteractiveLab }) {
       </div>
 
       <div className="rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-3">
-        <p className="font-mono text-[15px] text-slate-800">
+        <p className="font-mono text-[15px] text-text-[#1e242b]">
           {tens} 个十 + {ones} 个一 ={" "}
-          <strong className="text-[#0B162C]">{total}</strong>
+          <strong className="text-[#1E242B]">{total}</strong>
         </p>
         {need > 0 ? (
           <p className="mt-1 text-[12px] text-slate-600">
-            还需要 <strong className="text-[#0B162C]">{need}</strong> 才能凑成{" "}
+            还需要 <strong className="text-[#1E242B]">{need}</strong> 才能凑成{" "}
             {target}——先补满一捆（十），剩下的才是零头，这就是「凑十法」。
           </p>
         ) : (
@@ -662,7 +662,7 @@ function FractionLab({ lab }: { lab: InteractiveLab }) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 d={`M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} Z`}
-                fill={filled ? "#1D4ED8" : "#F1F5F9"}
+                fill={filled ? "#4E677D" : "#F1F5F9"}
                 stroke="#FFFFFF"
                 strokeWidth="2"
                 onClick={() => setNumerator(i + 1)}
@@ -690,7 +690,7 @@ function FractionLab({ lab }: { lab: InteractiveLab }) {
               setNumerator((current) => Math.min(current, next));
             }}
           />
-          <p className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 font-mono text-[15px] text-slate-800">
+          <p className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 font-mono text-[15px] text-text-[#1e242b]">
             {numerator}/{denominator}
             {denominator === 2 ? " = 1/2" : ""}
           </p>
@@ -735,7 +735,7 @@ function AreaLab({ lab }: { lab: InteractiveLab }) {
               initial={false}
               animate={{
                 fill: inside ? "#DBEAFE" : "#FFFFFF",
-                stroke: inside ? "#1D4ED8" : "#E2E8F0",
+                stroke: inside ? "#4E677D" : "#E2E8F0",
               }}
               transition={{ duration: 0.18 }}
               x={8 + col * cell}
@@ -751,7 +751,7 @@ function AreaLab({ lab }: { lab: InteractiveLab }) {
           y={8 + width * cell + 18}
           fontSize="12"
           textAnchor="middle"
-          fill="#0B162C"
+          fill="#1E242B"
           fontWeight={700}
         >
           {length}
@@ -761,7 +761,7 @@ function AreaLab({ lab }: { lab: InteractiveLab }) {
           y={8 + (width * cell) / 2}
           fontSize="12"
           textAnchor="middle"
-          fill="#0B162C"
+          fill="#1E242B"
           fontWeight={700}
         >
           {width}
@@ -788,13 +788,13 @@ function AreaLab({ lab }: { lab: InteractiveLab }) {
       <div className="grid grid-cols-2 gap-2">
         <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
           <p className="text-[11px] font-medium text-slate-600">周长</p>
-          <p className="font-mono text-[16px] font-bold text-[#0B162C]">
+          <p className="font-mono text-[16px] font-bold text-[#1E242B]">
             {(length + width) * 2}
           </p>
         </div>
         <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
           <p className="text-[11px] font-medium text-slate-600">面积</p>
-          <p className="font-mono text-[16px] font-bold text-[#0B162C]">
+          <p className="font-mono text-[16px] font-bold text-[#1E242B]">
             {length * width}
           </p>
         </div>
@@ -826,7 +826,7 @@ function TransformLab({ lab }: { lab: InteractiveLab }) {
           y1="12"
           x2="230"
           y2="148"
-          stroke="#B89B5E"
+          stroke="#A48A5E"
           strokeWidth="2"
           strokeDasharray="6 4"
         />
@@ -838,10 +838,10 @@ function TransformLab({ lab }: { lab: InteractiveLab }) {
         <polygon
           points="60,130 130,130 95,45"
           fill="#DBEAFE"
-          stroke="#1D4ED8"
+          stroke="#4E677D"
           strokeWidth="2"
         />
-        <text x="78" y="150" fontSize="11" fill="#64748B">
+        <text x="78" y="150" fontSize="11" fill="#5C646D">
           原图
         </text>
 
@@ -857,11 +857,11 @@ function TransformLab({ lab }: { lab: InteractiveLab }) {
                 : "300,130 370,130 335,45"
             }
             fill="#F5EFE2"
-            stroke="#B89B5E"
+            stroke="#A48A5E"
             strokeWidth="2"
           />
         </motion.g>
-        <text x="310" y="150" fontSize="11" fill="#64748B">
+        <text x="310" y="150" fontSize="11" fill="#5C646D">
           变换后
         </text>
       </svg>
@@ -889,7 +889,7 @@ function TransformLab({ lab }: { lab: InteractiveLab }) {
         </ToolButton>
       </div>
 
-      <p className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-[12px] leading-relaxed text-slate-700">
+      <p className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-[12px] leading-relaxed text-text-[#2c333b]">
         {mirror
           ? "轴对称：沿对称轴翻折，两边完全重合——形状大小都不变，方向变了。"
           : "平移：整个图形沿一个方向滑动，**形状和大小完全不变**，只有位置变了。"}
@@ -917,7 +917,7 @@ function RatioLab({ lab }: { lab: InteractiveLab }) {
         <motion.div
           animate={{ width: `${aPct}%` }}
           transition={{ type: "spring", stiffness: 200, damping: 22 }}
-          className="flex items-center justify-center bg-[#1D4ED8] text-[12px] font-bold text-white"
+          className="flex items-center justify-center bg-[#4E677D] text-[12px] font-bold text-white"
         >
           {a}
         </motion.div>
@@ -934,9 +934,9 @@ function RatioLab({ lab }: { lab: InteractiveLab }) {
         <Slider label="后项" value={b} min={1} max={12} onChange={setB} />
       </div>
 
-      <p className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 font-mono text-[14px] text-slate-800">
+      <p className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 font-mono text-[14px] text-text-[#1e242b]">
         {a} : {b} = {(b === 0 ? 0 : a / b).toFixed(2)} · 前项占{" "}
-        <strong className="text-[#0B162C]">{aPct.toFixed(1)}%</strong>
+        <strong className="text-[#1E242B]">{aPct.toFixed(1)}%</strong>
       </p>
     </div>
   );
@@ -982,7 +982,7 @@ function GenericMathFrame({ lab }: { lab: InteractiveLab }) {
         {topic?.title ?? lab.title}
       </PanelTitle>
       {topic?.definition ? (
-        <p className="rounded-xl border border-slate-200 bg-[#FFFEFA] px-4 py-3 text-[13px] leading-relaxed text-slate-800">
+        <p className="rounded-xl border border-slate-200 bg-[#FFFFFF] px-4 py-3 text-[13px] leading-relaxed text-text-[#1e242b]">
           {topic.definition}
         </p>
       ) : null}
@@ -1118,7 +1118,7 @@ function FunctionGraphLab({ lab }: { lab: InteractiveLab }) {
             x={item.x}
             y={item.y}
             fontSize="9"
-            fill="#94A3B8"
+            fill="#A8A398"
             textAnchor="middle"
           >
             {item.text}
@@ -1130,7 +1130,7 @@ function FunctionGraphLab({ lab }: { lab: InteractiveLab }) {
           animate={{ pathLength: 1 }}
           transition={{ duration: 0.5 }}
           d={path}
-          stroke="#1D4ED8"
+          stroke="#4E677D"
           strokeWidth="2.5"
           fill="none"
           strokeLinecap="round"
@@ -1157,7 +1157,7 @@ function FunctionGraphLab({ lab }: { lab: InteractiveLab }) {
         ) : null}
       </div>
 
-      <p className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 font-mono text-[15px] font-semibold text-[#0B162C]">
+      <p className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 font-mono text-[15px] font-semibold text-[#1E242B]">
         {formula}
       </p>
     </div>
@@ -1207,17 +1207,17 @@ function DynamicGeometryLab({ lab }: { lab: InteractiveLab }) {
             animate={{ points: points.map((p) => `${p.x},${p.y}`).join(" ") }}
             transition={{ type: "spring", stiffness: 180, damping: 20 }}
             fill="#DBEAFE"
-            stroke="#1D4ED8"
+            stroke="#4E677D"
             strokeWidth="2"
           />
           {points.map((p, i) => (
-            <circle key={i} cx={p.x} cy={p.y} r="3.5" fill="#0B162C" />
+            <circle key={i} cx={p.x} cy={p.y} r="3.5" fill="#1E242B" />
           ))}
           {/* 一个角。 */}
           {points.length >= 2 ? (
             <path
               d={`M ${points[0].x},${points[0].y} L ${cx + 42},${cy} L ${cx + 42 * Math.cos(angle * (Math.PI / 180))},${cy + 42 * Math.sin(angle * (Math.PI / 180))}`}
-              stroke="#B89B5E"
+              stroke="#A48A5E"
               strokeWidth="1.5"
               fill="none"
             />
@@ -1243,13 +1243,13 @@ function DynamicGeometryLab({ lab }: { lab: InteractiveLab }) {
           <div className="grid grid-cols-2 gap-2">
             <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
               <p className="text-[11px] font-medium text-slate-600">面积</p>
-              <p className="font-mono text-[14px] font-bold text-[#0B162C]">
+              <p className="font-mono text-[14px] font-bold text-[#1E242B]">
                 {area.toFixed(1)}
               </p>
             </div>
             <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
               <p className="text-[11px] font-medium text-slate-600">周长</p>
-              <p className="font-mono text-[14px] font-bold text-[#0B162C]">
+              <p className="font-mono text-[14px] font-bold text-[#1E242B]">
                 {perimeter.toFixed(1)}
               </p>
             </div>
@@ -1305,7 +1305,7 @@ function AlgebraLab({ lab }: { lab: InteractiveLab }) {
               y1="96"
               x2={210 + n * 18}
               y2="104"
-              stroke="#94A3B8"
+              stroke="#A8A398"
               strokeWidth="1.5"
             />
             <text
@@ -1313,7 +1313,7 @@ function AlgebraLab({ lab }: { lab: InteractiveLab }) {
               y="118"
               fontSize="10"
               textAnchor="middle"
-              fill="#94A3B8"
+              fill="#A8A398"
             >
               {n}
             </text>
@@ -1327,7 +1327,7 @@ function AlgebraLab({ lab }: { lab: InteractiveLab }) {
             y2: 100 - (a * 10 + b) * 6,
           }}
           transition={{ type: "spring", stiffness: 180, damping: 20 }}
-          stroke="#1D4ED8"
+          stroke="#4E677D"
           strokeWidth="2.5"
         />
         {x !== null && x >= -10 && x <= 10 ? (
@@ -1335,7 +1335,7 @@ function AlgebraLab({ lab }: { lab: InteractiveLab }) {
             animate={{ cx: 210 + x * 18, cy: 100 }}
             transition={{ type: "spring", stiffness: 200, damping: 20 }}
             r="6"
-            fill="#B89B5E"
+            fill="#A48A5E"
           />
         ) : null}
       </svg>
@@ -1345,9 +1345,9 @@ function AlgebraLab({ lab }: { lab: InteractiveLab }) {
         <Slider label="b" value={b} min={-10} max={10} onChange={setB} />
       </div>
 
-      <p className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 font-mono text-[14px] text-slate-800">
+      <p className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 font-mono text-[14px] text-text-[#1e242b]">
         {a}x {b >= 0 ? "+" : "−"} {Math.abs(b)} = 0 ⟹{" "}
-        <strong className="text-[#0B162C]">
+        <strong className="text-[#1E242B]">
           {hasSolution ? `x = ${x!.toFixed(2)}` : "无解（a = 0）"}
         </strong>
       </p>
@@ -1397,11 +1397,11 @@ function ProbabilityLab({ lab }: { lab: InteractiveLab }) {
                 initial={{ height: 0 }}
                 animate={{ height: `${bar * 100}%` }}
                 transition={{ duration: 0.2 }}
-                className="w-full rounded-t-sm bg-[#1D4ED8]"
+                className="w-full rounded-t-sm bg-[#4E677D]"
                 style={{ minHeight: bar > 0 ? 2 : 0 }}
               />
               <div
-                className="w-full rounded-t-sm bg-[#B89B5E]/40"
+                className="w-full rounded-t-sm bg-[#A48A5E]/40"
                 style={{ height: `${theory * 100}%` }}
               />
             </div>
@@ -1442,19 +1442,19 @@ function ProbabilityLab({ lab }: { lab: InteractiveLab }) {
       <div className="grid grid-cols-3 gap-2">
         <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
           <p className="text-[11px] font-medium text-slate-600">次数</p>
-          <p className="font-mono text-[15px] font-bold text-[#0B162C]">
+          <p className="font-mono text-[15px] font-bold text-[#1E242B]">
             {trials}
           </p>
         </div>
         <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
           <p className="text-[11px] font-medium text-slate-600">成功</p>
-          <p className="font-mono text-[15px] font-bold text-[#0B162C]">
+          <p className="font-mono text-[15px] font-bold text-[#1E242B]">
             {heads}
           </p>
         </div>
         <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
           <p className="text-[11px] font-medium text-slate-600">实测频率</p>
-          <p className="font-mono text-[15px] font-bold text-[#0B162C]">
+          <p className="font-mono text-[15px] font-bold text-[#1E242B]">
             {observed.toFixed(3)}
           </p>
         </div>

@@ -172,7 +172,7 @@ function CalloutBlock({ block }: { block: Block }) {
       <div
         className={
           block.payload.variant === "common_pitfall"
-            ? "rounded-lg border border-amber-500/25 bg-amber-50 p-3"
+            ? "rounded-lg border border-[#ddd0b4] bg-bg-[#f7f3ea] p-3"
             : "rounded-lg border border-[var(--border)] bg-[var(--muted)]/45 p-3"
         }
       >

@@ -1,4 +1,6 @@
+import { Suspense } from "react";
 import AppShell from "@/components/layout/AppShell";
+import SmartEntryRedirect from "@/components/layout/SmartEntryRedirect";
 import { ShellActionsProvider } from "@/context/ShellActionsContext";
 import { ProfileProvider } from "@/context/ProfileContext";
 
@@ -9,35 +11,30 @@ import { ProfileProvider } from "@/context/ProfileContext";
  * .. code-block:: text
  *
  *     ┌──────────────────────────────────────────┐
- *     │  TopNav（64px 吸顶 · 4 项主导航）        │
- *     ├──────────────────────────────────────────┤
- *     │  内容区（全宽流式 · 最大 1280px）        │
+ *     │                                          │
+ *     │            画布（100vh 铺满）            │
+ *     │                                          │
+ *     │   ╭──────────────────────────────╮       │
+ *     │   │ OE 课程 报告 ⭐  ⎘ 简繁EN 档案 │       │
+ *     │   ╰──────────────────────────────╯       │
  *     └──────────────────────────────────────────┘
  *
  * 变更记录
  * --------
  *
- * ⛔ **不再有左侧深蓝固定导航栏**。它把动线切成了三段，而且吃掉了
- *    220px 横向空间——实验台型的页面根本铺不开。
+ * ⛔ **不再有顶部通栏导航**。旧版有 64px 顶部栏 + 210px 左侧栏，
+ *    两条常驻导航把横向空间切碎、把滚动切成两段、还让视觉重心
+ *    永远偏上。现在只剩**底部一个悬浮岛**。
  *
- * ⛔ **不再有进站拦截弹窗**。旧版在这里挂了一个「年级 + 语言」的
- *    选择弹窗，新用户第一次打开就必须先做完两道选择才能看到内容。
- *    它的三个硬伤：
+ * ⛔ **不再有进站拦截弹窗**。用户第一次打开时不必先做完两道选择
+ *    才能看到内容——年级 / 语言选择器收纳在悬浮岛与个人档案里，
+ *    随时自由点选。
  *
- *    1. **时机错了**——用户还不知道这里有什么的时候就要决定「我几年
- *       级」，他凭什么选？
- *    2. **太强硬**——模态框是强制的，等于把品牌第一印象变成一张问卷。
- *       英文用户第一眼撞上中文弹窗，会直接走人。
- *    3. **重复**——顶栏、课程页顶栏、个人档案卡里本来就有年级选择器，
- *       弹窗是第三份。
- *
- *    现在：年级 / 语言选择器收纳在**顶栏、课程页顶栏与个人档案**
- *    三处，随时自由点选（见 ``components/common/GradeSelector.tsx``）。
- *    首页开场只有一张纸飞机。
+ * ⛔ **零垂直滚动**。根容器锁死 ``h-screen w-screen overflow-hidden``，
+ *    底部预留 76px 给悬浮岛。
  *
  * ``ShellActionsProvider`` 放在这里，是因为页面自己可以注册**页面级
- * 动作按钮**（比如 hub 页的 [☰ 选课] 与 [📝 笔记]）。Provider 必须在
- * 导航栏之上、页面之下，这样两边才在同一棵树里。
+ * 动作按钮**。Provider 必须在导航之上、页面之下。
  */
 export default function WorkspaceLayout({
   children,
@@ -47,7 +44,16 @@ export default function WorkspaceLayout({
   return (
     <ProfileProvider>
       <ShellActionsProvider>
-        <AppShell homeHref="/">{children}</AppShell>
+        <AppShell homeHref="/">
+          {/*
+           * 智能直达动线——已经进过站的用户再次打开根网址时，
+           * 静默送到课程总台。必须包在 Suspense 里（useSearchParams）。
+           */}
+          <Suspense fallback={null}>
+            <SmartEntryRedirect />
+          </Suspense>
+          {children}
+        </AppShell>
       </ShellActionsProvider>
     </ProfileProvider>
   );
