@@ -93,6 +93,17 @@ const CHINESE_DIMENSIONS = [
   { key: "expression", zh: "思辨表达", en: "Critical Expression" },
 ];
 
+/**
+ * 年级数字 → 中文词。
+ *
+ * 证书上写「小学五年级—高中三年级」比「5—12 年级」更适合家长读。
+ */
+function gradeWord(grade: number): string {
+  if (grade >= 10) return `高${["一", "二", "三"][grade - 10] ?? grade}年级`;
+  if (grade >= 7) return `初${["一", "二", "三"][grade - 7] ?? grade}年级`;
+  return `小学${["一", "二", "三", "四", "五", "六"][grade - 1] ?? grade}年级`;
+}
+
 /** 组件。 */
 export default function ReportPage() {
   const { locale } = useLocale();
@@ -109,10 +120,23 @@ export default function ReportPage() {
     const current = readLedger();
     setLedger(current);
 
-    // 只对**有星星记录**的课程做明细展开——没学过的课不必拉 JSON。
-    const courseIds = Object.keys(current.courses).filter(
-      (id) => id.startsWith("k12_"),
-    );
+    // 只对**真正参与过**的课程做明细展开。
+    //
+    // ⛔ 账本里会为**所有**课程预置空的 unit 槽位（那是给星轨地图
+    //    渲染徽章用的），所以不能只看「课程 id 出现过」——
+    //    否则 24 套课全会被塞进报告，证书上的「课程全称」会变成
+    //    一长串用 · 拼起来的标题。
+    //
+    // 判定标准：**这一套课真的点亮过星星**，或者**解锁过单元徽章**。
+    const courseIds = Object.keys(current.courses).filter((id) => {
+      if (!id.startsWith("k12_")) return false;
+      const entry = current.courses[id];
+      const hasStars = Object.keys(entry?.lessons ?? {}).length > 0;
+      const hasBadges = Object.values(entry?.units ?? {}).some(
+        (unit) => unit.unlocked,
+      );
+      return hasStars || hasBadges;
+    });
     if (courseIds.length === 0) {
       setCourses([]);
       setLoading(false);
@@ -276,6 +300,51 @@ export default function ReportPage() {
 
   const isCn = reportLang === "cn";
 
+  /**
+   * 证书上的「课程全称」。
+   *
+   * ⛔ **不能**把 24 套课的标题用 · 串起来——那是一堵字墙，
+   *    在证书上完全没法读。
+   *
+   * 证书是**结论**，不是清单：只写清楚「修了哪几个学段、哪几个
+   * 学科」，具体课目交给下面的「逐课学习明细」去列。
+   */
+  const courseSummary = useMemo(() => {
+    if (courses.length === 0) return isCn ? "尚未开始学习" : "No courses yet";
+
+    const subjects = new Set(
+      courses.map((course) =>
+        course.entry.subject === "chinese" ? "chinese" : "math",
+      ),
+    );
+
+    // 按年级排序，取出「最小学段 → 最高学段」。
+    const grades = courses
+      .map((course) => course.entry.grade)
+      .filter((grade) => Number.isFinite(grade) && grade > 0)
+      .sort((a, b) => a - b);
+
+    const parts: string[] = [];
+    if (grades.length > 0) {
+      const low = gradeWord(grades[0]);
+      const high = gradeWord(grades[grades.length - 1]);
+      parts.push(isCn ? (low === high ? low : `${low}—${high}`) : `Grade ${grades[0]}–${grades[grades.length - 1]}`);
+    }
+    if (subjects.size > 0) {
+      parts.push(
+        isCn
+          ? [...subjects].map((s) => (s === "chinese" ? "语文" : "数学")).join(" × ")
+          : [...subjects].map((s) => (s === "chinese" ? "Chinese" : "Math")).join(" × "),
+      );
+    }
+    parts.push(
+      isCn
+        ? `共 ${courses.length} 套课程 · ${totals.stars} 颗星`
+        : `${courses.length} courses · ${totals.stars} stars`,
+    );
+    return parts.join(" · ");
+  }, [courses, isCn, totals.stars]);
+
   if (loading) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center bg-[var(--background)]">
@@ -396,13 +465,7 @@ export default function ReportPage() {
               />
               <Field
                 label={isCn ? "课程全称" : "Course"}
-                value={
-                  courses.length > 0
-                    ? courses.map((c) => c.entry.title).join(" · ")
-                    : isCn
-                      ? "尚未开始学习"
-                      : "No courses yet"
-                }
+                value={courseSummary}
               />
               <Field
                 label={isCn ? "完成日期" : "Date"}
