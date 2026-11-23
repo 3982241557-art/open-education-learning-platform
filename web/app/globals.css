@@ -893,3 +893,63 @@ body {
     animation-iteration-count: 1 !important;
   }
 }
+
+/* ── Result Report · A4 打印排版 ───────────────────────────────────
+ *
+ * 「导出 / 打印高清 PDF 报告」的样式。
+ *
+ * 设计取舍
+ * --------
+ *
+ * 1. **隐藏所有交互控件**（``.no-print``）——打印的是**报告本身**，
+ *    不是它的操作界面。按钮、圆点、分段控件一律不出现。
+ * 2. **强制实心背景**（``print-color-adjust: exact``）——否则香槟金
+ *    徽章、深牛津蓝证书头在打印时会变成灰白，丢掉全部质感。
+ * 3. **A4 纵向 + 12mm 页边距**——家用的普通 A4 纸在多数国家是
+ *    210×297mm，留 12mm 边距后正文宽度约 186mm，足够放下
+ *    「课程名 + 教具 + 星级」这一行。
+ * 4. **避免卡片内分页断裂**——``break-inside: avoid`` 让每一堂课
+ *    的明细行不被拦腰截断。
+ */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+  }
+
+  /* 隐藏导航栏与所有工具按钮。 */
+  .no-print,
+  header.sticky,
+  nav[aria-label="主导航"] {
+    display: none !important;
+  }
+
+  /* 强制保留底色与边框色。 */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* 报告容器不再受屏幕布局约束。 */
+  main {
+    padding: 0 !important;
+  }
+
+  /* 每一节不跨页断裂。 */
+  section,
+  article {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* 动效全部落到终态——避免打印出「半途」的进度条。 */
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

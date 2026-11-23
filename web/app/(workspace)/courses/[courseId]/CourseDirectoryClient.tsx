@@ -4,12 +4,14 @@ import { use, useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
+  Award,
   CheckCircle2,
   Circle,
   CircleDot,
   Clock3,
   ListVideo,
   Loader2,
+  Star,
 } from "lucide-react";
 import { loadCourseBundle, type CourseBundle } from "@/lib/course-bundle";
 import {
@@ -23,6 +25,11 @@ import {
   type EpisodeRecord,
 } from "@/lib/episode-records";
 import { analyzeLessonTitle } from "@/lib/lesson-analyzer";
+import { buildUnits } from "@/lib/course-units";
+import {
+  summarizeCourse,
+  STARS_UPDATED_EVENT,
+} from "@/lib/star-ledger";
 import {
   buildCertificateSerial,
   readCertificates,
@@ -119,6 +126,35 @@ export default function CourseDirectoryClient({
     );
   }, [bundle, statuses]);
 
+  /** 星星账本版本号——星星变化时触发重算。 */
+  const [ledgerVersion, setLedgerVersion] = useState(0);
+
+  /** 星星与徽章汇总。 */
+  const starSummary = useMemo(() => {
+    const episodes = bundle?.episodes ?? [];
+    const units = buildUnits(
+      episodes.map((item) => ({
+        ep_id: item.ep_id,
+        title: item.title,
+        core_title: item.core_title ?? null,
+      })),
+      bundle?.subject ?? "math",
+    );
+    return summarizeCourse(
+      bundle?.id ?? courseId,
+      episodes.map((item) => item.ep_id),
+      units.map((unit) => unit.id),
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bundle, courseId, ledgerVersion]);
+
+  /** 星星账本变化 → 重算汇总。 */
+  useEffect(() => {
+    const refresh = () => setLedgerVersion((v) => v + 1);
+    window.addEventListener(STARS_UPDATED_EVENT, refresh);
+    return () => window.removeEventListener(STARS_UPDATED_EVENT, refresh);
+  }, []);
+
   /**
    * 分集目录——**按单元分组**。
    *
@@ -195,7 +231,7 @@ export default function CourseDirectoryClient({
 
   if (loading) {
     return (
-      <div className="flex h-full min-h-0 flex-col items-center justify-center bg-[var(--background)]">
+      <div className="flex min-h-[60vh] flex-col items-center justify-center bg-[var(--background)]">
         <Loader2 size={18} className="animate-spin text-[var(--muted-foreground)]" />
         <p className="mt-2 text-[12px] text-[var(--muted-foreground)]">
           正在载入课程目录…
@@ -206,7 +242,7 @@ export default function CourseDirectoryClient({
 
   if (!bundle) {
     return (
-      <div className="flex h-full min-h-0 flex-col items-center justify-center bg-[var(--background)] px-6 text-center">
+      <div className="flex min-h-[60vh] flex-col items-center justify-center bg-[var(--background)] px-6 text-center">
         <p className="text-[14px] font-medium text-[var(--foreground)]">
           找不到这门课程
         </p>
@@ -214,114 +250,123 @@ export default function CourseDirectoryClient({
           它可能已经从公开课目录里下架了。
         </p>
         <Link
-          href="/hub"
+          href="/courses"
           className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-4 py-2 text-[12.5px] font-medium text-white"
         >
           <ArrowLeft size={13} strokeWidth={2.4} />
-          返回公开课目录
+          返回星轨学习地图
         </Link>
       </div>
     );
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col bg-[var(--background)]">
+    <div className="flex flex-col bg-[var(--background)]">
       {/* ── 顶栏 ── */}
-      <header className="shrink-0 border-b border-[var(--border)] px-4 py-2.5">
-        <div className="mx-auto flex max-w-[880px] items-center gap-3">
-          <Link
-            href="/courses"
-            title="返回课程大厅"
-            aria-label="返回课程大厅"
-            className="seek-key inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--card)] text-[var(--foreground)] transition-colors hover:bg-[var(--muted)]"
-          >
-            <ArrowLeft size={15} strokeWidth={2.2} />
-          </Link>
-          <div className="min-w-0 flex-1">
-            <h1 className="truncate text-[14.5px] font-bold tracking-[-0.01em] text-[var(--foreground)]">
-              {bundle.title}
-            </h1>
-            <p className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-[11.5px] text-[var(--muted-foreground)]">
-              <span>{bundle.categoryTitle}</span>
-              {bundle.ageRange ? (
-                <span>· {bundle.ageRange[0]}–{bundle.ageRange[1]} 岁</span>
-              ) : null}
-              {bundle.edition ? <span>· {bundle.edition}</span> : null}
-              {bundle.volumes?.length ? (
-                <span>· {bundle.volumes.join(" / ")}</span>
-              ) : null}
-            </p>
-          </div>
-          <span className="shrink-0 rounded-full border border-[var(--seek-bean-soft-border)] bg-[var(--seek-bean-soft)] px-2.5 py-1 text-[11px] font-medium text-[var(--primary)]">
-            {bundle.episodes.length} 讲
-          </span>
+      <header className="mb-5 flex flex-wrap items-center gap-3">
+        <Link
+          href="/courses"
+          title="返回星轨学习地图"
+          aria-label="返回星轨学习地图"
+          className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[var(--border)] bg-white text-[var(--foreground)] transition-colors hover:border-[#1D4ED8]"
+        >
+          <ArrowLeft size={15} strokeWidth={2.2} />
+        </Link>
+        <div className="min-w-0 flex-1">
+          <h1 className="truncate text-[15px] font-bold tracking-[-0.01em] text-[var(--foreground)]">
+            {bundle.title}
+          </h1>
+          <p className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-[11.5px] text-[var(--muted-foreground)]">
+            <span>{bundle.categoryTitle}</span>
+            {bundle.ageRange ? (
+              <span>· {bundle.ageRange[0]}–{bundle.ageRange[1]} 岁</span>
+            ) : null}
+            {bundle.edition ? <span>· {bundle.edition}</span> : null}
+            {bundle.volumes?.length ? (
+              <span>· {bundle.volumes.join(" / ")}</span>
+            ) : null}
+          </p>
         </div>
+        <span className="shrink-0 rounded-full border border-[var(--seek-bean-soft-border)] bg-[var(--seek-bean-soft)] px-2.5 py-1 text-[11px] font-medium text-[var(--primary)]">
+          {bundle.episodes.length} 讲
+        </span>
       </header>
 
       {/* ── 主体 ── */}
-      <main className="min-h-0 flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-[880px] space-y-4 px-4 py-5">
-          {/* ── 简介 + 进度 ──
-           *
-           * 简介**只有一句**。这曾经是一整块宣传文案（「这里收着
-           * 世界各地上百讲顶尖公开课……」），它不属于这门课，
-           * 也不属于用户此刻的决策。
-           */}
-          <section className="rounded-xl border border-[var(--border)] bg-white px-4 py-3.5">
-            {bundle.intro ? (
-              <p className="text-[13px] leading-[1.75] text-[var(--foreground)]">
-                {bundle.intro}
-              </p>
-            ) : null}
+      <main className="space-y-5">
+        {/* ── 简介 + 进度 ──
+         *
+         * 简介**只有一句**。这曾经是一整块宣传文案（「这里收着
+         * 世界各地上百讲顶尖公开课……」），它不属于这门课，
+         * 也不属于用户此刻的决策。
+         */}
+        <section className="rounded-xl border border-[var(--border)] bg-white px-5 py-4">
+          {bundle.intro ? (
+            <p className="text-[13px] leading-[1.75] text-[var(--foreground)]">
+              {bundle.intro}
+            </p>
+          ) : null}
 
-            {/* 总体进度条。 */}
-            <div className="mt-3">
-              <div className="mb-1.5 flex items-baseline justify-between gap-2">
-                <span className="text-[11.5px] font-medium text-[var(--muted-foreground)]">
-                  {tk("course.overview")}
-                </span>
-                <span className="text-[11.5px] tabular-nums text-[var(--muted-foreground)]">
-                  {progress.done} / {progress.total} · {tk("k12.lessons")}（{progress.percent}%）
-                </span>
-              </div>
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--muted)]">
-                <div
-                  className="h-full rounded-full bg-[var(--primary)] transition-[width] duration-500"
-                  style={{ width: `${progress.percent}%` }}
-                />
-              </div>
+          {/* 总体进度条。 */}
+          <div className="mt-3">
+            <div className="mb-1.5 flex items-baseline justify-between gap-2">
+              <span className="text-[11.5px] font-medium text-[var(--muted-foreground)]">
+                {tk("course.overview")}
+              </span>
+              <span className="text-[11.5px] tabular-nums text-[var(--muted-foreground)]">
+                {progress.done} / {progress.total} · {tk("k12.lessons")}（{progress.percent}%）
+              </span>
             </div>
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--muted)]">
+              <div
+                className="h-full rounded-full bg-[var(--primary)] transition-[width] duration-500"
+                style={{ width: `${progress.percent}%` }}
+              />
+            </div>
+          </div>
 
-            {/* 「继续学习」——只在有下一讲时出现。 */}
-            {nextEpisode ? (
-              <Link
-                href={`/courses/${encodeURIComponent(bundle.id)}/${encodeURIComponent(nextEpisode.ep_id)}`}
-                className="mt-3.5 inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-4 py-2 text-[12.5px] font-medium text-white transition-colors hover:opacity-90"
-              >
-                {progress.done > 0 ? tk("action.continue") : tk("course.startFirst")}
-                <span className="opacity-70">· {nextEpisode.title}</span>
-              </Link>
-            ) : (
-              <div className="mt-3.5 flex flex-wrap items-center gap-2.5">
-                <p className="text-[12.5px] text-[var(--muted-foreground)]">
-                  🎉 这门课你已经全部学完了。
-                </p>
-                {canCertify ? (
-                  <button
-                    type="button"
-                    onClick={issueCertificate}
-                    className={cn(
-                      "inline-flex items-center gap-1.5 px-4 py-2 text-[12.5px] font-medium text-white transition-opacity hover:opacity-90",
-                      playful ? "rounded-full" : "rounded-lg",
-                      "bg-[var(--primary)]",
-                    )}
-                  >
-                    🎓 领取本册修习证书
-                  </button>
-                ) : null}
-              </div>
-            )}
-          </section>
+          {/* 星星总览。 */}
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#E5E7EB] bg-[#FFFEFA] px-2.5 py-1 text-[11px] font-medium text-[#55606E]">
+              <Star size={11} strokeWidth={2.2} className="text-[#B89B5E]" />
+              {starSummary.stars} / {starSummary.maxStars} ⭐
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#E5E7EB] bg-white px-2.5 py-1 text-[11px] font-medium text-[#55606E]">
+              <Award size={11} strokeWidth={2.2} className="text-[#1D4ED8]" />
+              {starSummary.badges} / {starSummary.maxBadges} 徽章
+            </span>
+          </div>
+
+          {/* 「继续学习」——只在有下一讲时出现。 */}
+          {nextEpisode ? (
+            <Link
+              href={`/courses/${encodeURIComponent(bundle.id)}/${encodeURIComponent(nextEpisode.ep_id)}`}
+              className="mt-3.5 inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-4 py-2 text-[12.5px] font-medium text-white transition-colors hover:opacity-90"
+            >
+              {progress.done > 0 ? tk("action.continue") : tk("course.startFirst")}
+              <span className="opacity-70">· {nextEpisode.title}</span>
+            </Link>
+          ) : (
+            <div className="mt-3.5 flex flex-wrap items-center gap-2.5">
+              <p className="text-[12.5px] text-[var(--muted-foreground)]">
+                🎉 这门课你已经全部学完了。
+              </p>
+              {canCertify ? (
+                <button
+                  type="button"
+                  onClick={issueCertificate}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 px-4 py-2 text-[12.5px] font-medium text-white transition-opacity hover:opacity-90",
+                    playful ? "rounded-full" : "rounded-lg",
+                    "bg-[var(--primary)]",
+                  )}
+                >
+                  🎓 领取本册修习证书
+                </button>
+              ) : null}
+            </div>
+          )}
+        </section>
 
           {/* ── 分集目录（按单元分组）── */}
           <section>
@@ -448,7 +493,6 @@ export default function CourseDirectoryClient({
               ))}
             </div>
           </section>
-        </div>
       </main>
 
       {/* ── 结业证书 ── */}

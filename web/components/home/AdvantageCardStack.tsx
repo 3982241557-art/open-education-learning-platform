@@ -1,38 +1,44 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/cn";
 
 /**
- * OE 核心优势 · 可点击叠加卡片栈
- * ===============================
+ * OE 核心优势 · 物理弹簧悬停叠卡
+ * ==================================
  *
- * 四张 100% 实心纯白卡片，前后纵深叠放。
+ * 四张 100% 实心纯白卡片，**阶梯扇形**错落叠放。
  *
- * 为什么是「卡片栈」而不是「四宫格」
+ * 为什么是「叠卡」而不是「四宫格」
  * ------------------------------
  *
  * 四宫格的问题在于：四个卖点**同时可见 = 同时不重要**。读者的视线
  * 会在四块等权重的信息之间来回弹，最后哪儿都没看进去。
  *
- * 卡片栈给出一个**明确的主次**：
+ * 叠卡给出一个**明确的主次**：
  *
- * - 顶层卡片 = 完整展示当前卖点（标题 + 正文 + 示意图）；
- * - 下层卡片 = 只露出边缘，一眼看出「后面还有」；
+ * - 顶层卡片 = 完整展示当前卖点（编号 + 标题 + 正文 + 示意图）；
+ * - 下层卡片 = 只露出**顶部边角与编号**，一眼看出「后面还有」；
  * - 每次点击，**一张退到栈底**，下一张补上来。
  *
- * 于是读者在 4 次点击里，会**逐个**读完 4 个卖点——而不是扫 4 个标题。
+ * 交互手感（苹果级实体触感）
+ * --------------------------
  *
- * 交互细节
- * --------
+ * .. code-block:: text
  *
- * - 点击**顶层卡片本身**即可切换（不只是箭头）；
- * - 底部有 ``← / →`` 与 ``01 / 04`` 指示器；
- * - 退到栈底的卡片用 ``AnimatePresence`` 做**弹性位移**，而不是
- *   瞬移——这是「实体卡片组」质感的关键；
- * - 每张卡片配一幅**极简线条 SVG 示意**，不依赖任何图片素材。
+ *     Hover 任意一张 → 该卡上跃 y:-16 / scale:1.04 / 阴影加深
+ *                     其余卡片**轻微避让**（各自向外偏移一点）
+ *     Click 任意一张 → 该卡被抽到最顶层，其余顺次下沉
+ *     点击顶层卡 / 底部圆点 / 箭头 → 顺滑轮换
+ *
+ * 全部用 framer-motion 的**物理弹簧**（``type: "spring"``），
+ * 而不是 ``duration`` + ``ease``——弹簧有**过冲与回稳**，这是
+ * 「实体卡片」的观感来源。定时缓动永远做不出这种手感。
+ *
+ * ⛔ **视觉铁律**：卡片底色 100% 实心纯白（``#FFFFFF``），**绝不**
+ *    半透明。阴影是唯一允许的「轻」——它不是底色。
  */
 
 /** 一张优势卡的定义。 */
@@ -50,35 +56,37 @@ const CARDS: AdvantageCard[] = [
   {
     id: "manipulative",
     no: "01",
-    title: "学科专属动态教具",
-    body: "动态量角器、实时函数坐标系、互动统计图、汉字笔顺溯源——随课程内容自动精准装配，让抽象概念触手可及。",
+    title: "PhET 级动态交互教具",
+    body: "分数构建、面积模型、等式天平、函数图像与统计分布——每个概念都配一个能上手拖动的实验台，抽象立刻变成手感。",
     art: "manipulative",
   },
   {
     id: "eastwest",
     no: "02",
     title: "东方文脉 × 基础数理",
-    body: "语文聚焦中国文化通识与经典思辨，数学深耕基础数学思维研究，真正回应全球华裔青少年的成长需求。",
+    body: "语文深挖中国文化通识与经典思辨，数学深耕基础数学思维研究——真正回应全球华裔青少年的成长需求。",
     art: "eastwest",
   },
   {
     id: "tracking",
     no: "03",
-    title: "实时行为级学习追踪",
-    body: "超越单纯的视频计时，实时追踪每一次教具探索与巩固答题，让 AI 伴学与学情中心精准看见成长轨迹。",
+    title: "Khanmigo 式启发伴学与星级追踪",
+    body: "AI 伴学从不甩答案，只做启发式追问；每一次动手探索与思考都会点亮一颗星，让成长看得见轨迹。",
     art: "tracking",
   },
   {
     id: "certificate",
     no: "04",
-    title: "系统路径与修习认证",
-    body: "从现代精炼短课、动手探究到巩固通关，完整沉淀每阶段收获并颁发梦想课堂 × OE 修习证书。",
+    title: "梦想课堂 × OE 修习认证与 Result Report",
+    body: "从单元徽章到中英双语结业报告，星星、徽章与能力雷达被完整沉淀成一份可打印的成长档案。",
     art: "certificate",
   },
 ];
 
 export default function AdvantageCardStack() {
   const [index, setIndex] = useState(0);
+  /** 当前被悬停的卡片 id——``null`` 表示没有悬停。 */
+  const [hovered, setHovered] = useState<string | null>(null);
 
   const prev = useCallback(() => {
     setIndex((value) => (value - 1 + CARDS.length) % CARDS.length);
@@ -88,11 +96,26 @@ export default function AdvantageCardStack() {
     setIndex((value) => (value + 1) % CARDS.length);
   }, []);
 
+  /**
+   * 点击任意一张卡 → 把它抽到最顶层。
+   *
+   * 注意：点击**顶层**卡是「轮换到下一张」（老行为），点击**下层**
+   * 卡是「抽它上来」——两者意图不同，必须区分。
+   */
+  const bringToFront = useCallback((cardIndex: number) => {
+    const depth = (cardIndex - index + CARDS.length) % CARDS.length;
+    if (depth === 0) {
+      next();
+      return;
+    }
+    setIndex(cardIndex);
+  }, [index, next]);
+
   return (
     <div className="relative w-full">
       {/* ── 卡片栈 ── */}
       <div
-        className="relative h-[420px] w-full sm:h-[440px]"
+        className="relative h-[440px] w-full sm:h-[460px]"
         role="group"
         aria-roledescription="轮播"
         aria-label="OE 核心优势"
@@ -101,32 +124,52 @@ export default function AdvantageCardStack() {
           /** 该卡在栈中的层位：0 = 顶层。 */
           const depth = (cardIndex - index + CARDS.length) % CARDS.length;
           const isTop = depth === 0;
+          const isHovered = hovered === card.id;
+
+          /**
+           * 阶梯扇形错落。
+           *
+           * 每一层比上一层**往右上退一点**并缩小——像一叠斜放的
+           * 卡片，露出的边角刚好能看见编号。
+           */
+          const restX = depth * 16;
+          const restY = depth * -13;
+          const restScale = 1 - depth * 0.045;
+          const restRotate = depth * -1.6;
+
+          /** 悬停时：这张卡上跃放大，其余卡轻微避让。 */
+          const liftY = isHovered && !isTop ? -22 : 0;
+          const avoid = isHovered && !isTop ? depth * 4 : 0;
 
           return (
             <motion.button
               key={card.id}
               type="button"
-              onClick={isTop ? next : undefined}
-              aria-hidden={!isTop}
+              onClick={() => bringToFront(cardIndex)}
+              onPointerEnter={() => setHovered(card.id)}
+              onPointerLeave={() => setHovered((v) => (v === card.id ? null : v))}
+              onFocus={() => setHovered(card.id)}
+              onBlur={() => setHovered((v) => (v === card.id ? null : v))}
+              aria-hidden={!isTop && !isHovered}
               tabIndex={isTop ? 0 : -1}
               className={cn(
                 "absolute inset-0 flex w-full flex-col overflow-hidden rounded-2xl p-6 text-left",
                 // 100% 不透明实心纯白——**绝不半透明**。
                 "border border-[#E5E7EB] bg-white",
-                "shadow-[0_20px_50px_-15px_rgba(11,22,44,0.12)]",
-                !isTop && "pointer-events-none",
               )}
               initial={false}
               animate={{
-                // 层位越深：缩得越小、往下沉、微微歪斜。
-                x: isTop ? 0 : depth * -14,
-                y: isTop ? 0 : depth * 16,
-                scale: isTop ? 1 : 1 - depth * 0.045,
-                rotate: isTop ? 0 : depth * -1.8,
-                opacity: isTop ? 1 : 1 - depth * 0.16,
-                zIndex: CARDS.length - depth,
+                x: restX + avoid,
+                y: restY + liftY,
+                scale: isHovered ? 1.04 : restScale,
+                rotate: isHovered ? 0 : restRotate,
+                opacity: isTop ? 1 : 1 - depth * 0.14,
+                zIndex: CARDS.length - depth + (isHovered ? 20 : 0),
+                boxShadow: isHovered
+                  ? "0 28px 60px -18px rgba(11,22,44,0.30)"
+                  : "0 18px 44px -16px rgba(11,22,44,0.14)",
               }}
-              transition={{ type: "spring", stiffness: 260, damping: 28 }}
+              transition={{ type: "spring", stiffness: 280, damping: 22 }}
             >
               {/* 顶部香槟金细线。 */}
               <span
@@ -144,8 +187,8 @@ export default function AdvantageCardStack() {
                   {card.no}
                 </span>
                 {isTop ? (
-                  <span className="rounded-full bg-[#F8F7F4] px-2.5 py-1 text-[10.5px] text-[#55606E]">
-                    点击卡片切换
+                  <span className="rounded-full border border-[#E5E7EB] bg-[#F8F7F4] px-2.5 py-1 text-[10.5px] text-[#55606E]">
+                    {isHovered ? "点击抽至顶层" : "点击切换"}
                   </span>
                 ) : null}
               </div>

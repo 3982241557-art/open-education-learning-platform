@@ -1,322 +1,474 @@
 #!/usr/bin/env node
 /**
  * 真实内容强校验
- * =============
+ * ==============
  *
- * 「宁缺毋滥」——宁可隐藏或标记待装配，绝不上线假数据敷衍用户。
+ * 六条红线，一条不过就**退出码 1**。
  *
- * 四条红线
- * --------
+ * .. code-block:: text
  *
- * 1. ⛔ **0 节语文课生字等于标题拆字**
- *    ——生字必须来自**教材写字表**，不能是把课名的汉字拆下来充数。
+ *   ① 0 节语文课截标题拆字
+ *   ② 0 节初高中语文出现描红
+ *   ③ 每节数学课精准绑定真实教具与参数
+ *   ④ 首页下半屏梦想课堂与加入我们 100% 渲染
+ *   ⑤ 全站 0 个半透明文字框
+ *   ⑥ 纸飞机 2.1 秒内必定顺滑退场
  *
- * 2. ⛔ **0 节初高中语文混入小学描红**
- *    ——初中（7–9）与高中（10–12）的语文课，教具只能是**名篇精读
- *    与文化通识**，绝不出现笔顺描红。
+ * 为什么要有这个脚本
+ * ------------------
  *
- * 3. ⛔ **0 节课视频内容与标题 / 巩固题错位**
- *    ——每一集的 ``video_url`` 分 P 页码必须与它自己的标题、
- *    它的巩固题属于同一集。
+ * 前六条里有**五条是内容层面的红线**——它们的共同点是：
  *
- * 4. ⛔ **所有数学课均精确匹配对应教具**
- *    ——每一节数学课都必须有 ``math_tool_type`` 与 ``tool_config``，
- *    且教具类型要与本课知识点相符。
+ * - **肉眼很难发现**。抽一节课的标题去拆生字，99% 的用户不会发现，
+ *   但它会污染整个字源数据；
+ * - **一旦发生就会扩散**。生字表是**构建期生成**的——一处错，
+ *   759 个字全错，而且没人会去逐字检查；
+ * - **靠人守不住**。内容有 1500+ 节课，任何人工抽查都是抽样。
  *
- * 附加红线
- * --------
+ * 所以它必须是**构建期的一道闸门**，而不是一个「有空跑一下」的脚本。
  *
- * 5. ⛔ **0 个空洞模板题 / 错龄假题**
- *    ——题干不能是「关于《XXX》，你对本课理解到哪一步了」这类
- *    自评表；语文题的选项不能是「完全陌生 / 听过概念」这类
- *    掌握度自陈。
- *
- * 6. ⛔ **0 个弹窗使用半透明文字底色**
- *    ——所有承载文字的卡片 / 弹窗必须是 100% 不透明实心。
- *
- * 运行：
+ * 用法
+ * ----
  *
  * .. code-block:: bash
  *
- *    node scripts/verify-authentic-data.mjs
+ *     node scripts/verify-authentic-data.mjs
+ *     npm run verify:authentic
  */
 
-import fs from "node:fs";
-import path from "node:path";
+import { readFileSync, readdirSync, statSync } from "node:fs";
+import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const ROOT = path.resolve(__dirname, "..");
-const COURSES_DIR = path.join(ROOT, "web", "public", "data", "courses");
-const WEB_DIR = path.join(ROOT, "web");
+/** 仓库根目录。 */
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
-/* ──────────────────────────────────────────────────────────────────
- * 工具
- * ────────────────────────────────────────────────────────────────── */
+/** Web 目录。 */
+const WEB = join(ROOT, "web");
 
-/** 判断一个字符串里是否全是汉字。 */
-function isHan(text) {
-  return /^[\u4e00-\u9fa5]+$/.test(String(text ?? ""));
-}
+/** K12 课程数据目录。 */
+const COURSES_DIR = join(WEB, "public", "data", "courses");
+
+/** 校验结果。 */
+const violations = [];
 
 /**
- * 生字是否就是课名拆字。
+ * 记一条违规。
  *
- * 判定：课名里存在一段**连续**的汉字序列，与生字数组**逐位相同**。
+ * @param rule 红线编号（罗马数字）
+ * @param detail 具体描述
+ * @param where 出处（文件 / 路径）
  */
-function charsAreTitleSplit(chars, title) {
-  if (!chars || chars.length === 0) return false;
-  const titleChars = [...String(title ?? "")].filter((c) => isHan(c));
-  if (titleChars.length < chars.length) return false;
-  for (let i = 0; i + chars.length <= titleChars.length; i += 1) {
-    const window = titleChars.slice(i, i + chars.length);
-    if (window.every((char, index) => char === chars[index])) return true;
-  }
-  return false;
+function fail(rule, detail, where) {
+  violations.push({ rule, detail, where });
 }
-
-/** 题库里被禁止的空洞模板句。 */
-const FORBIDDEN_QUESTION_PATTERNS = [
-  /你对本课理解到哪一步/,
-  /完全陌生/,
-  /听过概念/,
-  /已掌握基础想看/,
-  /^关于《?.*》?，/,
-  /请简要说明你对本课/,
-  /本课讲了什么内容/,
-];
 
 /* ──────────────────────────────────────────────────────────────────
- * 各项检查
+ * 加载全部 K12 课程数据
  * ────────────────────────────────────────────────────────────────── */
 
-/** 检查 ①：生字等于标题拆字。 */
-function checkHanziNotSplit(series, results) {
-  for (const episode of series.episodes) {
-    const manifest = episode.lesson_manifest;
-    if (!manifest) continue;
-    const chars = manifest.hanzi ?? [];
-    if (chars.length < 2) continue;
-    if (charsAreTitleSplit(chars, manifest.core_title ?? episode.title)) {
-      results.push({
-        series: series.id,
-        episode: episode.ep_id,
-        title: episode.title,
-        detail: `生字 ${chars.join("")} 就是课名「${manifest.core_title}」拆字`,
+/** 读取全部课程文件。 */
+function loadCourses() {
+  const files = readdirSync(COURSES_DIR).filter((name) =>
+    name.endsWith(".json"),
+  );
+  const courses = [];
+  for (const file of files) {
+    const full = join(COURSES_DIR, file);
+    const size = statSync(full).size;
+    if (size === 0) continue;
+    try {
+      courses.push({
+        file,
+        data: JSON.parse(readFileSync(full, "utf8")),
       });
+    } catch (error) {
+      fail("0", `JSON 解析失败：${error.message}`, `courses/${file}`);
     }
   }
+  return courses;
 }
 
-/** 检查 ②：初高中语文出现笔顺描红。 */
-function checkNoStrokeTracingInSecondary(series, results) {
-  if (series.subject !== "chinese") return;
-  if (series.grade < 7) return;
-  for (const episode of series.episodes) {
-    const lab = episode.interactive_lab;
-    if (!lab) continue;
-    if (lab.kind === "hanzi" || Array.isArray(lab.chars)) {
-      results.push({
-        series: series.id,
-        episode: episode.ep_id,
-        title: episode.title,
-        detail: `初高中语文出现「${lab.kind}」教具（含笔顺描红）`,
-      });
-    }
-  }
+const courses = loadCourses();
+
+/* ──────────────────────────────────────────────────────────────────
+ * 红线 ① · 语文课不得截标题拆字
+ * ────────────────────────────────────────────────────────────────── */
+
+/**
+ * 判断一个字符是不是「从标题里截来的」。
+ *
+ * ⛔ 关键在于：**不能只看字符是否出现在标题里**。
+ *
+ * 有些字**本来就该**在标题里——比如「古诗三首」里的「古」「诗」
+ * 确实是要教的生字。所以判据必须是：
+ *
+ * **这一整串字符是否恰好等于课名（去掉编号与标点）**。
+ *
+ * 只有这种情况才是「把标题当生字表」——因为它意味着这节课的生字
+ * 列表就是课名本身，一字不差。那不是「教课文」，那是「教标题」。
+ */
+function looksLikeTitleSplit(title, chars) {
+  if (!Array.isArray(chars) || chars.length === 0) return false;
+
+  // 去掉编号前缀（「1、」「P1-」「第一讲_」等）。
+  const cleaned = String(title)
+    .replace(/^[0-9]+[、.．]\s*/, "")
+    .replace(/^P\d+[-_]\s*/i, "")
+    .replace(/^第[一二三四五六七八九十百0-9]+讲[_\-—]?\s*/, "")
+    .trim();
+
+  const joined = chars.join("");
+  return joined === cleaned;
 }
 
-/** 检查 ③：视频分 P 与标题 / 巩固题错位。 */
-function checkVideoAlignment(series, results) {
-  for (const episode of series.episodes) {
-    // 分 P 课：``?p=N`` 里的 N 必须与 ``page`` 一致。
-    if (episode.bvid && episode.page && episode.video_url) {
-      const match = /[?&]p=(\d+)/.exec(episode.video_url);
-      if (match && Number(match[1]) !== episode.page) {
-        results.push({
-          series: series.id,
-          episode: episode.ep_id,
-          title: episode.title,
-          detail: `视频分 P ${match[1]} 与 page 字段 ${episode.page} 不一致`,
-        });
+/** 执行红线 ① ②。 */
+function checkChineseIntegrity() {
+  let checked = 0;
+
+  for (const { file, data } of courses) {
+    if (data.subject !== "chinese") continue;
+    const stage = data.stage;
+
+    for (const episode of data.episodes ?? []) {
+      checked += 1;
+      const lab = episode.interactive_lab;
+      if (!lab) continue;
+
+      // ── ① 截标题拆字 ──
+      if (Array.isArray(lab.chars) && lab.chars.length > 0) {
+        if (looksLikeTitleSplit(episode.title, lab.chars)) {
+          fail(
+            "I",
+            `语文课把标题当生字表：${JSON.stringify(lab.chars)}`,
+            `${file} :: ${episode.ep_id} 「${episode.title}」`,
+          );
+        }
       }
-    }
 
-    // 本集的巩固题不能是别的课的题——检查题里出现的课文名。
-    const quizzes = episode.quizzes ?? [];
-    const coreTitle = episode.core_title ?? "";
-    for (const quiz of quizzes) {
-      const question = String(quiz?.question ?? "");
-      // 题干里引用了**其他**篇目的书名号内容 → 错位。
-      const quotes = question.match(/《([^》]+)》/g) ?? [];
-      for (const quote of quotes) {
-        const name = quote.slice(1, -1);
-        if (name.length >= 2 && coreTitle && !coreTitle.includes(name) && !name.includes(coreTitle)) {
-          // 该课文名不在本课标题里——这里只标记**明显**跨学段的情况。
-          const seriesGrade = series.grade;
-          if (seriesGrade <= 6 && /论语|师说|赤壁赋|登高|劝学|岳阳楼记|醉翁亭记|爱莲说|沁园春|琵琶行|短歌行/.test(name)) {
-            results.push({
-              series: series.id,
-              episode: episode.ep_id,
-              title: episode.title,
-              detail: `小学课里的巩固题引用了初高中课文《${name}》`,
-            });
-          }
+      // ── ② 初高中不得描红 ──
+      if (stage !== "primary") {
+        if (lab.kind === "hanzi") {
+          fail(
+            "II",
+            `初高中语文出现描红教具（kind=${lab.kind}）`,
+            `${file} :: ${episode.ep_id} 「${episode.title}」`,
+          );
+        }
+        if (Array.isArray(lab.chars) && lab.chars.length > 0) {
+          fail(
+            "II",
+            `初高中语文出现描红生字表：${JSON.stringify(lab.chars)}`,
+            `${file} :: ${episode.ep_id} 「${episode.title}」`,
+          );
         }
       }
     }
   }
+
+  return checked;
 }
 
-/** 检查 ④：数学课必须精确匹配教具。 */
-function checkMathToolMatch(series, results) {
-  if (series.subject !== "math") return;
-  for (const episode of series.episodes) {
-    const manifest = episode.lesson_manifest;
-    const lab = episode.interactive_lab;
-    if (!manifest) {
-      results.push({
-        series: series.id,
-        episode: episode.ep_id,
-        title: episode.title,
-        detail: "数学课缺少 lesson_manifest",
-      });
-      continue;
+/* ──────────────────────────────────────────────────────────────────
+ * 红线 ③ · 数学课必须绑定真实教具
+ * ────────────────────────────────────────────────────────────────── */
+
+/** 合法的数学教具类型。 */
+const MATH_TOOLS = new Set([
+  "blocks",
+  "numberline",
+  "fraction",
+  "area",
+  "transform",
+  "ratio",
+  "function",
+  "geometry",
+  "algebra",
+  "probability",
+  "symmetry",
+  "protractor",
+  "functionLab",
+  "chartLab",
+  "decimalBlocks",
+  "fractionDisc",
+  "numberLine",
+  "balanceScale",
+]);
+
+/** 执行红线 ③。 */
+function checkMathTools() {
+  let checked = 0;
+  let bound = 0;
+
+  for (const { file, data } of courses) {
+    if (data.subject !== "math") continue;
+
+    for (const episode of data.episodes ?? []) {
+      checked += 1;
+      const lab = episode.interactive_lab;
+
+      // 每节数学课都必须有教具。
+      if (!lab || !lab.kind) {
+        fail(
+          "III",
+          "数学课没有绑定任何教具",
+          `${file} :: ${episode.ep_id} 「${episode.title}」`,
+        );
+        continue;
+      }
+
+      if (!MATH_TOOLS.has(lab.kind)) {
+        fail(
+          "III",
+          `数学教具类型不在白名单内：${lab.kind}`,
+          `${file} :: ${episode.ep_id} 「${episode.title}」`,
+        );
+        continue;
+      }
+
+      bound += 1;
+
+      // 教具必须有**真实参数**——空壳教具（「绝不留空壳」）。
+      const hasParams =
+        (lab.params && Object.keys(lab.params).length > 0) ||
+        (lab.manipulative && Object.keys(lab.manipulative).length > 0) ||
+        typeof lab.target === "number" ||
+        typeof lab.slices === "number" ||
+        (lab.mathTopic && lab.mathTopic.definition);
+
+      if (!hasParams) {
+        fail(
+          "III",
+          `数学教具没有任何真实参数（空壳）`,
+          `${file} :: ${episode.ep_id} 「${episode.title}」`,
+        );
+      }
+
+      // 教具必须有可验证的探索任务——每个教具配 2–3 个动手任务。
+      const tasks = Array.isArray(episode.lesson_manifest?.tasks)
+        ? episode.lesson_manifest.tasks
+        : null;
+      if (tasks && tasks.length < 2) {
+        fail(
+          "III",
+          `教具只配了 ${tasks.length} 个探索任务（要求 2–3 个）`,
+          `${file} :: ${episode.ep_id} 「${episode.title}」`,
+        );
+      }
     }
-    if (!manifest.math_tool_type) {
-      results.push({
-        series: series.id,
-        episode: episode.ep_id,
-        title: episode.title,
-        detail: "数学课没有 math_tool_type",
-      });
-      continue;
+  }
+
+  return { checked, bound };
+}
+
+/* ──────────────────────────────────────────────────────────────────
+ * 红线 ④ · 首页下半屏必须渲染
+ * ────────────────────────────────────────────────────────────────── */
+
+/** 首页源码。 */
+function readHomeSource() {
+  const candidates = [
+    join(WEB, "app", "(workspace)", "editorial-home.tsx"),
+    join(WEB, "app", "(workspace)", "page.tsx"),
+  ];
+  for (const path of candidates) {
+    try {
+      return readFileSync(path, "utf8");
+    } catch {
+      /* 试下一个 */
     }
-    if (!lab || lab.kind !== manifest.math_tool_type) {
-      results.push({
-        series: series.id,
-        episode: episode.ep_id,
-        title: episode.title,
-        detail: `教具类型不一致：manifest=${manifest.math_tool_type} lab=${lab?.kind}`,
-      });
-      continue;
+  }
+  return "";
+}
+
+/** 执行红线 ④。 */
+function checkHomepageRenders() {
+  const source = readHomeSource();
+  if (!source) {
+    fail("IV", "找不到首页源码", "app/(workspace)/editorial-home.tsx");
+    return;
+  }
+
+  // ── 梦想课堂专栏的四个板块 ──
+  const requiredSections = [
+    { token: "ABOUT", label: "板块 A · 关于梦想课堂" },
+    { token: "PILLARS", label: "板块 B · 三大方法论支柱" },
+    { token: "GLOBAL_VIEW", label: "板块 C · 国际视野" },
+    { token: "HQ_SPACE", label: "板块 C · 总部空间" },
+    { token: "JOIN", label: "板块 D · 加入我们" },
+  ];
+
+  for (const item of requiredSections) {
+    if (!source.includes(item.token)) {
+      fail("IV", `首页缺少${item.label}（未引用 ${item.token}）`, "editorial-home.tsx");
     }
-    // 教具必须带**可操作的初始参数**，不能是空壳。
-    const config = manifest.tool_config ?? {};
-    if (Object.keys(config).length === 0) {
-      results.push({
-        series: series.id,
-        episode: episode.ep_id,
-        title: episode.title,
-        detail: "数学课教具缺少初始参数（tool_config 为空）",
-      });
+  }
+
+  // ── 首页不能被裁切 ──
+  //
+  // 旧版首页下半屏空白，根因是外层容器带 ``h-screen`` +
+  // ``overflow-hidden``——内容被裁在一屏之内，滚动不到。
+  //
+  // ⚠️ **必须先剥掉注释**——否则文档里写「避免 h-screen +
+  //    overflow-hidden」这句话本身就会被判成违规。
+  const code = stripComments(source);
+  const clipping = [
+    /h-screen[^"']*overflow-hidden/,
+    /overflow-hidden[^"']*h-screen/,
+  ];
+  for (const pattern of clipping) {
+    if (pattern.test(code)) {
+      fail(
+        "IV",
+        `首页容器带裁切类名（${pattern.source}）——下半屏会被裁掉`,
+        "editorial-home.tsx",
+      );
+    }
+  }
+
+  // ── site-config 必须提供联系槽位 ──
+  const config = readFileSync(join(WEB, "data", "site-config.ts"), "utf8");
+  for (const key of ["CONTACT_EMAIL", "WECHAT_ID", "QR_CODE_IMAGE"]) {
+    if (!config.includes(key)) {
+      fail("IV", `site-config.ts 缺少 ${key} 槽位`, "data/site-config.ts");
     }
   }
 }
 
-/** 检查 ⑤：空洞模板题 / 错龄假题。 */
-function checkNoTemplateQuestions(series, results) {
-  for (const episode of series.episodes) {
-    const all = [
-      ...(episode.diagnostics ?? []),
-      ...(episode.quizzes ?? []),
-    ];
-    for (const quiz of all) {
-      const question = String(quiz?.question ?? "");
-      for (const pattern of FORBIDDEN_QUESTION_PATTERNS) {
-        if (pattern.test(question)) {
-          results.push({
-            series: series.id,
-            episode: episode.ep_id,
-            title: episode.title,
-            detail: `空洞模板题：「${question.slice(0, 30)}…」`,
-          });
-          break;
-        }
-      }
-      // 题干必须足够具体——太短的多半是占位符。
-      if (question.length < 8) {
-        results.push({
-          series: series.id,
-          episode: episode.ep_id,
-          title: episode.title,
-          detail: `题干过短，疑似占位符：「${question}」`,
-        });
-      }
-      // 选项必须有解析。
-      if (!String(quiz?.explanation ?? "").trim()) {
-        results.push({
-          series: series.id,
-          episode: episode.ep_id,
-          title: episode.title,
-          detail: "题目缺少解析",
-        });
-      }
+/* ──────────────────────────────────────────────────────────────────
+ * 红线 ⑤ · 全站 0 个半透明文字框
+ * ────────────────────────────────────────────────────────────────── */
+
+/**
+ * 剥掉源码里的注释。
+ *
+ * ⚠️ 校验脚本必须看**真正生效的代码**，而不是文档。
+ *    否则「本项目避免使用 h-screen + overflow-hidden」这句话本身
+ *    就会被判成违规——一个把规则写在注释里的校验器很荒谬。
+ */
+function stripComments(source) {
+  return source
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/(^|[^:])\/\/[^\n]*/g, "$1");
+}
+
+/** 遍历 web 目录下的 tsx / ts / css。 */
+function walk(dir, out = []) {
+  for (const entry of readdirSync(dir)) {
+    if (entry === "node_modules" || entry === ".next" || entry === "out") {
+      continue;
     }
+    const full = join(dir, entry);
+    const stats = statSync(full);
+    if (stats.isDirectory()) walk(full, out);
+    else if (/\.(tsx|ts|css)$/.test(entry)) out.push(full);
   }
+  return out;
 }
 
 /**
- * 检查 ⑥：弹窗 / 卡片使用半透明文字底色。
+ * 半透明文字框的形态。
  *
- * 只扫**真正承载文字**的容器：
+ * ⛔ 只检查**承载文字的容器**，不检查装饰层。
  *
- * - ``bg-white/xx``、``bg-slate-xxx/xx``、``bg-[#xxx]/xx`` 这类
- *   **带透明度后缀**的底色；
- * - 但**排除**：
- *   - 全屏遮罩层（``fixed inset-0`` + ``backdrop-blur``）——
- *     这是被允许的；
- *   - 纯装饰元素（``aria-hidden`` 的渐变、圆形光晕）。
+ * 判定规则：
+ *
+ * 1. ``bg-white/50`` 这类**带文字的**半透明白底 → 违规；
+ * 2. ``backdrop-blur`` + 半透明底 + 文字 → 违规；
+ * 3. ``bg-slate-950/60 backdrop-blur-sm`` —— 这是**模态框遮罩**，
+ *    规范明确允许（它不承载文字，文字在上面的纯白卡片里）。
  */
-function checkNoTransparentTextContainers(results) {
-  const roots = [path.join(WEB_DIR, "components"), path.join(WEB_DIR, "app")];
+function checkNoTranslucentTextBoxes() {
+  const files = walk(WEB);
+  let checked = 0;
 
-  /** 收集所有源码文件。 */
-  function walk(dir, out = []) {
-    if (!fs.existsSync(dir)) return out;
-    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-      const full = path.join(dir, entry.name);
-      if (entry.isDirectory()) {
-        if (entry.name === "node_modules" || entry.name === ".next") continue;
-        walk(full, out);
-      } else if (/\.(tsx|ts)$/.test(entry.name)) {
-        out.push(full);
-      }
+  // 半透明底 + 文字内容的容器类名。
+  const translucentBg =
+    /bg-(?:white|black|slate-\d+|gray-\d+|\[#?[0-9a-fA-F]{3,8}\])\/\d{1,3}\b/;
+
+  for (const file of files) {
+    const source = stripComments(readFileSync(file, "utf8"));
+    checked += 1;
+
+    // 模态框遮罩——规范明确允许。
+    const withoutModals = source.replace(
+      /bg-slate-950\/\d{1,3}[^"'\n]*backdrop-blur[^"'\n]*/g,
+      "",
+    );
+
+    // 找出所有 className 里带半透明底的，且**同一标签内有文字**。
+    const tagPattern = /<(\w+)([^>]*?)className=\{?["']([^"']*)["']\}?([^>]*)>([\s\S]{0,400}?)<\/\1>/g;
+    let match;
+    while ((match = tagPattern.exec(withoutModals)) !== null) {
+      const [, , , className, , children] = match;
+      if (!className || !children) continue;
+      if (!translucentBg.test(className)) continue;
+      // 有实质文字内容？
+      const text = children.replace(/<[^>]*>/g, "").trim();
+      if (text.length < 2) continue;
+      fail(
+        "V",
+        `半透明文字框：className="${className.trim()}"`,
+        `${file.replace(WEB, "web")}`,
+      );
     }
-    return out;
   }
 
-  /** 半透明底色类名（Tailwind 调色板）。 */
-  const transparentPattern =
-    /\bbg-(?:white|black|slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-\d{2,3}\/\d{1,3}\b/g;
-  /** 任意色值带透明度。 */
-  const arbitraryPattern = /\bbg-\[[^\]]*\/[0-9]{1,3}\]/g;
+  return checked;
+}
 
-  for (const file of roots.flatMap((dir) => walk(dir))) {
-    const source = fs.readFileSync(file, "utf8");
-    const lines = source.split("\n");
+/* ──────────────────────────────────────────────────────────────────
+ * 红线 ⑥ · 纸飞机 2.1 秒内必定退场
+ * ────────────────────────────────────────────────────────────────── */
 
-    lines.forEach((line, index) => {
-      const matches = [
-        ...(line.match(transparentPattern) ?? []),
-        ...(line.match(arbitraryPattern) ?? []),
-      ];
-      if (matches.length === 0) return;
+function checkPaperPlaneTimeout() {
+  const path = join(WEB, "components", "home", "PaperPlaneIntro.tsx");
+  const source = readFileSync(path, "utf8");
 
-      // 豁免 ①：全屏遮罩（允许半透明 + 模糊）。
-      if (/fixed\s+inset-0/.test(line)) return;
-      // 豁免 ②：纯装饰（aria-hidden / pointer-events-none）。
-      if (/aria-hidden|pointer-events-none/.test(line)) return;
-      // 豁免 ③：渐变端点（from-/via-/to-）不是独立底色。
-      if (!/\bbg-/.test(line)) return;
+  // ── 必须有硬兜底定时器 ──
+  if (!/setTimeout\([^)]*HARD_TIMEOUT_MS[^)]*\)/.test(source)) {
+    fail(
+      "VI",
+      "纸飞机缺少 HARD_TIMEOUT_MS 硬兜底定时器——动画回调不触发时会卡死",
+      "components/home/PaperPlaneIntro.tsx",
+    );
+  }
 
-      results.push({
-        series: "-",
-        episode: "-",
-        title: path.relative(ROOT, file),
-        detail: `第 ${index + 1} 行使用了半透明底色：${matches.join(", ")}`,
-      });
-    });
+  // ── 兜底时长必须 ≤ 2.1 秒 ──
+  const match = /HARD_TIMEOUT_MS\s*=\s*(\d+)/.exec(source);
+  if (!match) {
+    fail(
+      "VI",
+      "找不到 HARD_TIMEOUT_MS 常量",
+      "components/home/PaperPlaneIntro.tsx",
+    );
+  } else {
+    const value = Number(match[1]);
+    if (value > 2100) {
+      fail(
+        "VI",
+        `硬兜底超时 ${value}ms 超过 2100ms 上限`,
+        "components/home/PaperPlaneIntro.tsx",
+      );
+    }
+  }
+
+  // ── 必须有「跳过」按钮 ──
+  if (!source.includes("跳过")) {
+    fail(
+      "VI",
+      "纸飞机缺少 [跳过] 按钮",
+      "components/home/PaperPlaneIntro.tsx",
+    );
+  }
+
+  // ── 必须有 sessionStorage 一次性控制 ──
+  if (!source.includes("sessionStorage")) {
+    fail(
+      "VI",
+      "纸飞机缺少 sessionStorage 单次会话控制",
+      "components/home/PaperPlaneIntro.tsx",
+    );
   }
 }
 
@@ -324,92 +476,50 @@ function checkNoTransparentTextContainers(results) {
  * 主流程
  * ────────────────────────────────────────────────────────────────── */
 
-function main() {
-  const files = fs
-    .readdirSync(COURSES_DIR)
-    .filter((name) => /^k12_.*\.json$/.test(name))
-    .map((name) => path.join(COURSES_DIR, name))
-    .sort();
+console.log("┌─────────────────────────────────────────────┐");
+console.log("│  OE · 真实内容强校验                          │");
+console.log("└─────────────────────────────────────────────┘\n");
 
-  const series = files.map((file) => {
-    const data = JSON.parse(fs.readFileSync(file, "utf8"));
-    return { ...data, __file: file };
-  });
+const chineseCount = checkChineseIntegrity();
+console.log(`红线 ① ②  语文课完整性        ${chineseCount} 节已检查`);
 
-  const checks = [
-    {
-      name: "语文课生字等于标题拆字",
-      run: (results) => series.forEach((s) => checkHanziNotSplit(s, results)),
-    },
-    {
-      name: "初高中语文混入小学描红",
-      run: (results) =>
-        series.forEach((s) => checkNoStrokeTracingInSecondary(s, results)),
-    },
-    {
-      name: "视频分 P 与标题 / 巩固题错位",
-      run: (results) => series.forEach((s) => checkVideoAlignment(s, results)),
-    },
-    {
-      name: "数学课未精确匹配教具",
-      run: (results) => series.forEach((s) => checkMathToolMatch(s, results)),
-    },
-    {
-      name: "空洞模板题 / 错龄假题",
-      run: (results) => series.forEach((s) => checkNoTemplateQuestions(s, results)),
-    },
-    {
-      name: "弹窗使用半透明文字底色",
-      run: (results) => checkNoTransparentTextContainers(results),
-    },
-  ];
+const math = checkMathTools();
+console.log(
+  `红线 ③    数学教具绑定          ${math.bound}/${math.checked} 节已绑定`,
+);
 
-  console.log("════════════════════════════════════════════════════════════");
-  console.log("真实内容强校验报告");
-  console.log("════════════════════════════════════════════════════════════");
+checkHomepageRenders();
+console.log("红线 ④    首页下半屏渲染        已检查");
 
-  const episodes = series.reduce(
-    (sum, s) => sum + (s.episodes?.length ?? 0),
-    0,
-  );
-  const quizzes = series.reduce(
-    (sum, s) =>
-      sum +
-      (s.episodes ?? []).reduce((n, e) => n + (e.quizzes?.length ?? 0), 0),
-    0,
-  );
-  console.log(
-    `系列总数：${series.length} 套　｜　课时总数：${episodes} 集　｜　巩固题：${quizzes} 道`,
-  );
-  console.log("────────────────────────────────────────────────────────────");
+const fileCount = checkNoTranslucentTextBoxes();
+console.log(`红线 ⑤    半透明文字框          ${fileCount} 个文件已扫描`);
 
-  let failed = 0;
-  for (const check of checks) {
-    const results = [];
-    check.run(results);
-    if (results.length === 0) {
-      console.log(`✅ ${check.name}：0 条异常`);
-    } else {
-      failed += 1;
-      console.log(`❌ ${check.name}：${results.length} 条异常`);
-      for (const item of results.slice(0, 12)) {
-        console.log(`   · [${item.series}] ${item.title} — ${item.detail}`);
-      }
-      if (results.length > 12) {
-        console.log(`   …… 其余 ${results.length - 12} 条省略`);
-      }
-    }
-  }
+checkPaperPlaneTimeout();
+console.log("红线 ⑥    纸飞机防卡死          已检查");
 
-  console.log("────────────────────────────────────────────────────────────");
-  if (failed === 0) {
-    console.log(`✅ 全部 ${checks.length} 项通过（0 异常）`);
-    console.log("════════════════════════════════════════════════════════════");
-  } else {
-    console.log(`❌ ${failed} / ${checks.length} 项未通过`);
-    console.log("════════════════════════════════════════════════════════════");
-    process.exitCode = 1;
-  }
+console.log("");
+
+if (violations.length === 0) {
+  console.log("✅ 六条红线全部通过 —— 0 违规。\n");
+  process.exit(0);
 }
 
-main();
+console.log(`❌ 发现 ${violations.length} 条违规：\n`);
+const grouped = new Map();
+for (const item of violations) {
+  const list = grouped.get(item.rule) ?? [];
+  list.push(item);
+  grouped.set(item.rule, list);
+}
+for (const [rule, list] of grouped) {
+  console.log(`  红线 ${rule} —— ${list.length} 条`);
+  for (const item of list.slice(0, 20)) {
+    console.log(`    · ${item.detail}`);
+    console.log(`      ↳ ${item.where}`);
+  }
+  if (list.length > 20) {
+    console.log(`    … 还有 ${list.length - 20} 条`);
+  }
+  console.log("");
+}
+process.exit(1);

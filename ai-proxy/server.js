@@ -114,6 +114,126 @@ function isOriginAllowed(origin) {
   );
 }
 
+/* ──────────────────────────────────────────────────────────────────
+ * Khanmigo 苏格拉底系统提示词模板
+ * ────────────────────────────────────────────────────────────────── */
+
+/**
+ * 语言指令——按界面语言切换。
+ *
+ * ⚠️ 关键约束：**教材本体不翻译**。国内语文课本的汉字、古诗原文
+ *    必须保持**原中文**——翻译了就失真，那不是学习材料了。
+ */
+const LOCALE_INSTRUCTIONS = {
+  "zh-CN":
+    "用**简体中文**回答。引用课文、古诗原文、汉字字形时保持原文，不作翻译。",
+  "zh-TW":
+    "用**繁體中文**回答。引用課文、古詩原文、漢字字形時保持原文，不作翻譯。",
+  en:
+    "Answer in **English**. When quoting Chinese textbook passages, classical poems or 汉字/生词, keep the **original Chinese characters** and add a brief English explanation afterwards — never replace the original text with a translation.",
+};
+
+/**
+ * 苏格拉底系统提示词模板。
+ *
+ * 这段提示词是「**不剧透**」的保证书。
+ *
+ * 为什么把提示词放在服务端
+ * ------------------------
+ *
+ * 1. **前端可以随便改**——用户能改自己浏览器里的任何东西，但改不了
+ *    服务端的提示词。这让「绝不剧透」成为一个**可承诺的性质**，
+ *    而不是一句自觉遵守的约定；
+ * 2. **省 token**——每次请求都省掉一段长 system prompt；
+ * 3. **好维护**——改一次，全站生效。
+ *
+ * @param context 前端传来的上下文
+ */
+function buildSocraticSystemPrompt(context) {
+  const locale = context?.language ?? "zh-CN";
+  const localeInstruction =
+    LOCALE_INSTRUCTIONS[locale] ?? LOCALE_INSTRUCTIONS["zh-CN"];
+
+  const lines = [
+    "你是一位**苏格拉底式启发伴学助教**，正在陪一位海外华人学习者完成一节交互式课程。",
+    "",
+    "## 核心原则（不可违背）",
+    "",
+    "1. **绝不直接给出答案**。不要替学生算出结果、不要直接说出标准定义、不要把练习题的答案写出来。",
+    "2. **用问题推进**。你的第一反应应该是**反问**——「你注意到什么？」「如果换一个数会怎样？」「你觉得为什么？」",
+    "3. **给现象，不给结论**。可以描述学生刚才的操作结果（因为他已经看到了），但不要说出背后的原理名称和推导。",
+    "4. **一次只推进一步**。不要一口气讲完整节课的知识点。",
+    "5. **引用教材保持原文**。语文课文、古诗、汉字字形一律用原中文。",
+    "6. **语言跟随界面**。用户在英文界面提问就用英文回答；中文界面用中文。",
+    "",
+    "## 回答形态",
+    "",
+    "- 简短。**2–4 句**通常就够；教学场景不需要长篇大论。",
+    "- 可以用一个小小的 Markdown 列表，但**不要**用大标题堆砌结构。",
+    "- 如果学生明确说「直接告诉我答案」，可以给一个**最小提示**（指向方法而非结果），并说明为什么这样更有帮助——但仍不直接给最终答案，除非他再次坚持。",
+    "",
+    "## 当前学习情境",
+    "",
+    `- 课程：${context?.course ?? "（未提供）"}`,
+    `- 本课：${context?.lesson ?? "（未提供）"}`,
+  ];
+
+  // ── 左侧教具的实时状态 ──
+  //
+  // 这是**最有价值**的一段上下文：它让助教的追问能**贴着学生刚
+  // 做的动作**，而不是泛泛而谈。
+  const lab = context?.labState;
+  if (lab && typeof lab === "object") {
+    lines.push(
+      "",
+      "### 学生在左侧教具中的实时进度",
+      "",
+      `- 正在使用的教具：${lab.title ?? lab.kind ?? "（未提供）"}`,
+      `- 完成的任务：${lab.done ?? 0} / ${lab.total ?? 0}`,
+    );
+    if (lab.message) lines.push(`- 当前状态：${lab.message}`);
+    if (Array.isArray(lab.tasks) && lab.tasks.length > 0) {
+      const done = lab.tasks.filter((task) => task.done).map((task) => task.label);
+      const pending = lab.tasks
+        .filter((task) => !task.done)
+        .map((task) => task.label);
+      if (done.length > 0) lines.push(`- 已完成：${done.join("、")}`);
+      if (pending.length > 0) lines.push(`- 尚未完成：${pending.join("、")}`);
+    }
+    lines.push(
+      "",
+      "请结合这个进度提问——学生刚做了什么，就问那件事背后的道理，不要问无关的题。",
+    );
+  }
+
+  // ── 已获得的星星 ──
+  const stars = context?.stars;
+  if (stars && typeof stars === "object") {
+    const count =
+      (stars.explore ? 1 : 0) + (stars.think ? 1 : 0) + (stars.master ? 1 : 0);
+    lines.push(
+      "",
+      "### 当前学习进度",
+      "",
+      `- 已点亮星星：${count} / 3`,
+      "- ⭐ 动手探索　⭐⭐ 深度思考　⭐⭐⭐ 巩固掌握",
+    );
+    if (count === 0) {
+      lines.push(
+        "- 学生还没有开始动手。可以先引导他去左侧拖一拖、试一试。",
+      );
+    } else if (count < 3) {
+      lines.push(
+        "- 可以用「还差哪一颗星」来推动他继续——但仍然是引导，不是催促。",
+      );
+    }
+  }
+
+  lines.push("", `## 语言要求`, "", localeInstruction);
+
+  return lines.join("\n");
+}
+
 const app = express();
 
 /** 只收 JSON 请求体——限制体积，防滥用。 */
@@ -200,10 +320,29 @@ app.post("/chat/completions", async (request, response) => {
     return;
   }
 
+  /**
+   * 决定用哪套 system prompt。
+   *
+   * 前端如果传了 ``context``（课程 / 教具状态 / 星星），就用**服务端的
+   * 苏格拉底模板**——它保证「绝不剧透」这条性质不会被前端改掉。
+   *
+   * 前端没传 context（普通聊天）时，用前端自己带的 system message。
+   */
+  const context = body.context;
+  let outgoing = messages;
+
+  if (context && typeof context === "object") {
+    const socratic = buildSocraticSystemPrompt(context);
+    // 前端若已经带了 system message，用服务端的**替换**它——
+    // 否则前端可以绕过模板，把「直接给答案」写进 system prompt。
+    const rest = messages.filter((message) => message.role !== "system");
+    outgoing = [{ role: "system", content: socratic }, ...rest];
+  }
+
   // 只转发需要的字段——不让前端决定模型或用别人的 Key。
   const payload = {
     model: typeof body.model === "string" ? body.model : DEEPSEEK_MODEL,
-    messages,
+    messages: outgoing,
     stream: Boolean(body.stream),
     temperature:
       typeof body.temperature === "number" ? body.temperature : 0.6,

@@ -18,6 +18,23 @@ import { cn } from "@/lib/cn";
  * 所以这一版把开场做成了一件**只表达一件事**的事：一张纸飞机从纸面
  * 上滑过，然后化开成首页。它不索取任何信息，也不打断任何流程。
  *
+ * ⛔ **绝对不可卡死**（这是本组件最重要的属性）
+ * -----------------------------------------------
+ *
+ * 旧版有一个真实发生过的 Bug：动画回调在某些情况下不会触发
+ * （比如标签页在后台被节流、``prefers-reduced-motion`` 命中、
+ * framer-motion 的动画被中断），于是覆盖层**永远不消失**，用户只能
+ * 手动点「跳过」才能进站。
+ *
+ * 现在用**双保险**根治：
+ *
+ * 1. **正常路径**——飞完（1.5s）→ 化开（0.35s）→ 卸载；
+ * 2. **硬兜底**——一个**独立**的 ``setTimeout(..., 2100)``，它在
+ *    挂载时就开始计时，**不依赖任何动画回调**。无论发生什么，2.1 秒
+ *    内覆盖层 100% 消失并切入主页。
+ *
+ * 两条路径都调用同一个 ``finish()``，它是幂等的——重复调用无副作用。
+ *
  * 动效规格
  * --------
  *
@@ -27,27 +44,27 @@ import { cn } from "@/lib/cn";
  *     机身     #0B162C 线条（深午夜牛津蓝）
  *     折痕     #B89B5E（哑光香槟金）
  *     航迹     渐隐虚线，从机尾拖出
- *     缓动     cubic-bezier(0.16, 1, 0.3, 1) —— 由快到慢
- *     时长     ~1.6s
- *
- * 关键细节
- * --------
- *
- * 1. **航迹先于机身出现**：拖尾不是机身画完才补的，而是跟着机头
- *    位置实时绘制的一段渐隐虚线——这才是「飞行」而不是「滑行」。
- * 2. **化开而不是淡出**：停稳的瞬间，画面与航迹一起**扩散消隐**
- *    （scale + opacity），首页从纸面下「长」出来。
- * 3. **每次会话只播一次**：用 ``sessionStorage`` 打标记。二次返回
- *    直接进首页——绝不拦路。
- * 4. **右下角 [跳过]**：极轻，不抢戏，但一定要有。动效永远不该
- *    剥夺用户的控制权。
+ *     缓动     cubic-bezier(0.16, 1, 0.3, 1) —— 由快到慢缓出
+ *     飞行时长 1.5s　化开 0.35s
  */
 
 /** sessionStorage 里的一次性标记。 */
 const SEEN_KEY = "oe:paper-plane-intro-seen";
 
-/** 动效总时长（毫秒）。 */
-const TOTAL_MS = 1600;
+/** 飞行时长（毫秒）。 */
+const FLIGHT_MS = 1500;
+
+/** 化开时长（毫秒）。 */
+const DISSOLVE_MS = 350;
+
+/**
+ * 硬兜底定时器时长（毫秒）。
+ *
+ * ⚠️ 这是**防卡死的最后一道防线**——它必须**独立于**动画系统。
+ *    取 2100ms：略大于 飞行 + 化开（1850ms），留 250ms 余量给
+ *    帧调度抖动，但又足够短，用户感知不到「等」。
+ */
+const HARD_TIMEOUT_MS = 2100;
 
 /** 组件属性。 */
 export interface PaperPlaneIntroProps {
@@ -60,7 +77,7 @@ export interface PaperPlaneIntroProps {
 export default function PaperPlaneIntro({ onDone, force = false }: PaperPlaneIntroProps) {
   const [phase, setPhase] = useState<"flying" | "dissolving" | "gone">("flying");
   const [mounted, setMounted] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timerRef = useRef<number | null>(null);  const finishedRef = useRef(false);
 
   /**
    * 是否应该播放。
@@ -85,8 +102,15 @@ export default function PaperPlaneIntro({ onDone, force = false }: PaperPlaneInt
     }
   }, [force]);
 
-  /** 结束动效。 */
+  /**
+   * 结束动效。
+   *
+   * **幂等**——两条兜底路径（正常回调 + 硬超时）都会调它，重复调用
+   * 不产生副作用。
+   */
   const finish = useCallback(() => {
+    if (finishedRef.current) return;
+    finishedRef.current = true;
     if (timerRef.current) clearTimeout(timerRef.current);
     try {
       window.sessionStorage.setItem(SEEN_KEY, "1");
@@ -97,17 +121,39 @@ export default function PaperPlaneIntro({ onDone, force = false }: PaperPlaneInt
     onDone?.();
   }, [onDone]);
 
-  /** 计时器：飞完 → 化开 → 消失。 */
+  /**
+   * 计时器：飞完 → 化开 → 消失。
+   */
   useEffect(() => {
     if (phase !== "flying") return;
-    timerRef.current = setTimeout(() => {
+    const timer = window.setTimeout(() => {
       setPhase("dissolving");
-      timerRef.current = setTimeout(finish, 520);
-    }, TOTAL_MS);
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
+    }, FLIGHT_MS);
+    timerRef.current = timer;
+    return () => window.clearTimeout(timer);
+  }, [phase]);
+  /** 化开后卸载。 */
+  useEffect(() => {
+    if (phase !== "dissolving") return;
+    const timer = window.setTimeout(finish, DISSOLVE_MS);
+    return () => window.clearTimeout(timer);
   }, [phase, finish]);
+
+  /**
+   * ⛔ **硬兜底定时器**——防卡死的核心。
+   *
+   * 它在挂载时**立即**启动，**完全不依赖** framer-motion 的任何
+   * 回调、也不依赖上面的两个 effect 链。只要页面活着，2.1 秒后
+   * 覆盖层一定消失。
+   *
+   * 它是**唯一**一个不依赖 ``phase`` 的 effect——所以即使 phase
+   * 因为任何原因卡在 ``"flying"``，它依然会触发。
+   */
+  useEffect(() => {
+    if (!mounted) return;
+    const timer = window.setTimeout(finish, HARD_TIMEOUT_MS);
+    return () => window.clearTimeout(timer);
+  }, [mounted, finish]);
 
   /** 挂载前与已播放 → 什么都不渲染。 */
   if (!mounted || phase === "gone") return null;
@@ -125,7 +171,7 @@ export default function PaperPlaneIntro({ onDone, force = false }: PaperPlaneInt
             ? { opacity: 0, scale: 1.06 }
             : { opacity: 1, scale: 1 }
         }
-        transition={{ duration: 0.52, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: DISSOLVE_MS / 1000, ease: [0.16, 1, 0.3, 1] }}
       >
         <PlaneScene phase={phase} />
       </motion.div>
@@ -174,7 +220,7 @@ function PlaneScene({ phase }: { phase: "flying" | "dissolving" }) {
             : { pathLength: 1, opacity: 0 }
         }
         transition={{
-          pathLength: { duration: TOTAL_MS / 1000, ease: [0.16, 1, 0.3, 1] },
+          pathLength: { duration: FLIGHT_MS / 1000, ease: [0.16, 1, 0.3, 1] },
           opacity: { duration: 0.4 },
         }}
       />
@@ -188,11 +234,11 @@ function PlaneScene({ phase }: { phase: "flying" | "dissolving" }) {
             : { x: 0, y: 0, rotate: -12, opacity: 0 }
         }
         transition={{
-          x: { duration: TOTAL_MS / 1000, ease: [0.16, 1, 0.3, 1] },
-          y: { duration: TOTAL_MS / 1000, ease: [0.16, 1, 0.3, 1] },
-          rotate: { duration: TOTAL_MS / 1000, ease: [0.16, 1, 0.3, 1] },
+          x: { duration: FLIGHT_MS / 1000, ease: [0.16, 1, 0.3, 1] },
+          y: { duration: FLIGHT_MS / 1000, ease: [0.16, 1, 0.3, 1] },
+          rotate: { duration: FLIGHT_MS / 1000, ease: [0.16, 1, 0.3, 1] },
           opacity: {
-            duration: TOTAL_MS / 1000,
+            duration: FLIGHT_MS / 1000,
             times: [0, 0.12, 0.86],
             ease: "easeOut",
           },

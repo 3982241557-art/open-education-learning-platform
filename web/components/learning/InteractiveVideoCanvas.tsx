@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactPlayer, { type ReactPlayerProps } from "react-player";
 import {
+  AlertTriangle,
   ChevronDown,
   GitBranch,
   Pause,
@@ -1034,14 +1035,29 @@ export function InteractiveVideoCanvas({
             </span>
           </div>
         )}
-
-        {/* 不可播放的 iframe（拿不到进度）时给出提示。 */}
-        {video.kind === "iframe" && !isBilibiliFrame && nodes.length > 0 && (
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 bg-black/55 px-3 py-1.5 text-[10.5px] text-white/85">
-            此来源无法同步播放进度——重点导读需要 YouTube 或 B 站等可精确定位的片源。
-          </div>
-        )}
       </div>
+
+      {/* ── 不可播放的 iframe 的提示 ──
+       *
+       * ⛔ **100% 实心纯白**——这条提示**不是**压在画面上的半透明
+       *    气泡。旧版把它做成 ``bg-black/55`` 的浮层，叠在视频上既
+       *    模糊又抢注意力，还违反「全站严禁半透明文字框」的红线。
+       *
+       * 现在它落在视频**下方**，与进度条同一条信息带里——同样是实心
+       * 白底 + 深炭黑文字。
+       */}
+      {video.kind === "iframe" && !isBilibiliFrame && nodes.length > 0 ? (
+        <div className="flex items-start gap-2 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2">
+          <AlertTriangle
+            size={12}
+            strokeWidth={2.2}
+            className="mt-0.5 shrink-0 text-[#B89B5E]"
+          />
+          <p className="text-[11.5px] leading-relaxed text-[#1E293B]">
+            此来源无法同步播放进度——重点导读需要 YouTube 或 B 站等可精确定位的片源。
+          </p>
+        </div>
+      ) : null}
 
       {/* ── 进度与状态条 ──
        *

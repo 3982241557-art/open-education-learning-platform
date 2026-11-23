@@ -1,19 +1,43 @@
-import WorkspaceSidebar from "@/components/sidebar/WorkspaceSidebar";
 import AppShell from "@/components/layout/AppShell";
 import { ShellActionsProvider } from "@/context/ShellActionsContext";
 import { ProfileProvider } from "@/context/ProfileContext";
 
 /**
- * 工作区路由组的外壳：侧边栏 + 内容区。
+ * 工作区路由组的外壳
+ * ==================
  *
- * 复刻自 DeepTutor 的 ``app/(workspace)/layout.tsx``，但去掉了
- * CapabilityGate / CapabilityAccessProvider —— 空壳版本不做模型能力鉴权，
- * 所以页面永远不会被"请先配置模型"锁住。
+ * .. code-block:: text
  *
- * ``ShellActionsProvider`` 放在这里，是因为根导航栏（深蓝窄栏）需要
- * 渲染**页面自己注册**的动作按钮——比如 hub 页的 [☰ 选课] 和
- * [📝 笔记] 两个抽屉触发器。Provider 必须在导航栏之上、页面之下，
- * 这样两边才在同一棵树里。
+ *     ┌──────────────────────────────────────────┐
+ *     │  TopNav（64px 吸顶 · 4 项主导航）        │
+ *     ├──────────────────────────────────────────┤
+ *     │  内容区（全宽流式 · 最大 1280px）        │
+ *     └──────────────────────────────────────────┘
+ *
+ * 变更记录
+ * --------
+ *
+ * ⛔ **不再有左侧深蓝固定导航栏**。它把动线切成了三段，而且吃掉了
+ *    220px 横向空间——实验台型的页面根本铺不开。
+ *
+ * ⛔ **不再有进站拦截弹窗**。旧版在这里挂了一个「年级 + 语言」的
+ *    选择弹窗，新用户第一次打开就必须先做完两道选择才能看到内容。
+ *    它的三个硬伤：
+ *
+ *    1. **时机错了**——用户还不知道这里有什么的时候就要决定「我几年
+ *       级」，他凭什么选？
+ *    2. **太强硬**——模态框是强制的，等于把品牌第一印象变成一张问卷。
+ *       英文用户第一眼撞上中文弹窗，会直接走人。
+ *    3. **重复**——顶栏、课程页顶栏、个人档案卡里本来就有年级选择器，
+ *       弹窗是第三份。
+ *
+ *    现在：年级 / 语言选择器收纳在**顶栏、课程页顶栏与个人档案**
+ *    三处，随时自由点选（见 ``components/common/GradeSelector.tsx``）。
+ *    首页开场只有一张纸飞机。
+ *
+ * ``ShellActionsProvider`` 放在这里，是因为页面自己可以注册**页面级
+ * 动作按钮**（比如 hub 页的 [☰ 选课] 与 [📝 笔记]）。Provider 必须在
+ * 导航栏之上、页面之下，这样两边才在同一棵树里。
  */
 export default function WorkspaceLayout({
   children,
@@ -23,28 +47,7 @@ export default function WorkspaceLayout({
   return (
     <ProfileProvider>
       <ShellActionsProvider>
-        <AppShell sidebar={<WorkspaceSidebar />} homeHref="/">
-          {children}
-        </AppShell>
-        {/*
-          ⛔ **不再有进站拦截弹窗**。
-
-          旧版在这里挂了一个「年级 + 语言」的选择弹窗，新用户第一次
-          打开就必须先做完两道选择才能看到内容。
-
-          它的三个硬伤：
-
-          1. **时机错了**——用户在还不知道这里有什么的时候就要决定
-             「我几年级」，他凭什么选？
-          2. **太强硬**——模态框是强制的，等于把品牌第一印象变成一张
-             问卷。英文用户第一眼撞上中文弹窗，会直接走人。
-          3. **重复**——课程页顶栏、侧边栏个人档案卡里本来就有年级
-             选择器，弹窗是第三份。
-
-          现在：年级 / 语言选择器**收纳在顶栏、【课程】页顶栏与个人
-          主页**三处，随时自由点选（见 ``components/common/
-          GradeSelector.tsx``）。首页开场只有一张纸飞机。
-        */}
+        <AppShell homeHref="/">{children}</AppShell>
       </ShellActionsProvider>
     </ProfileProvider>
   );

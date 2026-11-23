@@ -77,6 +77,34 @@ export function hasLocalApiKey(): boolean {
 }
 
 /**
+ * 传给代理的**附加上下文**。
+ *
+ * 这些字段不是给模型看的正文——它们是给**代理**看的元数据。代理用
+ * 它们生成苏格拉底系统提示词（见 ``ai-proxy/server.js``）。
+ */
+export interface ProxyContext {
+  /** 课程名。 */
+  course?: string;
+  /** 本课标题。 */
+  lesson?: string;
+  /** 左侧教具的实时状态。 */
+  labState?: {
+    kind: string;
+    title: string;
+    done: number;
+    total: number;
+    message: string;
+    tasks?: Array<{ label: string; done: boolean }>;
+  } | null;
+  /** 已点亮的星星。 */
+  stars?: {
+    explore: boolean;
+    think: boolean;
+    master: boolean;
+  } | null;
+}
+
+/**
  * 一条消息。
  */
 export interface LocalChatMessage {
@@ -384,6 +412,19 @@ export async function callDeepSeek(
  *
  * 代理替我们保管 Key——前端**不接触**任何密钥。
  *
+ * ⛔ 关于 ``context`` 字段
+ * ----------------------
+ *
+ * 前端会把「课程 / 本课 / 左侧教具的实时进度 / 已点亮的星」一并
+ * 传给代理。代理收到后会**用服务端的苏格拉底系统提示词替换**前端
+ * 带的 system message。
+ *
+ * 为什么要这样绕一圈
+ * ------------------
+ *
+ * 因为「绝不剧透」必须是一个**可承诺的性质**，而不是前端的一句自觉。
+ * 前端代码可以被任何人改动，但服务端的提示词改不了。
+ *
  * 代理返回的是**与 DeepSeek 完全相同**的 JSON 结构，所以解析逻辑
  * 可以复用。
  */
@@ -392,14 +433,25 @@ export async function callAiProxy(
   history: LocalChatMessage[],
   context: LocalCourseContext | null,
   signal?: AbortSignal,
+  extra?: ProxyContext,
 ): Promise<string> {
   const messages = buildMessages(question, history, context);
+
+  /** 传给代理的附加上下文——代理据此生成苏格拉底提示词。 */
+  const proxyContext = {
+    course: extra?.course ?? context?.title ?? "",
+    lesson: extra?.lesson ?? "",
+    language: context?.locale ?? "zh-CN",
+    labState: extra?.labState ?? null,
+    stars: extra?.stars ?? null,
+  };
 
   const response = await fetch(`${AI_PROXY_URL}/chat/completions`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       messages,
+      context: proxyContext,
       stream: false,
       temperature: 0.6,
       max_tokens: 2000,
@@ -443,6 +495,7 @@ export async function askLocalAssistant(
   history: LocalChatMessage[],
   context: LocalCourseContext | null,
   signal?: AbortSignal,
+  extra?: ProxyContext,
 ): Promise<{ answer: string; live: boolean; note?: string }> {
   const key = getLocalApiKey();
   const proxyReady = hasAiProxy();
@@ -459,7 +512,7 @@ export async function askLocalAssistant(
   // ── ① 代理（首选）──
   if (proxyReady) {
     try {
-      const answer = await callAiProxy(question, history, context, signal);
+      const answer = await callAiProxy(question, history, context, signal, extra);
       return { answer, live: true };
     } catch (error) {
       // 代理挂了——如果用户自己也填了 Key，就退到直连。
