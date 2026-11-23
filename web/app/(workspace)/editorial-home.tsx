@@ -875,7 +875,7 @@ function ContactSlot() {
           </div>
         )}
         <p className="mt-3 text-[11.5px] text-[#8A93A0]">
-          {hasQrCode() ? pick(JOIN.qrTitle, locale) : "QR_CODE_IMAGE"}
+          {hasQrCode() ? pick(JOIN.qrTitle, locale) : "web/data/site-config.ts → QR_CODE_IMAGE"}
         </p>
       </div>
     </div>
