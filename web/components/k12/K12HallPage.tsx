@@ -200,9 +200,46 @@ export default function K12HallPage() {
     return all;
   }, [index, activeGrade]);
 
-  /** 语文 / 数学两个入口。 */
-  const chineseEntry = currentEntries.find((e) => e.subject === "chinese");
-  const mathEntry = currentEntries.find((e) => e.subject === "math");
+  /**
+   * 全部条目——「查看全部年级」视图用。
+   *
+   * ⚠️ 按年级 + 学科排序，让星轨图按「一年级语文 → 一年级数学 →
+   *    二年级语文 → …」的自然顺序排列，而不是按 JSON 里的原始顺序。
+   */
+  const allEntries = useMemo(() => {
+    const all = index?.series ?? [];
+    return [...all].sort((a, b) => {
+      if (a.grade !== b.grade) return a.grade - b.grade;
+      return a.subject === b.subject ? 0 : a.subject === "chinese" ? -1 : 1;
+    });
+  }, [index]);
+
+  /**
+   * 巨幕展示的语文 / 数学系列。
+   *
+   * ⛔ 「全部年级」模式下，巨幕**不能**指向一年级然后标题写
+   *    「全部年级 · 语文」——那是在骗人。
+   *
+   * 巨幕的作用是**入口引导**，所以在全部年级模式下它应该：
+   *
+   * - 显示该学科**全部年级**的总体情况；
+   * - 按钮引导到该学科**当前选中年级**的目录（没有选中就一年级）。
+   */
+  const chineseEntry = useMemo(() => {
+    const all = index?.series ?? [];
+    if (activeGrade > 0) {
+      return all.find((e) => e.grade === activeGrade && e.subject === "chinese");
+    }
+    return all.find((e) => e.grade === 1 && e.subject === "chinese");
+  }, [index, activeGrade]);
+
+  const mathEntry = useMemo(() => {
+    const all = index?.series ?? [];
+    if (activeGrade > 0) {
+      return all.find((e) => e.grade === activeGrade && e.subject === "math");
+    }
+    return all.find((e) => e.grade === 1 && e.subject === "math");
+  }, [index, activeGrade]);
 
   /** 搜索结果——只有搜到别的年级时才需要列出来。 */
   const searchResults = useMemo(() => {
@@ -351,13 +388,27 @@ export default function K12HallPage() {
               />
             </div>
 
-            {/* 星轨学习地图。 */}
-            {chineseEntry ? (
-              <StarTrackMap entry={chineseEntry} subject="chinese" />
-            ) : null}
-            {mathEntry ? (
-              <StarTrackMap entry={mathEntry} subject="math" />
-            ) : null}
+            {/* 星轨学习地图。
+             *
+             * ⛔ 聚焦某个年级时 → 只画那一个年级的两张图；
+             * ⛔ 「全部年级」时 → **每个年级都画**。
+             *
+             * 为什么不能只画第一年级的
+             * ----------------------
+             *
+             * 「全部年级」视图里如果只显示一年级那两张图，用户会以为
+             * 平台只有一年级。二十四套系列必须**全部可点**。
+             */}
+            {(activeGrade > 0
+              ? currentEntries
+              : allEntries
+            ).map((entry) => (
+              <StarTrackMap
+                key={entry.id}
+                entry={entry}
+                subject={entry.subject}
+              />
+            ))}
           </div>
         )}
       </main>
@@ -445,7 +496,14 @@ function SubjectBanner({
     );
   }
 
-  const gradeName = grade > 0 ? entry.shortTitle.replace(/语文|数学$/, "") : "全部年级";
+  const gradeName =
+    grade > 0 ? entry.shortTitle.replace(/语文|数学$/, "") : "一年级";
+
+  /** 全部年级模式下要如实说明。 */
+  const scopeNote =
+    grade > 0
+      ? null
+      : "共 12 个年级 · 24 套同步系列，下方按年级逐一展开";
 
   return (
     <motion.section
@@ -514,6 +572,10 @@ function SubjectBanner({
         >
           {goal}
         </p>
+
+        {scopeNote ? (
+          <p className="mt-2 text-[11.5px] text-[#8A93A0]">{scopeNote}</p>
+        ) : null}
 
         {/* ── 前 3 讲真实课名直达 ── */}
         <div className="mt-6">

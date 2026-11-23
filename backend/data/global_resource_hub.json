@@ -1,13 +1,13 @@
 {
   "hub": {
     "id": "global_resource_hub",
-    "revision": 44,
+    "revision": 45,
     "title": "国内 K12 语文 · 数学年级同步体系",
     "description": "覆盖 1–12 年级的语文与数学教材同步精讲系列，按学段 × 年级 × 年龄组织。",
     "language": "zh-CN",
     "depth": "k12",
     "status": "active",
-    "updated_at": "2026-11-23T13:39:25.487Z",
+    "updated_at": "2026-11-23T13:41:25.750Z",
     "metadata": {
       "pillar": "k12",
       "author": "Open Education Learning Platform",

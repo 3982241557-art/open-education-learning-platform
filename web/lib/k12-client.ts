@@ -32,6 +32,17 @@ import type {
 
 /** 索引缓存——一次会话只拉一次。 */
 let indexCache: K12Index | null = null;
+
+/**
+ * 系列详情的内存缓存。
+ *
+ * ⛔ 没有它，「查看全部年级」视图会**同时**发出 24 个大 JSON 请求
+ *    （每套几十到几百 KB）。首屏会被彻底拖垮。
+ *
+ * 课程数据在一次会话里不会变——静态导出没有热更新——所以按 id
+ * 缓存是安全的。``null`` 也缓存：失败只试一次，不重复打网络。
+ */
+const seriesCache = new Map<string, K12SeriesDetail | null>();
 let indexPromise: Promise<K12Index | null> | null = null;
 
 /** 拉 K12 索引。 */
@@ -135,13 +146,26 @@ function normalizeQuestions(raw: unknown): K12Question[] {
 export async function fetchK12Series(
   seriesId: string,
 ): Promise<K12SeriesDetail | null> {
+  // ── 内存缓存 ──
+  //
+  // ⛔ 没有缓存的话，「查看全部年级」视图会**同时**发出 24 个
+  //    JSON 请求——每一个都是几十 KB 到几百 KB。首屏会被拖垮。
+  //
+  // 课程数据在一次会话里是**不会变**的（静态导出，没有热更新），
+  // 所以按 id 缓存是安全的。
+  const cached = seriesCache.get(seriesId);
+  if (cached !== undefined) return cached;
+
   try {
     const data = await staticFetch<any>(
       `/data/courses/${encodeURIComponent(seriesId)}.json`,
     );
-    if (!data || !Array.isArray(data.episodes)) return null;
+    if (!data || !Array.isArray(data.episodes)) {
+      seriesCache.set(seriesId, null);
+      return null;
+    }
 
-    return {
+    const detail: K12SeriesDetail = {
       id: String(data.id ?? seriesId),
       title: String(data.title ?? ""),
       shortTitle: String(data.shortTitle ?? data.title ?? ""),
@@ -220,7 +244,10 @@ export async function fetchK12Series(
           }))
         : [],
     };
+    seriesCache.set(seriesId, detail);
+    return detail;
   } catch {
+    seriesCache.set(seriesId, null);
     return null;
   }
 }
