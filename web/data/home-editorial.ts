@@ -66,6 +66,22 @@ export const ABOUT = {
   },
 };
 
+/**
+ * 板块 B · 方法论区的小标题与主标题。
+ *
+ * ⛔ 这两行曾经是**硬编码中文**——切到英文界面时，整段只剩标题
+ *    是中文、卡片却是英文，看起来像没做完。现在全部走多语言。
+ */
+export const PILLARS_SECTION = {
+  /** 眉标。 */
+  eyebrow: { zh: "方法论", en: "Methodology" },
+  /** 主标题。 */
+  heading: {
+    zh: "三大支柱，撑起一套完整的教育观。",
+    en: "Three pillars, one complete educational philosophy.",
+  },
+};
+
 /** 板块 B · 三大方法论支柱。 */
 export const PILLARS = [  {
     no: "01",
@@ -156,6 +172,22 @@ export const JOIN = {
   ],
   contactTitle: { zh: "官方合作邮箱", en: "Official Contact" },
   qrTitle: { zh: "扫码联系", en: "Scan to Reach Us" },
+  /**
+   * 联系槽位的**未配置占位文案**。
+   *
+   * 之前这些是硬编码中文——英文界面下会露出中文，破坏沉浸感。
+   */
+  emailPending: {
+    zh: "官方合作邮箱待配置",
+    en: "Official contact email not configured yet",
+  },
+  wechatPending: {
+    zh: "官方微信 ID 待配置",
+    en: "Official WeChat ID not configured yet",
+  },
+  copyEmail: { zh: "一键复制", en: "Copy" },
+  copied: { zh: "已复制", en: "Copied" },
+  wechatLabel: { zh: "微信", en: "WeChat" },
 };
 
 /** 首页 Hero 的行动按钮。 */

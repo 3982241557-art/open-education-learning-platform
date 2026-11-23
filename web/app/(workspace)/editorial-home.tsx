@@ -41,6 +41,7 @@ import {
   JOIN,
   LEARNING_LOOP,
   PILLARS,
+  PILLARS_SECTION,
   WHY_OE,
   pick,
 } from "@/data/home-editorial";
@@ -552,13 +553,13 @@ function DreamClassroomSection() {
             <p className="flex items-center gap-2.5 text-[11px] font-medium tracking-[0.22em] text-[#B89B5E] uppercase">
               <span className="tabular-nums">05</span>
               <span className="h-px w-7 bg-[#B89B5E]/50" />
-              方法论
+              {pick(PILLARS_SECTION.eyebrow, locale)}
             </p>
             <h2
               className="mt-4 text-[26px] leading-[1.35] tracking-[-0.015em] text-[#0B162C] sm:text-[31px]"
               style={{ fontFamily: "var(--font-serif)" }}
             >
-              三大支柱，撑起一套完整的教育观。
+              {pick(PILLARS_SECTION.heading, locale)}
             </h2>
           </motion.div>
 
@@ -816,12 +817,12 @@ function ContactSlot() {
               {copied ? (
                 <>
                   <Check size={12} strokeWidth={2.6} className="text-emerald-600" />
-                  已复制
+                  {pick(JOIN.copied, locale)}
                 </>
               ) : (
                 <>
                   <Copy size={12} strokeWidth={2.2} />
-                  一键复制
+                  {pick(JOIN.copyEmail, locale)}
                 </>
               )}
             </button>
@@ -829,7 +830,7 @@ function ContactSlot() {
         ) : (
           <div className="mt-4 flex flex-col gap-2 rounded-xl border border-dashed border-[#CBD5E1] bg-[#F8F7F4] px-4 py-4">
             <span className="text-[12.5px] text-[#55606E]">
-              官方合作邮箱待配置
+              {pick(JOIN.emailPending, locale)}
             </span>
             <code className="text-[12px] text-[#8A93A0]">
               web/data/site-config.ts → CONTACT_EMAIL
@@ -841,12 +842,13 @@ function ContactSlot() {
         <div className="mt-5 border-t border-[#E5E7EB] pt-5">
           {hasWechat() ? (
             <p className="text-[13px] text-[#1E293B]">
-              微信：<span className="font-medium">{WECHAT_ID.trim()}</span>
+              {pick(JOIN.wechatLabel, locale)}：
+              <span className="font-medium">{WECHAT_ID.trim()}</span>
             </p>
           ) : (
             <div className="flex flex-col gap-2 rounded-xl border border-dashed border-[#CBD5E1] bg-[#F8F7F4] px-4 py-4">
               <span className="text-[12.5px] text-[#55606E]">
-                官方微信 ID 待配置
+                {pick(JOIN.wechatPending, locale)}
               </span>
               <code className="text-[12px] text-[#8A93A0]">
                 web/data/site-config.ts → WECHAT_ID
