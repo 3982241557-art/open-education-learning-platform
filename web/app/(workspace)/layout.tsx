@@ -4,7 +4,6 @@ import SmartEntryRedirect from "@/components/layout/SmartEntryRedirect";
 import { ShellActionsProvider } from "@/context/ShellActionsContext";
 import { ProfileProvider } from "@/context/ProfileContext";
 import { MathTaxonomyProvider } from "@/context/MathTaxonomyContext";
-import { GeometryChainProvider } from "@/context/GeometryChainContext";
 
 /**
  * 工作区路由组的外壳
@@ -43,12 +42,7 @@ export default function WorkspaceLayout({
   return (
     <ProfileProvider>
       <MathTaxonomyProvider>
-        {/*
-         * 几何标杆链（8 课）——数据来自 GitHub 开源仓库，
-         * 与自研整理的数学图谱分仓存放。
-         */}
-        <GeometryChainProvider>
-          <ShellActionsProvider>
+        <ShellActionsProvider>
             <AppShell homeHref="/">
               {/*
                * 智能直达动线——已经进过站的用户再次打开根网址时，
@@ -59,8 +53,7 @@ export default function WorkspaceLayout({
               </Suspense>
               {children}
             </AppShell>
-          </ShellActionsProvider>
-        </GeometryChainProvider>
+        </ShellActionsProvider>
       </MathTaxonomyProvider>
     </ProfileProvider>
   );

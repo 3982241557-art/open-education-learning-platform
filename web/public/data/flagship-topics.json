@@ -1,0 +1,1285 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-26T11:44:29.594Z",
+  "generator": "scripts/fetch-open-flagship.mjs",
+  "licenses": [
+    {
+      "repo": "openstax/osbooks-college-algebra-bundle",
+      "license": "CC BY-NC-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+    },
+    {
+      "repo": "openstax/osbooks-statistics",
+      "license": "CC BY-NC-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+    },
+    {
+      "repo": "Khan/khan-exercises",
+      "license": "CC BY-NC-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/3.0/",
+      "note": "练习框架为 MIT；练习内容为 CC BY-NC-SA 3.0。"
+    },
+    {
+      "repo": "haojing8312/cn-k12-math-knowledge-graph",
+      "license": "CC BY-NC-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+    }
+  ],
+  "sourceProvenance": [
+    {
+      "topicId": "exp-comfort",
+      "kind": "textbook",
+      "repo": "openstax/osbooks-college-algebra-bundle",
+      "path": "modules/m49361/index.cnxml",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-college-algebra-bundle/main/modules/m49361/index.cnxml",
+      "license": "CC BY-NC-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "sections": [
+        "Identifying Exponential Functions",
+        "Defining an Exponential Function",
+        "Evaluating Exponential Functions",
+        "Defining Exponential Growth",
+        "Applying the Compound-Interest Formula",
+        "Investigating Continuous Growth"
+      ],
+      "concepts": 4,
+      "examples": 13
+    },
+    {
+      "topicId": "exp-comfort",
+      "kind": "exercise",
+      "repo": "Khan/khan-exercises",
+      "path": "exercises/exponents_1.html",
+      "url": "https://raw.githubusercontent.com/Khan/khan-exercises/master/exercises/exponents_1.html",
+      "license": "CC BY-NC-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/3.0/",
+      "title": "Positive and zero exponents",
+      "questions": 0,
+      "hints": 16
+    },
+    {
+      "topicId": "exp-comfort",
+      "kind": "exercise",
+      "repo": "Khan/khan-exercises",
+      "path": "exercises/exponents_2.html",
+      "url": "https://raw.githubusercontent.com/Khan/khan-exercises/master/exercises/exponents_2.html",
+      "license": "CC BY-NC-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/3.0/",
+      "title": "Positive and negative exponents",
+      "questions": 0,
+      "hints": 1
+    },
+    {
+      "topicId": "exp-comfort",
+      "kind": "exercise",
+      "repo": "Khan/khan-exercises",
+      "path": "exercises/exponents_3.html",
+      "url": "https://raw.githubusercontent.com/Khan/khan-exercises/master/exercises/exponents_3.html",
+      "license": "CC BY-NC-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/3.0/",
+      "title": "Fractional exponents",
+      "questions": 0,
+      "hints": 5
+    },
+    {
+      "topicId": "exp-comfort",
+      "kind": "exercise",
+      "repo": "Khan/khan-exercises",
+      "path": "exercises/exponent_rules.html",
+      "url": "https://raw.githubusercontent.com/Khan/khan-exercises/master/exercises/exponent_rules.html",
+      "license": "CC BY-NC-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/3.0/",
+      "title": "Exponent rules",
+      "questions": 1,
+      "hints": 0
+    },
+    {
+      "topicId": "exp-comfort",
+      "kind": "exercise",
+      "repo": "Khan/khan-exercises",
+      "path": "exercises/simplifying_expressions_with_exponents.html",
+      "url": "https://raw.githubusercontent.com/Khan/khan-exercises/master/exercises/simplifying_expressions_with_exponents.html",
+      "license": "CC BY-NC-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/3.0/",
+      "title": "Simplifying expressions with exponents",
+      "questions": 1,
+      "hints": 22
+    },
+    {
+      "topicId": "exp-comfort",
+      "kind": "exercise",
+      "repo": "Khan/khan-exercises",
+      "path": "exercises/simplifying_radicals.html",
+      "url": "https://raw.githubusercontent.com/Khan/khan-exercises/master/exercises/simplifying_radicals.html",
+      "license": "CC BY-NC-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/3.0/",
+      "title": "Simplifying radicals",
+      "questions": 1,
+      "hints": 10
+    },
+    {
+      "topicId": "exp-comfort",
+      "kind": "exercise",
+      "repo": "Khan/khan-exercises",
+      "path": "exercises/powers_of_complex_numbers_1.html",
+      "url": "https://raw.githubusercontent.com/Khan/khan-exercises/master/exercises/powers_of_complex_numbers_1.html",
+      "license": "CC BY-NC-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/3.0/",
+      "title": "Powers of complex numbers",
+      "questions": 1,
+      "hints": 8
+    },
+    {
+      "topicId": "exp-comfort",
+      "kind": "knowledge-graph",
+      "repo": "haojing8312/cn-k12-math-knowledge-graph",
+      "path": "data/graph.json",
+      "url": "https://raw.githubusercontent.com/haojing8312/cn-k12-math-knowledge-graph/main/data/graph.json",
+      "license": "CC BY-NC-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "topics": 4
+    },
+    {
+      "topicId": "seq-zeno",
+      "kind": "textbook",
+      "repo": "openstax/osbooks-college-algebra-bundle",
+      "path": "modules/m49446/index.cnxml",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-college-algebra-bundle/main/modules/m49446/index.cnxml",
+      "license": "CC BY-NC-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "sections": [
+        "Finding Common Ratios",
+        "Writing Terms of Geometric Sequences",
+        "Using Recursive Formulas for Geometric Sequences",
+        "Using Explicit Formulas for Geometric Sequences",
+        "Solving Application Problems with Geometric Sequences"
+      ],
+      "concepts": 3,
+      "examples": 9
+    },
+    {
+      "topicId": "seq-zeno",
+      "kind": "textbook",
+      "repo": "openstax/osbooks-college-algebra-bundle",
+      "path": "modules/m49447/index.cnxml",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-college-algebra-bundle/main/modules/m49447/index.cnxml",
+      "license": "CC BY-NC-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "sections": [
+        "Using the Formula for Geometric Series",
+        "Determining Whether the Sum of an Infinite Geometric Series is Defined",
+        "Finding Sums of Infinite Series"
+      ],
+      "concepts": 1
+    },
+    {
+      "topicId": "seq-zeno",
+      "kind": "textbook",
+      "repo": "openstax/osbooks-college-algebra-bundle",
+      "path": "modules/m49444/index.cnxml",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-college-algebra-bundle/main/modules/m49444/index.cnxml",
+      "license": "CC BY-NC-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "sections": [
+        "Writing the Terms of a Sequence Defined by an Explicit Formula"
+      ],
+      "concepts": 1
+    },
+    {
+      "topicId": "seq-zeno",
+      "kind": "exercise",
+      "repo": "Khan/khan-exercises",
+      "path": "exercises/geometric_sequences_1.html",
+      "url": "https://raw.githubusercontent.com/Khan/khan-exercises/master/exercises/geometric_sequences_1.html",
+      "license": "CC BY-NC-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/3.0/",
+      "title": "Geometric sequences 1",
+      "questions": 2,
+      "hints": 4
+    },
+    {
+      "topicId": "seq-zeno",
+      "kind": "exercise",
+      "repo": "Khan/khan-exercises",
+      "path": "exercises/geometric_sequences_2.html",
+      "url": "https://raw.githubusercontent.com/Khan/khan-exercises/master/exercises/geometric_sequences_2.html",
+      "license": "CC BY-NC-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/3.0/",
+      "title": "Geometric sequences 2",
+      "questions": 3,
+      "hints": 12
+    },
+    {
+      "topicId": "seq-zeno",
+      "kind": "exercise",
+      "repo": "Khan/khan-exercises",
+      "path": "exercises/arithmetic_sequences_1.html",
+      "url": "https://raw.githubusercontent.com/Khan/khan-exercises/master/exercises/arithmetic_sequences_1.html",
+      "license": "CC BY-NC-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/3.0/",
+      "title": "Arithmetic sequences 1",
+      "questions": 2,
+      "hints": 5
+    },
+    {
+      "topicId": "seq-zeno",
+      "kind": "knowledge-graph",
+      "repo": "haojing8312/cn-k12-math-knowledge-graph",
+      "path": "data/graph.json",
+      "url": "https://raw.githubusercontent.com/haojing8312/cn-k12-math-knowledge-graph/main/data/graph.json",
+      "license": "CC BY-NC-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "topics": 4
+    },
+    {
+      "topicId": "prob-bayes",
+      "kind": "textbook",
+      "repo": "openstax/osbooks-college-algebra-bundle",
+      "path": "modules/m49450/index.cnxml",
+      "url": "https://raw.githubusercontent.com/openstax/osbooks-college-algebra-bundle/main/modules/m49450/index.cnxml",
+      "license": "CC BY-NC-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "sections": [
+        "Constructing Probability Models",
+        "Computing Probabilities of Equally Likely Outcomes",
+        "Computing the Probability of the Union of Two Events",
+        "Using the Complement Rule to Compute Probabilities"
+      ],
+      "concepts": 3,
+      "examples": 7
+    },
+    {
+      "topicId": "prob-bayes",
+      "kind": "exercise",
+      "repo": "Khan/khan-exercises",
+      "path": "exercises/probability_1.html",
+      "url": "https://raw.githubusercontent.com/Khan/khan-exercises/master/exercises/probability_1.html",
+      "license": "CC BY-NC-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/3.0/",
+      "title": "Probability 1",
+      "questions": 2,
+      "hints": 7
+    },
+    {
+      "topicId": "prob-bayes",
+      "kind": "exercise",
+      "repo": "Khan/khan-exercises",
+      "path": "exercises/independent_probability.html",
+      "url": "https://raw.githubusercontent.com/Khan/khan-exercises/master/exercises/independent_probability.html",
+      "license": "CC BY-NC-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/3.0/",
+      "title": "Independent probability",
+      "questions": 3,
+      "hints": 31
+    },
+    {
+      "topicId": "prob-bayes",
+      "kind": "exercise",
+      "repo": "Khan/khan-exercises",
+      "path": "exercises/dependent_probability.html",
+      "url": "https://raw.githubusercontent.com/Khan/khan-exercises/master/exercises/dependent_probability.html",
+      "license": "CC BY-NC-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/3.0/",
+      "title": "Dependent probability",
+      "questions": 3,
+      "hints": 27
+    },
+    {
+      "topicId": "prob-bayes",
+      "kind": "exercise",
+      "repo": "Khan/khan-exercises",
+      "path": "exercises/dice_probability.html",
+      "url": "https://raw.githubusercontent.com/Khan/khan-exercises/master/exercises/dice_probability.html",
+      "license": "CC BY-NC-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/3.0/",
+      "title": "Probability space",
+      "questions": 3,
+      "hints": 10
+    },
+    {
+      "topicId": "prob-bayes",
+      "kind": "knowledge-graph",
+      "repo": "haojing8312/cn-k12-math-knowledge-graph",
+      "path": "data/graph.json",
+      "url": "https://raw.githubusercontent.com/haojing8312/cn-k12-math-knowledge-graph/main/data/graph.json",
+      "license": "CC BY-NC-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "topics": 4
+    }
+  ],
+  "topics": [
+    {
+      "id": "exp-comfort",
+      "sources": {
+        "openstax": {
+          "repo": "openstax/osbooks-college-algebra-bundle",
+          "path": "modules/m49361/index.cnxml",
+          "url": "https://raw.githubusercontent.com/openstax/osbooks-college-algebra-bundle/main/modules/m49361/index.cnxml",
+          "license": "CC BY-NC-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+          "title": "Exponential Functions",
+          "sections": [
+            "Identifying Exponential Functions",
+            "Defining an Exponential Function",
+            "Evaluating Exponential Functions",
+            "Defining Exponential Growth",
+            "Applying the Compound-Interest Formula",
+            "Investigating Continuous Growth"
+          ]
+        },
+        "openstaxSupport": [],
+        "khan": [
+          {
+            "repo": "Khan/khan-exercises",
+            "path": "exercises/exponents_1.html",
+            "url": "https://raw.githubusercontent.com/Khan/khan-exercises/master/exercises/exponents_1.html",
+            "license": "CC BY-NC-SA 3.0",
+            "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/3.0/",
+            "title": "Positive and zero exponents"
+          },
+          {
+            "repo": "Khan/khan-exercises",
+            "path": "exercises/exponents_2.html",
+            "url": "https://raw.githubusercontent.com/Khan/khan-exercises/master/exercises/exponents_2.html",
+            "license": "CC BY-NC-SA 3.0",
+            "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/3.0/",
+            "title": "Positive and negative exponents"
+          },
+          {
+            "repo": "Khan/khan-exercises",
+            "path": "exercises/exponents_3.html",
+            "url": "https://raw.githubusercontent.com/Khan/khan-exercises/master/exercises/exponents_3.html",
+            "license": "CC BY-NC-SA 3.0",
+            "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/3.0/",
+            "title": "Fractional exponents"
+          },
+          {
+            "repo": "Khan/khan-exercises",
+            "path": "exercises/exponent_rules.html",
+            "url": "https://raw.githubusercontent.com/Khan/khan-exercises/master/exercises/exponent_rules.html",
+            "license": "CC BY-NC-SA 3.0",
+            "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/3.0/",
+            "title": "Exponent rules"
+          },
+          {
+            "repo": "Khan/khan-exercises",
+            "path": "exercises/simplifying_expressions_with_exponents.html",
+            "url": "https://raw.githubusercontent.com/Khan/khan-exercises/master/exercises/simplifying_expressions_with_exponents.html",
+            "license": "CC BY-NC-SA 3.0",
+            "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/3.0/",
+            "title": "Simplifying expressions with exponents"
+          },
+          {
+            "repo": "Khan/khan-exercises",
+            "path": "exercises/simplifying_radicals.html",
+            "url": "https://raw.githubusercontent.com/Khan/khan-exercises/master/exercises/simplifying_radicals.html",
+            "license": "CC BY-NC-SA 3.0",
+            "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/3.0/",
+            "title": "Simplifying radicals"
+          },
+          {
+            "repo": "Khan/khan-exercises",
+            "path": "exercises/powers_of_complex_numbers_1.html",
+            "url": "https://raw.githubusercontent.com/Khan/khan-exercises/master/exercises/powers_of_complex_numbers_1.html",
+            "license": "CC BY-NC-SA 3.0",
+            "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/3.0/",
+            "title": "Powers of complex numbers"
+          }
+        ],
+        "cn": {
+          "repo": "haojing8312/cn-k12-math-knowledge-graph",
+          "path": "data/graph.json",
+          "url": "https://raw.githubusercontent.com/haojing8312/cn-k12-math-knowledge-graph/main/data/graph.json",
+          "license": "CC BY-NC-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+          "topics": [
+            {
+              "name": "倒数",
+              "chapter": "第一章 有理数"
+            },
+            {
+              "name": "乘方",
+              "chapter": "第一章 有理数"
+            },
+            {
+              "name": "指数",
+              "chapter": "第一章 有理数"
+            },
+            {
+              "name": "幂的乘方",
+              "chapter": "第十四章 整式的乘法与因式分解"
+            }
+          ]
+        }
+      },
+      "concept": {
+        "zhCN": [
+          "倒数（第一章 有理数）",
+          "乘方（第一章 有理数）",
+          "指数（第一章 有理数）",
+          "幂的乘方（第十四章 整式的乘法与因式分解）"
+        ],
+        "zhTW": [
+          "倒數（第一章 有理數）",
+          "乘方（第一章 有理數）",
+          "指數（第一章 有理數）",
+          "冪的乘方（第十四章 整式的乘法與因式分解）"
+        ],
+        "en": [
+          "Exponential Function: For any real number x, an exponential function is a function with the form f(x)=a b x where a is a non-zero real number called the initial value and b is any positive real number such that b≠1. The domain of f is all real numbers. The range of f is all positive real numbers if a>0. The range of f is all negative real numbers if a<0. The y -intercept is ( 0,a ), and the horizontal asymptote is y=0.",
+          "Exponential Growth: A function that models exponential growth grows by a rate proportional to the amount present. For any real number x and any positive real numbers a and b such that b≠1, an exponential growth function has the form f(x)=a b x where a is the initial or starting value of the function. b is the growth factor or growth multiplier per unit x .",
+          "The Compound Interest Formula: Compound interest can be calculated using the formula A(t)=P ( 1+ r n ) nt where A(t) is the account value, t is measured in years, P is the starting amount of the account, often called the principal, or more generally present value, r is the annual percentage rate (APR) expressed as a decimal, and n is the number of compounding periods in one year."
+        ]
+      },
+      "task": {
+        "zhCN": [
+          "在《第一章 有理数》中完成「倒数」的探究与验证",
+          "在《第一章 有理数》中完成「乘方」的探究与验证",
+          "在《第一章 有理数》中完成「指数」的探究与验证",
+          "在《第十四章 整式的乘法与因式分解》中完成「幂的乘方」的探究与验证"
+        ],
+        "zhTW": [
+          "在《第一章 有理數》中完成「倒數」的探究與驗證",
+          "在《第一章 有理數》中完成「乘方」的探究與驗證",
+          "在《第一章 有理數》中完成「指數」的探究與驗證",
+          "在《第十四章 整式的乘法與因式分解》中完成「冪的乘方」的探究與驗證"
+        ],
+        "en": [
+          "Identifying Exponential Functions Which of the following equations are not exponential functions? f(x)= 4 3( x−2 ) g(x)= x 3 h(x)= ( 1 3 ) x j(x)= ( −2 ) x",
+          "Evaluating Exponential Functions Let f( x )=5 ( 3 ) x+1 . Evaluate f( 2 ) without using a calculator.",
+          "Evaluating a Real-World Exponential Model At the beginning of this section, we learned that the population of India was about 1.25 billion in the year 2013, with an annual growth rate of about 1.2%. This situation is represented by the growth function P(t)=1.25 ( 1.012 ) t , where t is the number of years since 2013. To the nearest thousandth, what will the population of India be in 2031?",
+          "Calculating Compound Interest If we invest $3,000 in an investment account paying 3% interest compounded quarterly, how much will the account be worth in 10 years?"
+        ]
+      },
+      "hints": {
+        "zhCN": [
+          "想一想：倒数在《第一章 有理数》里是怎么定义的？依据是什么？",
+          "想一想：乘方在《第一章 有理数》里是怎么定义的？依据是什么？",
+          "想一想：指数在《第一章 有理数》里是怎么定义的？依据是什么？",
+          "想一想：幂的乘方在《第十四章 整式的乘法与因式分解》里是怎么定义的？依据是什么？"
+        ],
+        "zhTW": [
+          "想一想：倒數在《第一章 有理數》裏是怎麼定義的？依據是什麼？",
+          "想一想：乘方在《第一章 有理數》裏是怎麼定義的？依據是什麼？",
+          "想一想：指數在《第一章 有理數》裏是怎麼定義的？依據是什麼？",
+          "想一想：冪的乘方在《第十四章 整式的乘法與因式分解》裏是怎麼定義的？依據是什麼？"
+        ],
+        "en": [
+          "Anything to the 0th power equals... ?",
+          "Anything to the 0th power equals one.",
+          "▢^{0} = 1",
+          "Anything to the 1st power equals... ?",
+          "x^{1} = x, no matter what x is."
+        ]
+      },
+      "trials": {
+        "zhCN": [
+          "在《第一章 有理数》中，倒数的判定条件是什么？举一个具体例子。",
+          "在《第一章 有理数》中，乘方的判定条件是什么？举一个具体例子。",
+          "在《第一章 有理数》中，指数的判定条件是什么？举一个具体例子。"
+        ],
+        "zhTW": [
+          "在《第一章 有理數》中，倒數的判定條件是什麼？舉一個具體例子。",
+          "在《第一章 有理數》中，乘方的判定條件是什麼？舉一個具體例子。",
+          "在《第一章 有理數》中，指數的判定條件是什麼？舉一個具體例子。"
+        ],
+        "en": [
+          "\\blue{x} is plotted in blue below. Change the angle and radius to plot \\orange{y} in orange."
+        ]
+      },
+      "quiz": {
+        "zhCN": [
+          {
+            "stem": "在《第一章 有理数》的真实情境中，「倒数」是如何被定义与判定的？请给出你的推理依据。",
+            "source": "cn-k12",
+            "answer": "教材章节：第一章 有理数；知识点：倒数。"
+          },
+          {
+            "stem": "在《第一章 有理数》的真实情境中，「乘方」是如何被定义与判定的？请给出你的推理依据。",
+            "source": "cn-k12",
+            "answer": "教材章节：第一章 有理数；知识点：乘方。"
+          },
+          {
+            "stem": "在《第一章 有理数》的真实情境中，「指数」是如何被定义与判定的？请给出你的推理依据。",
+            "source": "cn-k12",
+            "answer": "教材章节：第一章 有理数；知识点：指数。"
+          }
+        ],
+        "zhTW": [
+          {
+            "stem": "在《第一章 有理數》的真實情境中，「倒數」是如何被定義與判定的？請給出你的推理依據。",
+            "source": "cn-k12",
+            "answer": "教材章節：第一章 有理數；知識點：倒數。"
+          },
+          {
+            "stem": "在《第一章 有理數》的真實情境中，「乘方」是如何被定義與判定的？請給出你的推理依據。",
+            "source": "cn-k12",
+            "answer": "教材章節：第一章 有理數；知識點：乘方。"
+          },
+          {
+            "stem": "在《第一章 有理數》的真實情境中，「指數」是如何被定義與判定的？請給出你的推理依據。",
+            "source": "cn-k12",
+            "answer": "教材章節：第一章 有理數；知識點：指數。"
+          }
+        ],
+        "en": [
+          {
+            "stem": "Identifying Exponential Functions Which of the following equations are not exponential functions? f(x)= 4 3( x−2 ) g(x)= x 3 h(x)= ( 1 3 ) x j(x)= ( −2 ) x",
+            "source": "openstax",
+            "answer": "By definition, an exponential function has a constant as a base and an independent variable as an exponent. Thus, g(x)= x 3 does not represent an exponential function because the base is an independent variable. In fact, g(x)= x 3 is a power function. Recall that the base b of an exponential function is always a positive constant, and b≠1. Thus, j(x)= ( −2 ) x does not represent an exponential fun…"
+          },
+          {
+            "stem": "Evaluating Exponential Functions Let f( x )=5 ( 3 ) x+1 . Evaluate f( 2 ) without using a calculator.",
+            "source": "openstax",
+            "answer": "Follow the order of operations. Be sure to pay attention to the parentheses. f( x ) =5 ( 3 ) x+1 f( 2 ) =5 ( 3 ) 2+1 Substitute x=2. =5 ( 3 ) 3 Add the exponents. =5( 27 ) Simplify the power. =135 Multiply."
+          },
+          {
+            "stem": "Evaluating a Real-World Exponential Model At the beginning of this section, we learned that the population of India was about 1.25 billion in the year 2013, with an annual growth rate of about 1.2%. This situation is represented by the growth function P(t)=1.25 ( 1.012 ) t , where t is the number of years since 2013. To the nearest thousandth, what will the population of India be in 2031?",
+            "source": "openstax",
+            "answer": "To estimate the population in 2031, we evaluate the models for t=18, because 2031 is 18 years after 2013. Rounding to the nearest thousandth, P(18)=1.25 ( 1.012 ) 18 ≈1.549 There will be about 1.549 billion people in India in the year 2031."
+          }
+        ]
+      },
+      "raw": {
+        "khanHints": [
+          "Anything to the 0th power equals... ?",
+          "Anything to the 0th power equals one.",
+          "▢^{0} = 1",
+          "Anything to the 1st power equals... ?",
+          "x^{1} = x, no matter what x is.",
+          "▢^{1} = ▢",
+          "Negative one to any even power equals... ?",
+          "Negative one to any even power equals one.",
+          "▢^{▢} = 1",
+          "Negative one to any odd power equals... ?",
+          "Negative one to any odd power equals negative one.",
+          "▢^{▢} = -1",
+          "▢ to any power equals... ?",
+          "▢ to any power equals ▢.",
+          "▢^{▢} = ▢",
+          "= {v}",
+          "\\phantom{▢^{{-EXP}}} = {v}",
+          "= ▢^{▢}",
+          "Figure out what goes in the blank: \\Big(? \\Big)^{▢}=▢",
+          "Figure out what goes in the blank: \\Big(\\color{blue}{▢}\\Big)^{▢}=▢",
+          "So ▢^{▢}=▢^{▢}=▢",
+          "So ▢^{▢}=▢",
+          "To start, simplify the numerator and the denominator independently.",
+          "We can use the distributive property of exponents on the numerator.",
+          "(\\blue{▢}\\green{▢})^{▢} = \\blue{▢}\\green{▢}",
+          "\\blue{▢ = ▢} \\green{▢ = ▢}",
+          "So, (\\blue{▢}\\green{▢})^{▢} = \\blue{▢}\\green{▢}.",
+          "We can use the distributive property of exponents on the denominator.",
+          "(\\blue{▢}\\green{▢})^{▢} = \\blue{▢}\\green{▢}",
+          "\\blue{▢ = ▢} \\green{▢ = ▢}",
+          "So, (\\blue{▢}\\green{▢})^{▢} = \\blue{▢}\\green{▢}.",
+          "Therefore, { (\\blue{▢}\\green{▢})^{▢} \\blue{▢}\\green{▢} } = { \\blue{▢}\\green{▢}}.",
+          "Break up the equation by variable and simplify.",
+          "{\\blue{▢}\\green{▢}} = \\blue{ {▢}} \\cdot \\green{ {▢}} = \\blue{▢^{{EXPNUM1 * EXPNUM3} - ▢}} \\cdot \\green{▢^{{EXPNUM2 * EXPNUM3} - ▢}} = ▢",
+          "To start, simplify the numerator and the denominator independently.",
+          "We can use the distributive property of exponents on the numerator.",
+          "\\blue{▢} = \\blue{▢}",
+          "We can use the distributive property of exponents on the denominator.",
+          "(\\blue{▢}\\green{▢})^{▢} = \\blue{▢}\\green{▢}",
+          "\\blue{▢ = ▢} \\green{▢ = ▢}",
+          "So, (\\blue{▢}\\green{▢})^{▢} = \\blue{▢}\\green{▢}.",
+          "Therefore, { (\\blue{▢}\\green{▢})^{▢} \\blue{▢}\\green{▢} } = { \\blue{▢}\\green{▢}}.",
+          "Break up the equation by variable and simplify.",
+          "{\\blue{▢}\\green{▢}} = \\blue{ {▢}} \\cdot \\green{ {▢}} = \\blue{▢^{{EXPNUM1 * EXPNUM3} - ▢}} \\cdot \\green{▢^{ - ▢}} = ▢",
+          "▢ = ▢",
+          "has no perfect-square factors, so is already the simplest form.",
+          "= 1 or just .",
+          "▢ = ▢^2",
+          "So, = =",
+          "= or just .",
+          "The largest perfect square that divides is .",
+          "▢ = \\cdot ▢",
+          "= \\cdot",
+          "Thus, = ▢ .",
+          "All powers of 1 are 1.",
+          "First express \\blue{x} in Euler form.",
+          "\\large {\\blue{▢} = \\blue{▢}}",
+          "So the radius of \\orange{y} is .",
+          "The angle of the result is , which is .",
+          "is more than 2 \\pi. It is a common practice to keep complex number angles between 0 and 2 \\pi, because e^{2 \\pi i} = (e^{\\pi i}) ^ 2 = (-1) ^ 2 = 1.",
+          "So subtract the nearest multiple of 2 \\pi from the angle.",
+          "Converting this back from Euler form, we get ."
+        ],
+        "openstaxConcepts": [
+          {
+            "heading": "Exponential Function",
+            "body": "For any real number x, an exponential function is a function with the form f(x)=a b x where a is a non-zero real number called the initial value and b is any positive real number such that b≠1. The domain of f is all real numbers. The range of f is all positive real numbers if a>0. The range of f is all negative real numbers if a<0. The y -intercept is ( 0,a ), and the horizontal asymptote is y=0.",
+            "section": "Identifying Exponential Functions"
+          },
+          {
+            "heading": "Exponential Growth",
+            "body": "A function that models exponential growth grows by a rate proportional to the amount present. For any real number x and any positive real numbers a and b such that b≠1, an exponential growth function has the form f(x)=a b x where a is the initial or starting value of the function. b is the growth factor or growth multiplier per unit x .",
+            "section": "Evaluating Exponential Functions"
+          },
+          {
+            "heading": "The Compound Interest Formula",
+            "body": "Compound interest can be calculated using the formula A(t)=P ( 1+ r n ) nt where A(t) is the account value, t is measured in years, P is the starting amount of the account, often called the principal, or more generally present value, r is the annual percentage rate (APR) expressed as a decimal, and n is the number of compounding periods in one year.",
+            "section": "Applying the Compound-Interest Formula"
+          },
+          {
+            "heading": "The Continuous Growth/Decay Formula",
+            "body": "For all real numbers t, and all positive numbers a and r, continuous growth or decay is represented by the formula A(t)=a e rt where a is the initial value, r is the continuous growth rate per unit time, and t is the elapsed time. If r>0 , then the formula represents continuous growth. If r<0 , then the formula represents continuous decay. For business applications, the continuous growth formula is called the continuous compounding formula and takes the form A(t)=P e rt where P is the principal or the initial invested, r is the growth or interest rate per unit time, and t is the period or term of the investment.",
+            "section": "Investigating Continuous Growth"
+          }
+        ],
+        "openstaxExamples": [
+          {
+            "question": "Identifying Exponential Functions Which of the following equations are not exponential functions? f(x)= 4 3( x−2 ) g(x)= x 3 h(x)= ( 1 3 ) x j(x)= ( −2 ) x",
+            "solution": "By definition, an exponential function has a constant as a base and an independent variable as an exponent. Thus, g(x)= x 3 does not represent an exponential function because the base is an independent variable. In fact, g(x)= x 3 is a power function. Recall that the base b of an exponential function is always a positive constant, and b≠1. Thus, j(x)= ( −2 ) x does not represent an exponential fun…",
+            "section": "Identifying Exponential Functions"
+          },
+          {
+            "question": "Evaluating Exponential Functions Let f( x )=5 ( 3 ) x+1 . Evaluate f( 2 ) without using a calculator.",
+            "solution": "Follow the order of operations. Be sure to pay attention to the parentheses. f( x ) =5 ( 3 ) x+1 f( 2 ) =5 ( 3 ) 2+1 Substitute x=2. =5 ( 3 ) 3 Add the exponents. =5( 27 ) Simplify the power. =135 Multiply.",
+            "section": "Evaluating Exponential Functions"
+          },
+          {
+            "question": "Evaluating a Real-World Exponential Model At the beginning of this section, we learned that the population of India was about 1.25 billion in the year 2013, with an annual growth rate of about 1.2%. This situation is represented by the growth function P(t)=1.25 ( 1.012 ) t , where t is the number of years since 2013. To the nearest thousandth, what will the population of India be in 2031?",
+            "solution": "To estimate the population in 2031, we evaluate the models for t=18, because 2031 is 18 years after 2013. Rounding to the nearest thousandth, P(18)=1.25 ( 1.012 ) 18 ≈1.549 There will be about 1.549 billion people in India in the year 2031.",
+            "section": "Evaluating Exponential Functions"
+          },
+          {
+            "question": "Calculating Compound Interest If we invest $3,000 in an investment account paying 3% interest compounded quarterly, how much will the account be worth in 10 years?",
+            "solution": "Because we are starting with $3,000, P=3000. Our interest rate is 3%, so r=0.03. Because we are compounding quarterly, we are compounding 4 times per year, so n=4. We want to know the value of the account in 10 years, so we are looking for A( 10 ), the value when t=10. A(t) =P ( 1+ r n ) nt Use the compound interest formula. A(10) =3000 ( 1+ 0.03 4 ) 4⋅10 Substitute using given values. ≈$4045.05 R…",
+            "section": "Applying the Compound-Interest Formula"
+          }
+        ]
+      }
+    },
+    {
+      "id": "seq-zeno",
+      "sources": {
+        "openstax": {
+          "repo": "openstax/osbooks-college-algebra-bundle",
+          "path": "modules/m49446/index.cnxml",
+          "url": "https://raw.githubusercontent.com/openstax/osbooks-college-algebra-bundle/main/modules/m49446/index.cnxml",
+          "license": "CC BY-NC-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+          "title": "Geometric Sequences",
+          "sections": [
+            "Finding Common Ratios",
+            "Writing Terms of Geometric Sequences",
+            "Using Recursive Formulas for Geometric Sequences",
+            "Using Explicit Formulas for Geometric Sequences",
+            "Solving Application Problems with Geometric Sequences"
+          ]
+        },
+        "openstaxSupport": [
+          {
+            "repo": "openstax/osbooks-college-algebra-bundle",
+            "path": "modules/m49447/index.cnxml",
+            "url": "https://raw.githubusercontent.com/openstax/osbooks-college-algebra-bundle/main/modules/m49447/index.cnxml",
+            "license": "CC BY-NC-SA 4.0",
+            "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+            "title": "Series and Their Notations",
+            "sections": [
+              "Using the Formula for Geometric Series",
+              "Determining Whether the Sum of an Infinite Geometric Series is Defined",
+              "Finding Sums of Infinite Series"
+            ],
+            "concepts": 1
+          },
+          {
+            "repo": "openstax/osbooks-college-algebra-bundle",
+            "path": "modules/m49444/index.cnxml",
+            "url": "https://raw.githubusercontent.com/openstax/osbooks-college-algebra-bundle/main/modules/m49444/index.cnxml",
+            "license": "CC BY-NC-SA 4.0",
+            "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+            "title": "Sequences and Their Notations",
+            "sections": [
+              "Writing the Terms of a Sequence Defined by an Explicit Formula"
+            ],
+            "concepts": 1
+          }
+        ],
+        "khan": [
+          {
+            "repo": "Khan/khan-exercises",
+            "path": "exercises/geometric_sequences_1.html",
+            "url": "https://raw.githubusercontent.com/Khan/khan-exercises/master/exercises/geometric_sequences_1.html",
+            "license": "CC BY-NC-SA 3.0",
+            "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/3.0/",
+            "title": "Geometric sequences 1"
+          },
+          {
+            "repo": "Khan/khan-exercises",
+            "path": "exercises/geometric_sequences_2.html",
+            "url": "https://raw.githubusercontent.com/Khan/khan-exercises/master/exercises/geometric_sequences_2.html",
+            "license": "CC BY-NC-SA 3.0",
+            "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/3.0/",
+            "title": "Geometric sequences 2"
+          },
+          {
+            "repo": "Khan/khan-exercises",
+            "path": "exercises/arithmetic_sequences_1.html",
+            "url": "https://raw.githubusercontent.com/Khan/khan-exercises/master/exercises/arithmetic_sequences_1.html",
+            "license": "CC BY-NC-SA 3.0",
+            "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/3.0/",
+            "title": "Arithmetic sequences 1"
+          }
+        ],
+        "cn": {
+          "repo": "haojing8312/cn-k12-math-knowledge-graph",
+          "path": "data/graph.json",
+          "url": "https://raw.githubusercontent.com/haojing8312/cn-k12-math-knowledge-graph/main/data/graph.json",
+          "license": "CC BY-NC-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+          "topics": [
+            {
+              "name": "真分数",
+              "chapter": "分数的意义和性质"
+            },
+            {
+              "name": "分数单位",
+              "chapter": "分数的意义和性质"
+            },
+            {
+              "name": "用图形表示分数",
+              "chapter": "分数的初步认识"
+            },
+            {
+              "name": "分数与除法的关系",
+              "chapter": "分数的意义和性质"
+            }
+          ]
+        }
+      },
+      "concept": {
+        "zhCN": [
+          "真分数（分数的意义和性质）",
+          "分数单位（分数的意义和性质）",
+          "用图形表示分数（分数的初步认识）",
+          "分数与除法的关系（分数的意义和性质）"
+        ],
+        "zhTW": [
+          "真分數（分數的意義和性質）",
+          "分數單位（分數的意義和性質）",
+          "用圖形表示分數（分數的初步認識）",
+          "分數與除法的關系（分數的意義和性質）"
+        ],
+        "en": [
+          "Definition of a Geometric Sequence: A geometric sequence is one in which any term divided by the previous term is a constant. This constant is called the common ratio of the sequence. The common ratio can be found by dividing any term in the sequence by the previous term. If a 1 is the initial term of a geometric sequence and r is the common ratio, the sequence will be { a 1 , a 1 r, a 1 r 2 , a 1 r 3 ,...}.",
+          "Recursive Formula for a Geometric Sequence: The recursive formula for a geometric sequence with common ratio r and first term a 1 is a n =r a n−1 ,n≥2",
+          "Explicit Formula for a Geometric Sequence: The n th term of a geometric sequence is given by the explicit formula : a n = a 1 r n−1"
+        ]
+      },
+      "task": {
+        "zhCN": [
+          "在《分数的意义和性质》中完成「真分数」的探究与验证",
+          "在《分数的意义和性质》中完成「分数单位」的探究与验证",
+          "在《分数的初步认识》中完成「用图形表示分数」的探究与验证",
+          "在《分数的意义和性质》中完成「分数与除法的关系」的探究与验证"
+        ],
+        "zhTW": [
+          "在《分數的意義和性質》中完成「真分數」的探究與驗證",
+          "在《分數的意義和性質》中完成「分數單位」的探究與驗證",
+          "在《分數的初步認識》中完成「用圖形表示分數」的探究與驗證",
+          "在《分數的意義和性質》中完成「分數與除法的關系」的探究與驗證"
+        ],
+        "en": [
+          "Finding Common Ratios Is the sequence geometric? If so, find the common ratio. ⓐ 1,2,4,8,16,... ⓑ 48,12,4, 2,...",
+          "Writing the Terms of a Geometric Sequence List the first four terms of the geometric sequence with a 1 =5 and r=–2.",
+          "Using Recursive Formulas for Geometric Sequences Write a recursive formula for the following geometric sequence. {6, 9, 13.5, 20.25, ...}",
+          "Writing Terms of Geometric Sequences Using the Explicit Formula Given a geometric sequence with a 1 =3 and a 4 =24, find a 2 ."
+        ]
+      },
+      "hints": {
+        "zhCN": [
+          "想一想：真分数在《分数的意义和性质》里是怎么定义的？依据是什么？",
+          "想一想：分数单位在《分数的意义和性质》里是怎么定义的？依据是什么？",
+          "想一想：用图形表示分数在《分数的初步认识》里是怎么定义的？依据是什么？",
+          "想一想：分数与除法的关系在《分数的意义和性质》里是怎么定义的？依据是什么？"
+        ],
+        "zhTW": [
+          "想一想：真分數在《分數的意義和性質》裏是怎麼定義的？依據是什麼？",
+          "想一想：分數單位在《分數的意義和性質》裏是怎麼定義的？依據是什麼？",
+          "想一想：用圖形表示分數在《分數的初步認識》裏是怎麼定義的？依據是什麼？",
+          "想一想：分數與除法的關系在《分數的意義和性質》裏是怎麼定義的？依據是什麼？"
+        ],
+        "en": [
+          "In any geometric sequence, each term is equal to the previous term times the common ratio.",
+          "Thus, the second term is equal to the first term times the common ratio. In this sequence, the second term, , is times the first term, .",
+          "Therefore, the common ratio is .",
+          "The ▢ term in the sequence is equal to the ▢ term times the common ratio, or ▢ \\cdot ▢ = ▢.",
+          "From the given formula, we can see that the first term of the sequence is and the common ratio is ."
+        ]
+      },
+      "trials": {
+        "zhCN": [
+          "在《分数的意义和性质》中，真分数的判定条件是什么？举一个具体例子。",
+          "在《分数的意义和性质》中，分数单位的判定条件是什么？举一个具体例子。",
+          "在《分数的初步认识》中，用图形表示分数的判定条件是什么？举一个具体例子。"
+        ],
+        "zhTW": [
+          "在《分數的意義和性質》中，真分數的判定條件是什麼？舉一個具體例子。",
+          "在《分數的意義和性質》中，分數單位的判定條件是什麼？舉一個具體例子。",
+          "在《分數的初步認識》中，用圖形表示分數的判定條件是什麼？舉一個具體例子。"
+        ],
+        "en": [
+          "The first ▢ terms of a geometric sequence are given: ▢, \\ldots What is the ▢ term in the sequence?",
+          "What is a_{▢}, the ▢ term in the sequence?",
+          "The geometric sequence (a_i) is defined by the formula: a_i = ▢ \\left(▢\\right)^{i - 1} What is a_{▢}, the ▢ term in the sequence?"
+        ]
+      },
+      "quiz": {
+        "zhCN": [
+          {
+            "stem": "在《分数的意义和性质》的真实情境中，「真分数」是如何被定义与判定的？请给出你的推理依据。",
+            "source": "cn-k12",
+            "answer": "教材章节：分数的意义和性质；知识点：真分数。"
+          },
+          {
+            "stem": "在《分数的意义和性质》的真实情境中，「分数单位」是如何被定义与判定的？请给出你的推理依据。",
+            "source": "cn-k12",
+            "answer": "教材章节：分数的意义和性质；知识点：分数单位。"
+          },
+          {
+            "stem": "在《分数的初步认识》的真实情境中，「用图形表示分数」是如何被定义与判定的？请给出你的推理依据。",
+            "source": "cn-k12",
+            "answer": "教材章节：分数的初步认识；知识点：用图形表示分数。"
+          }
+        ],
+        "zhTW": [
+          {
+            "stem": "在《分數的意義和性質》的真實情境中，「真分數」是如何被定義與判定的？請給出你的推理依據。",
+            "source": "cn-k12",
+            "answer": "教材章節：分數的意義和性質；知識點：真分數。"
+          },
+          {
+            "stem": "在《分數的意義和性質》的真實情境中，「分數單位」是如何被定義與判定的？請給出你的推理依據。",
+            "source": "cn-k12",
+            "answer": "教材章節：分數的意義和性質；知識點：分數單位。"
+          },
+          {
+            "stem": "在《分數的初步認識》的真實情境中，「用圖形表示分數」是如何被定義與判定的？請給出你的推理依據。",
+            "source": "cn-k12",
+            "answer": "教材章節：分數的初步認識；知識點：用圖形表示分數。"
+          }
+        ],
+        "en": [
+          {
+            "stem": "Finding Common Ratios Is the sequence geometric? If so, find the common ratio. ⓐ 1,2,4,8,16,... ⓑ 48,12,4, 2,...",
+            "source": "openstax",
+            "answer": "Divide each term by the previous term to determine whether a common ratio exists. ⓐ 2 1 =2 4 2 =2 8 4 =2 16 8 =2 The sequence is geometric because there is a common ratio. The common ratio is 2. ⓑ 12 48 = 1 4 4 12 = 1 3 2 4 = 1 2 The sequence is not geometric because there is not a common ratio."
+          },
+          {
+            "stem": "Writing the Terms of a Geometric Sequence List the first four terms of the geometric sequence with a 1 =5 and r=–2.",
+            "source": "openstax",
+            "answer": "Multiply a 1 by −2 to find a 2 . Repeat the process, using a 2 to find a 3 , and so on. a 1 =5 a 2 =−2 a 1 =−10 a 3 =−2 a 2 =20 a 4 =−2 a 3 =−40 The first four terms are { 5,–10,20,–40 }."
+          },
+          {
+            "stem": "Using Recursive Formulas for Geometric Sequences Write a recursive formula for the following geometric sequence. {6, 9, 13.5, 20.25, ...}",
+            "source": "openstax",
+            "answer": "The first term is given as 6. The common ratio can be found by dividing the second term by the first term. r= 9 6 =1.5 Substitute the common ratio into the recursive formula for geometric sequences and define a 1 . a n =r a n−1 a n =1.5 a n−1 for n≥2 a 1 =6"
+          }
+        ]
+      },
+      "raw": {
+        "khanHints": [
+          "In any geometric sequence, each term is equal to the previous term times the common ratio.",
+          "Thus, the second term is equal to the first term times the common ratio. In this sequence, the second term, , is times the first term, .",
+          "Therefore, the common ratio is .",
+          "The ▢ term in the sequence is equal to the ▢ term times the common ratio, or ▢ \\cdot ▢ = ▢.",
+          "From the given formula, we can see that the first term of the sequence is and the common ratio is .",
+          "The second term is simply the first term times the common ratio.",
+          "Therefore, the second term is equal to a_2 = ▢ \\cdot ▢ = ▢.",
+          "To find a_{▢}, we can simply substitute i = ▢ into the given formula.",
+          "Therefore, the ▢ term is equal to a_{▢} = ▢ \\left(▢\\right)^{▢ - 1} = ▢.",
+          "From the given formula, we can see that the first term of the sequence is and the common ratio is .",
+          "The second term is simply the first term times the common ratio.",
+          "Therefore, the second term is equal to a_2 = ▢ \\cdot ▢ = ▢.",
+          "To find the ▢ term, we can rewrite the given recurrence as an explicit formula.",
+          "The general form for a geometric sequence is a_i = a_1 r^{i - 1}. In this case, we have a_i = ▢ \\left(▢\\right)^{i - 1}.",
+          "To find a_{▢}, we can simply substitute i = ▢ into the formula.",
+          "Therefore, the ▢ term is equal to a_{▢} = ▢ \\left(▢\\right)^{▢ - 1} = ▢.",
+          "In any arithmetic sequence, each term is equal to the previous term plus the common difference.",
+          "0\">Thus, the second term is equal to the first term plus the common difference. In this sequence, the second term, , is more than the first term, .",
+          "Thus, the second term is equal to the first term plus the common difference. In this sequence, the second term, , is less than the first term, .",
+          "Therefore, the common difference is .",
+          "The ▢ term in the sequence is equal to the ▢ term plus the common difference, or + ▢ = ."
+        ],
+        "openstaxConcepts": [
+          {
+            "heading": "Definition of a Geometric Sequence",
+            "body": "A geometric sequence is one in which any term divided by the previous term is a constant. This constant is called the common ratio of the sequence. The common ratio can be found by dividing any term in the sequence by the previous term. If a 1 is the initial term of a geometric sequence and r is the common ratio, the sequence will be { a 1 , a 1 r, a 1 r 2 , a 1 r 3 ,...}.",
+            "section": "Finding Common Ratios"
+          },
+          {
+            "heading": "Recursive Formula for a Geometric Sequence",
+            "body": "The recursive formula for a geometric sequence with common ratio r and first term a 1 is a n =r a n−1 ,n≥2",
+            "section": "Using Recursive Formulas for Geometric Sequences"
+          },
+          {
+            "heading": "Explicit Formula for a Geometric Sequence",
+            "body": "The n th term of a geometric sequence is given by the explicit formula : a n = a 1 r n−1",
+            "section": "Using Explicit Formulas for Geometric Sequences"
+          },
+          {
+            "heading": "Formula for the Sum of the First n Terms of a Geometric Series",
+            "body": "A geometric series is the sum of the terms in a geometric sequence. The formula for the sum of the first n terms of a geometric sequence is represented as S n = a 1 (1− r n ) 1−r r≠1",
+            "section": "Using the Formula for Geometric Series"
+          },
+          {
+            "heading": "Sequence",
+            "body": "A sequence is a function whose domain is the set of positive integers. A finite sequence is a sequence whose domain consists of only the first n positive integers. The numbers in a sequence are called terms . The variable a with a number subscript is used to represent the terms in a sequence and to indicate the position of the term in the sequence. a 1 , a 2 , a 3 ,…, a n ,… We call a 1 the first term of the sequence, a 2 the second term of the sequence, a 3 the third term of the sequence, and so on. The term a n is called the nth term of the sequence , or the general term of the sequence. An explicit formula defines the nth term of a sequence using the position of the term. A sequence that continues indefinitely is an infinite sequence .",
+            "section": "Writing the Terms of a Sequence Defined by an Explicit Formula"
+          }
+        ],
+        "openstaxExamples": [
+          {
+            "question": "Finding Common Ratios Is the sequence geometric? If so, find the common ratio. ⓐ 1,2,4,8,16,... ⓑ 48,12,4, 2,...",
+            "solution": "Divide each term by the previous term to determine whether a common ratio exists. ⓐ 2 1 =2 4 2 =2 8 4 =2 16 8 =2 The sequence is geometric because there is a common ratio. The common ratio is 2. ⓑ 12 48 = 1 4 4 12 = 1 3 2 4 = 1 2 The sequence is not geometric because there is not a common ratio.",
+            "section": "Finding Common Ratios"
+          },
+          {
+            "question": "Writing the Terms of a Geometric Sequence List the first four terms of the geometric sequence with a 1 =5 and r=–2.",
+            "solution": "Multiply a 1 by −2 to find a 2 . Repeat the process, using a 2 to find a 3 , and so on. a 1 =5 a 2 =−2 a 1 =−10 a 3 =−2 a 2 =20 a 4 =−2 a 3 =−40 The first four terms are { 5,–10,20,–40 }.",
+            "section": "Writing Terms of Geometric Sequences"
+          },
+          {
+            "question": "Using Recursive Formulas for Geometric Sequences Write a recursive formula for the following geometric sequence. {6, 9, 13.5, 20.25, ...}",
+            "solution": "The first term is given as 6. The common ratio can be found by dividing the second term by the first term. r= 9 6 =1.5 Substitute the common ratio into the recursive formula for geometric sequences and define a 1 . a n =r a n−1 a n =1.5 a n−1 for n≥2 a 1 =6",
+            "section": "Using Recursive Formulas for Geometric Sequences"
+          },
+          {
+            "question": "Writing Terms of Geometric Sequences Using the Explicit Formula Given a geometric sequence with a 1 =3 and a 4 =24, find a 2 .",
+            "solution": "The sequence can be written in terms of the initial term and the common ratio r. 3,3r,3 r 2 ,3 r 3 ,... Find the common ratio using the given fourth term. a n = a 1 r n−1 a 4 =3 r 3 Write the fourth term of sequence in terms of α 1 and r 24=3 r 3 Substitute 24for a 4 8= r 3 Divide r=2 Solve for the common ratio Find the second term by multiplying the first term by the common ratio. a 2 =2 a 1 =2(3…",
+            "section": "Using Explicit Formulas for Geometric Sequences"
+          }
+        ]
+      }
+    },
+    {
+      "id": "prob-bayes",
+      "sources": {
+        "openstax": {
+          "repo": "openstax/osbooks-college-algebra-bundle",
+          "path": "modules/m49450/index.cnxml",
+          "url": "https://raw.githubusercontent.com/openstax/osbooks-college-algebra-bundle/main/modules/m49450/index.cnxml",
+          "license": "CC BY-NC-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+          "title": "Probability",
+          "sections": [
+            "Constructing Probability Models",
+            "Computing Probabilities of Equally Likely Outcomes",
+            "Computing the Probability of the Union of Two Events",
+            "Using the Complement Rule to Compute Probabilities"
+          ]
+        },
+        "openstaxSupport": [],
+        "khan": [
+          {
+            "repo": "Khan/khan-exercises",
+            "path": "exercises/probability_1.html",
+            "url": "https://raw.githubusercontent.com/Khan/khan-exercises/master/exercises/probability_1.html",
+            "license": "CC BY-NC-SA 3.0",
+            "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/3.0/",
+            "title": "Probability 1"
+          },
+          {
+            "repo": "Khan/khan-exercises",
+            "path": "exercises/independent_probability.html",
+            "url": "https://raw.githubusercontent.com/Khan/khan-exercises/master/exercises/independent_probability.html",
+            "license": "CC BY-NC-SA 3.0",
+            "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/3.0/",
+            "title": "Independent probability"
+          },
+          {
+            "repo": "Khan/khan-exercises",
+            "path": "exercises/dependent_probability.html",
+            "url": "https://raw.githubusercontent.com/Khan/khan-exercises/master/exercises/dependent_probability.html",
+            "license": "CC BY-NC-SA 3.0",
+            "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/3.0/",
+            "title": "Dependent probability"
+          },
+          {
+            "repo": "Khan/khan-exercises",
+            "path": "exercises/dice_probability.html",
+            "url": "https://raw.githubusercontent.com/Khan/khan-exercises/master/exercises/dice_probability.html",
+            "license": "CC BY-NC-SA 3.0",
+            "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/3.0/",
+            "title": "Probability space"
+          }
+        ],
+        "cn": {
+          "repo": "haojing8312/cn-k12-math-knowledge-graph",
+          "path": "data/graph.json",
+          "url": "https://raw.githubusercontent.com/haojing8312/cn-k12-math-knowledge-graph/main/data/graph.json",
+          "license": "CC BY-NC-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+          "topics": [
+            {
+              "name": "概率",
+              "chapter": "第二十五章 概率初步"
+            },
+            {
+              "name": "随机事件",
+              "chapter": "第二十五章 概率初步"
+            },
+            {
+              "name": "事件概率",
+              "chapter": "第二十五章 概率初步"
+            },
+            {
+              "name": "小概率事件",
+              "chapter": "第二十五章 概率初步"
+            }
+          ]
+        }
+      },
+      "concept": {
+        "zhCN": [
+          "概率（第二十五章 概率初步）",
+          "随机事件（第二十五章 概率初步）",
+          "事件概率（第二十五章 概率初步）",
+          "小概率事件（第二十五章 概率初步）"
+        ],
+        "zhTW": [
+          "概率（第二十五章 概率初步）",
+          "隨機事件（第二十五章 概率初步）",
+          "事件概率（第二十五章 概率初步）",
+          "小概率事件（第二十五章 概率初步）"
+        ],
+        "en": [
+          "Computing the Probability of an Event with Equally Likely Outcomes: The probability of an event E in an experiment with sample space S with equally likely outcomes is given by P( E )= number of elements in E number of elements in S = n( E ) n( S ) E is a subset of S, so it is always true that 0≤P(E)≤1.",
+          "Probability of the Union of Two Events: The probability of the union of two events E and F (written E∪F ) equals the sum of the probability of E and the probability of F minus the probability of E and F occurring together ( which is called the intersection of E and F and is written as E∩F ). P(E∪F)=P(E)+P(F)−P(E∩F)",
+          "The Complement Rule: The probability that the complement of an event will occur is given by P( E ′ )=1−P(E)"
+        ]
+      },
+      "task": {
+        "zhCN": [
+          "在《第二十五章 概率初步》中完成「概率」的探究与验证",
+          "在《第二十五章 概率初步》中完成「随机事件」的探究与验证",
+          "在《第二十五章 概率初步》中完成「事件概率」的探究与验证",
+          "在《第二十五章 概率初步》中完成「小概率事件」的探究与验证"
+        ],
+        "zhTW": [
+          "在《第二十五章 概率初步》中完成「概率」的探究與驗證",
+          "在《第二十五章 概率初步》中完成「隨機事件」的探究與驗證",
+          "在《第二十五章 概率初步》中完成「事件概率」的探究與驗證",
+          "在《第二十五章 概率初步》中完成「小概率事件」的探究與驗證"
+        ],
+        "en": [
+          "Constructing a Probability Model Construct a probability model for rolling a single, fair die, with the event being the number shown on the die.",
+          "Computing the Probability of an Event with Equally Likely Outcomes A six-sided number cube is rolled. Find the probability of rolling an odd number.",
+          "Computing the Probability of the Union of Two Events A card is drawn from a standard deck. Find the probability of drawing a heart or a 7.",
+          "Using the Complement Rule to Calculate Probabilities Two six-sided number cubes are rolled. ⓐ Find the probability that the sum of the numbers rolled is less than or equal to 3. ⓑ Find the probability that the sum of the numbers rolled is greater than 3."
+        ]
+      },
+      "hints": {
+        "zhCN": [
+          "想一想：概率在《第二十五章 概率初步》里是怎么定义的？依据是什么？",
+          "想一想：随机事件在《第二十五章 概率初步》里是怎么定义的？依据是什么？",
+          "想一想：事件概率在《第二十五章 概率初步》里是怎么定义的？依据是什么？",
+          "想一想：小概率事件在《第二十五章 概率初步》里是怎么定义的？依据是什么？"
+        ],
+        "zhTW": [
+          "想一想：概率在《第二十五章 概率初步》裏是怎麼定義的？依據是什麼？",
+          "想一想：隨機事件在《第二十五章 概率初步》裏是怎麼定義的？依據是什麼？",
+          "想一想：事件概率在《第二十五章 概率初步》裏是怎麼定義的？依據是什麼？",
+          "想一想：小概率事件在《第二十五章 概率初步》裏是怎麼定義的？依據是什麼？"
+        ],
+        "en": [
+          "There are ▢ + ▢ + ▢ = ▢ ▢s in the ▢.",
+          "There are ▢ ▢s. That means ▢ - ▢ = ▢ are not ▢.",
+          "The probability is \\displaystyle ▢.",
+          "When rolling a die, there are 6 possibilities: 1, 2, 3, 4, 5, and 6.",
+          "In this case, only 1 result is favorable: the number ▢."
+        ]
+      },
+      "trials": {
+        "zhCN": [
+          "在《第二十五章 概率初步》中，概率的判定条件是什么？举一个具体例子。",
+          "在《第二十五章 概率初步》中，随机事件的判定条件是什么？举一个具体例子。",
+          "在《第二十五章 概率初步》中，事件概率的判定条件是什么？举一个具体例子。"
+        ],
+        "zhTW": [
+          "在《第二十五章 概率初步》中，概率的判定條件是什麼？舉一個具體例子。",
+          "在《第二十五章 概率初步》中，隨機事件的判定條件是什麼？舉一個具體例子。",
+          "在《第二十五章 概率初步》中，事件概率的判定條件是什麼？舉一個具體例子。"
+        ],
+        "en": [
+          "A ▢ contains red ▢s, green ▢s, and blue ▢s. If a ▢ is randomly chosen, what is the probability that it is not ▢?",
+          "A fair six-sided die is rolled. What is the probability that the result is ▢?",
+          "If you flip a coin and roll a 6-sided die, what is the probability that you will flip a ▢ and roll ▢?"
+        ]
+      },
+      "quiz": {
+        "zhCN": [
+          {
+            "stem": "在《第二十五章 概率初步》的真实情境中，「概率」是如何被定义与判定的？请给出你的推理依据。",
+            "source": "cn-k12",
+            "answer": "教材章节：第二十五章 概率初步；知识点：概率。"
+          },
+          {
+            "stem": "在《第二十五章 概率初步》的真实情境中，「随机事件」是如何被定义与判定的？请给出你的推理依据。",
+            "source": "cn-k12",
+            "answer": "教材章节：第二十五章 概率初步；知识点：随机事件。"
+          },
+          {
+            "stem": "在《第二十五章 概率初步》的真实情境中，「事件概率」是如何被定义与判定的？请给出你的推理依据。",
+            "source": "cn-k12",
+            "answer": "教材章节：第二十五章 概率初步；知识点：事件概率。"
+          }
+        ],
+        "zhTW": [
+          {
+            "stem": "在《第二十五章 概率初步》的真實情境中，「概率」是如何被定義與判定的？請給出你的推理依據。",
+            "source": "cn-k12",
+            "answer": "教材章節：第二十五章 概率初步；知識點：概率。"
+          },
+          {
+            "stem": "在《第二十五章 概率初步》的真實情境中，「隨機事件」是如何被定義與判定的？請給出你的推理依據。",
+            "source": "cn-k12",
+            "answer": "教材章節：第二十五章 概率初步；知識點：隨機事件。"
+          },
+          {
+            "stem": "在《第二十五章 概率初步》的真實情境中，「事件概率」是如何被定義與判定的？請給出你的推理依據。",
+            "source": "cn-k12",
+            "answer": "教材章節：第二十五章 概率初步；知識點：事件概率。"
+          }
+        ],
+        "en": [
+          {
+            "stem": "Constructing a Probability Model Construct a probability model for rolling a single, fair die, with the event being the number shown on the die.",
+            "source": "openstax",
+            "answer": "Begin by making a list of all possible outcomes for the experiment. The possible outcomes are the numbers that can be rolled: 1, 2, 3, 4, 5, and 6. There are six possible outcomes that make up the sample space. Assign probabilities to each outcome in the sample space by determining a ratio of the outcome to the number of possible outcomes. There is one of each of the six numbers on the cube, and t…"
+          },
+          {
+            "stem": "Computing the Probability of an Event with Equally Likely Outcomes A six-sided number cube is rolled. Find the probability of rolling an odd number.",
+            "source": "openstax",
+            "answer": "The event “rolling an odd number” contains three outcomes. There are 6 equally likely outcomes in the sample space. Divide to find the probability of the event. P(E)= 3 6 = 1 2"
+          },
+          {
+            "stem": "Computing the Probability of the Union of Two Events A card is drawn from a standard deck. Find the probability of drawing a heart or a 7.",
+            "source": "openstax",
+            "answer": "A standard deck contains an equal number of hearts, diamonds, clubs, and spades. So the probability of drawing a heart is 1 4 . There are four 7s in a standard deck, and there are a total of 52 cards. So the probability of drawing a 7 is 1 13 . The only card in the deck that is both a heart and a 7 is the 7 of hearts, so the probability of drawing both a heart and a 7 is 1 52 . Substitute P(H)= 1 …"
+          }
+        ]
+      },
+      "raw": {
+        "khanHints": [
+          "There are ▢ + ▢ + ▢ = ▢ ▢s in the ▢.",
+          "There are ▢ ▢s. That means ▢ - ▢ = ▢ are not ▢.",
+          "The probability is \\displaystyle ▢.",
+          "When rolling a die, there are 6 possibilities: 1, 2, 3, 4, 5, and 6.",
+          "In this case, only 1 result is favorable: the number ▢.",
+          "In this case, results are favorable: ▢.",
+          "The probability is \\displaystyle ▢.",
+          "Flipping a ▢ and rolling ▢ are independent events: they don't affect each other. So, to get the probability of both happening, we just need to multiply the probability of one by the probability of the other.",
+          "The probability of flipping a ▢ is {2}.",
+          "1\"> The probability of rolling ▢ is {6}, since there is ▢ outcome which satisfy our condition (namely, ▢), and 6 total possible outcomes. The probability of rolling ▢ is {6}, since there are ▢ outcomes which satisfy our condition (namely, ▢), and 6 total possible outcomes.",
+          "The probability of rolling ▢ is {6}, since there is ▢ outcome which satisfies our condition (namely, ▢), and 6 total possible outcomes. The probability of rolling ▢ is {6}, since there are ▢ outcomes which satisfies our condition (namely, ▢), and 6 total possible outcomes.",
+          "So, the probability of both these events happening is {2} \\cdot {6} = {▢}.",
+          "We know that \\blue{▢ \\%} of the time, he'll make his first shot.",
+          "Then ▢ \\% of the time he makes his first shot, he will also make his second shot, and ▢ \\% of the time he makes his first shot, he will miss his second shot.",
+          "Notice how we can completely ignore the rightmost section of the line now, because those were the times that he missed the first free throw, and we only care about if he makes the first and the second. So the chance of making two free throws in a row is ▢\\% of the times that he made the first shot, which happens ▢\\% of the time in general.",
+          "This is ▢\\% \\cdot ▢\\%, or ▢ \\cdot ▢ \\approx ▢.",
+          "We can repeat this process again to get the probability of making three free throws in a row. We simply take ▢\\% of probability that he makes two in a row, which we know from the previous step is ▢ \\approx \\purple{▢\\%}.",
+          "▢\\% of \\purple{▢\\%} is ▢ \\cdot ▢ \\approx ▢, or about \\green{▢\\%}:",
+          "There is a pattern here: the chance of making two free throws in a row was ▢ \\cdot ▢, and the probability of making three in a row was ▢ \\cdot ▢ = ▢ \\cdot (▢ \\cdot ▢) = ▢^3.",
+          "In general, you can continue in this way to find the probability of making any number of shots.",
+          "The probability of making ▢ free throws in a row is ▢ ^ ▢.",
+          "We know that \\blue{▢ \\%} of the time, he'll miss his first shot (100 \\% - ▢ \\% = ▢ \\%).",
+          "Then ▢ \\% of the time he misses his first shot, he will also miss his second shot, and ▢ \\% of the time he misses his first shot, he will make his second shot.",
+          "Notice how we can completely ignore the rightmost section of the line now, because those were the times that he made the first free throw, and we only care about if he misses the first and the second. So the chance of missing two free throws in a row is ▢\\% of the times that he missed the first shot, which happens ▢\\% of the time in general.",
+          "This is ▢\\% \\cdot ▢\\%, or ▢ \\cdot ▢ \\approx ▢.",
+          "We can repeat this process again to get the probability of missing three free throws in a row. We simply take ▢\\% of probability that he misses two in a row, which we know from the previous step is ▢ \\approx \\purple{▢\\%}.",
+          "▢\\% of \\purple{▢\\%} is ▢ \\cdot ▢ \\approx ▢, or about \\green{▢\\%}:",
+          "There is a pattern here: the chance of missing two free throws in a row was ▢ \\cdot ▢, and the probability of missing three in a row was ▢ \\cdot ▢ = ▢ \\cdot (▢ \\cdot ▢) = ▢^3.",
+          "In general, you can continue in this way to find the probability of missing any number of shots.",
+          "The probability of missing ▢ free throws in a row is ▢ ^ ▢ = ▢.",
+          "If the Captain hits the pirate ship, it won't affect whether he's also hit by the pirate's cannons (and vice-versa), because they both fired at the same time. So, these events are independent.",
+          "If the Captain hits the pirate ship, it won't affect whether she's also hit by the pirate's cannons (and vice-versa), because they both fired at the same time. So, these events are independent.",
+          "Since they are independent, in order to get the probability that ▢, we just need to multiply together the probability that the captain hits and the probability that the pirate hits. Since they are independent, in order to get the probability that ▢, we just need to multiply together the probability that the captain hits and the probability that the pirate misses. Since they are independent, in order to get the probability that ▢, we just need to multiply together the probability that the captain misses and the probability that the pirate hits. Since they are independent, in order to get the probability that ▢, we just need to multiply together the probability that the captain misses and the probability that the pirate misses.",
+          "The probability that the Captain hits is .",
+          "The probability that the Captain misses is 1 - (the probability the Captain hits), which is 1 - ▢ = ▢.",
+          "The probability that the pirate hits is .",
+          "The probability that the pirate misses is 1 - (the probability the pirate hits), which is 1 - ▢ = ▢.",
+          "So, the probability that ▢ is ▢ \\cdot ▢ = {▢}.",
+          "2\"> We can think about this problem as the probability of events happening. The first event is the teacher choosing one student who ▢. The second event is the teacher choosing another student who ▢, given that the teacher already chose someone who ▢ , and so on.",
+          "We can think about this problem as the probability of events happening. The first event is the teacher choosing one student who ▢. The second event is the teacher choosing another student who ▢, given that the teacher already chose someone who ▢ .",
+          "The probabilty that the teacher will choose someone who ▢ is the number of students who ▢ divided by the total number of students: { }.",
+          "Once the teacher's chosen one student, there are only left.",
+          "There's also one fewer student who ▢, since the teacher isn't going to pick the same student twice.",
+          "So, the probability that the teacher picks a second student who also ▢ is { }.",
+          "2\"> The probability of the teacher picking two students who ▢ must then be { } \\cdot { }.",
+          "2\"> We can continue using the same logic for the rest of the students the teacher picks.",
+          "So, the probability of the teacher picking students such that {ALL ? ((CHOSEN === 2) ? \"both\" : \"all\") : \"none\"} of them ▢ is:",
+          "\\qquad▢ = {▢} = ▢",
+          "The probability of event A happening, then event B, is the probability of event A happening times the probability of event B happening given that event A already happened. In this case, event A is picking a ▢ ▢ and leaving it out. Event B is picking ▢ ▢.",
+          "Let's take the events one at at time. What is the probability that the first ▢ chosen will be ▢?",
+          "There are ▢ ▢s, and total, so the probability we will pick a ▢ ▢ is {▢}.",
+          "After we take out the first ▢, we don't put it back in, so there are only ▢s left.",
+          "Also, we've taken out one of the ▢ ▢s, so there are only left altogether.",
+          "Since the first ▢ was ▢, there are still ▢ ▢s left.",
+          "So, the probability of picking ▢ ▢ after taking out a ▢ ▢ is { }.",
+          "Therefore, the probability of picking a ▢ ▢, then ▢ ▢ is {▢} \\cdot { } = {▢} = ▢",
+          "The probability of event A happening, then event B, is the probability of event A happening times the probability of event B happening given that event A already happened. In this case, event A is ▢ and event B is ▢.",
+          "The Captain fires first, so his ship can't be sunk before he fires his cannons. The pirate fires first, so his ship can't be sunk before he fires his cannons.",
+          "The Captain fires first, so her ship can't be sunk before she fires her cannons. The pirate fires first, so her ship can't be sunk before she fires her cannons.",
+          "So, the probability of ▢ is .",
+          "If the Captain hit the pirate ship, the pirate has no chance of firing back. If the pirate hit the Captain's ship, the Captain has no chance of firing back.",
+          "If the Captain missed the pirate ship, the pirate has a normal chance to fire back. If the pirate missed the Captain's ship, the Captain has a normal chance to fire back.",
+          "So, the probability of ▢ given ▢ is .",
+          "The probability that ▢ is then the probability of ▢ times the probability of ▢ given ▢.",
+          "This is ▢ \\cdot ▢ = ▢",
+          "There is one matching outcome.",
+          "There are matching outcomes.",
+          "The probability is the number of matching outcomes divided by all possible outcomes.",
+          "The probability is , which reduces to .",
+          "The probability is .",
+          "How many matching outcomes are there with an even number on the black die and on the white die?",
+          "How many matching outcomes are there with an odd number on the black die and on the white die?",
+          "For each value on the black die, is there a value on the white die that adds to ?",
+          "Count all outcomes that are less than or equal to .",
+          "Remember that both dice can be (\"at least one\")."
+        ],
+        "openstaxConcepts": [
+          {
+            "heading": "Computing the Probability of an Event with Equally Likely Outcomes",
+            "body": "The probability of an event E in an experiment with sample space S with equally likely outcomes is given by P( E )= number of elements in E number of elements in S = n( E ) n( S ) E is a subset of S, so it is always true that 0≤P(E)≤1.",
+            "section": "Computing Probabilities of Equally Likely Outcomes"
+          },
+          {
+            "heading": "Probability of the Union of Two Events",
+            "body": "The probability of the union of two events E and F (written E∪F ) equals the sum of the probability of E and the probability of F minus the probability of E and F occurring together ( which is called the intersection of E and F and is written as E∩F ). P(E∪F)=P(E)+P(F)−P(E∩F)",
+            "section": "Computing the Probability of the Union of Two Events"
+          },
+          {
+            "heading": "The Complement Rule",
+            "body": "The probability that the complement of an event will occur is given by P( E ′ )=1−P(E)",
+            "section": "Using the Complement Rule to Compute Probabilities"
+          }
+        ],
+        "openstaxExamples": [
+          {
+            "question": "Constructing a Probability Model Construct a probability model for rolling a single, fair die, with the event being the number shown on the die.",
+            "solution": "Begin by making a list of all possible outcomes for the experiment. The possible outcomes are the numbers that can be rolled: 1, 2, 3, 4, 5, and 6. There are six possible outcomes that make up the sample space. Assign probabilities to each outcome in the sample space by determining a ratio of the outcome to the number of possible outcomes. There is one of each of the six numbers on the cube, and t…",
+            "section": "Constructing Probability Models"
+          },
+          {
+            "question": "Computing the Probability of an Event with Equally Likely Outcomes A six-sided number cube is rolled. Find the probability of rolling an odd number.",
+            "solution": "The event “rolling an odd number” contains three outcomes. There are 6 equally likely outcomes in the sample space. Divide to find the probability of the event. P(E)= 3 6 = 1 2",
+            "section": "Computing Probabilities of Equally Likely Outcomes"
+          },
+          {
+            "question": "Computing the Probability of the Union of Two Events A card is drawn from a standard deck. Find the probability of drawing a heart or a 7.",
+            "solution": "A standard deck contains an equal number of hearts, diamonds, clubs, and spades. So the probability of drawing a heart is 1 4 . There are four 7s in a standard deck, and there are a total of 52 cards. So the probability of drawing a 7 is 1 13 . The only card in the deck that is both a heart and a 7 is the 7 of hearts, so the probability of drawing both a heart and a 7 is 1 52 . Substitute P(H)= 1 …",
+            "section": "Computing the Probability of the Union of Two Events"
+          },
+          {
+            "question": "Using the Complement Rule to Calculate Probabilities Two six-sided number cubes are rolled. ⓐ Find the probability that the sum of the numbers rolled is less than or equal to 3. ⓑ Find the probability that the sum of the numbers rolled is greater than 3.",
+            "solution": "The first step is to identify the sample space, which consists of all the possible outcomes. There are two number cubes, and each number cube has six possible outcomes. Using the Multiplication Principle, we find that there are 6×6, or 36 total possible outcomes. So, for example, 1-1 represents a 1 rolled on each number cube. 1-1 1-2 1-3 1-4 1-5 1-6 2-1 2-2 2-3 2-4 2-5 2-6 3-1 3-2 3-3 3-4 3-5 3-6 …",
+            "section": "Using the Complement Rule to Compute Probabilities"
+          }
+        ]
+      }
+    }
+  ]
+}

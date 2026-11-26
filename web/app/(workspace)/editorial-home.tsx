@@ -7,6 +7,7 @@ import {
   ArrowRight,
   Check,
   Copy,
+  Play,
   Handshake,
   Heart,
   Mail,
@@ -25,6 +26,8 @@ import {
   hasWechat,
 } from "@/data/site-config";
 import { GLOBAL_VIEW, JOIN, PILLARS } from "@/data/home-editorial";
+import { FLAGSHIP_EDITORIALS } from "@/lib/flagship-editorial";
+import { FLAGSHIP_TOPIC_IDS } from "@/lib/flagship-topics";
 import { cn } from "@/lib/cn";
 import { useTraditional } from "@/lib/use-bilingual";
 
@@ -148,6 +151,28 @@ export default function EditorialHome() {
             {isEn ? "Enter the Learning Map" : tw("进入学习地图")}
             <ArrowRight size={16} strokeWidth={2.2} />
           </button>
+
+          {/* 三个标杆专题——直达入口 */}
+          <div className="mt-6 grid max-w-[30rem] grid-cols-1 gap-2 sm:grid-cols-3">
+            {FLAGSHIP_TOPIC_IDS.map((id) => {
+              const ed = FLAGSHIP_EDITORIALS[id];
+              return (
+                <Link
+                  key={id}
+                  href={`/lab?topic=${encodeURIComponent(id)}`}
+                  className="group rounded-lg border border-[#E2E8F0] bg-white px-3 py-2.5 transition-colors hover:border-[#C59B38]"
+                >
+                  <span className="flex items-center gap-1.5 text-[9.5px] font-medium tracking-[0.1em] text-[#C59B38] uppercase">
+                    <Play size={8} strokeWidth={3} />
+                    {isEn ? "Film + Lab" : tw("短片 + 交互")}
+                  </span>
+                  <span className="mt-1 block text-[11.5px] leading-snug font-medium text-[#0F172A]">
+                    {isEn ? ed.anchor.en : tw(ed.anchor.zhCN)}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
 
           {/* 实时统计 */}
           {taxonomy ? (

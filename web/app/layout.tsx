@@ -1,5 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+/**
+ * KaTeX 样式——本地打包，零网络。
+ *
+ * ⛔ 公式渲染用本地 ``katex`` 依赖，**不引 CDN**：CDN 会让构建
+ *    与运行时都依赖外网，一抖动就整页公式裸奔（LaTeX 源码裸露）。
+ */
+import "katex/dist/katex.min.css";
 import { AppShellProvider } from "@/context/AppShellContext";
 import { ChatProvider } from "@/context/ChatContext";
 import { AiPresenceProvider } from "@/context/AiPresenceContext";

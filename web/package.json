@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000",
-    "prebuild": "npm run sync:data && npm run build:k12 && npm run build:content && npm run build:authentic && npm run build:hanzi && npm run build:pinyin && npm run ensure:taxonomy && npm run verify:authentic",
+    "prebuild": "npm run build:videos && npm run sync:data && npm run build:k12 && npm run build:content && npm run build:authentic && npm run build:hanzi && npm run build:pinyin && npm run ensure:taxonomy && npm run verify:authentic && npm run verify:flagship",
     "sync:data": "node ../scripts/sync-static-data.mjs",
     "build:k12": "node ../scripts/build-k12-static.mjs",
     "build:content": "node ../scripts/build-k12-content.mjs",
@@ -15,14 +15,18 @@
     "verify:k12": "node ../scripts/verify-k12-data.mjs",
     "harvest:k12": "node ../scripts/harvest-k12.mjs --apply",
     "build": "NEXT_DIST_DIR=.next-build next build",
-    "prebuild:static": "npm run sync:data && npm run build:k12 && npm run build:content && npm run build:authentic && npm run build:hanzi && npm run build:pinyin && npm run ensure:taxonomy && npm run verify:authentic",
+    "prebuild:static": "npm run build:videos && npm run sync:data && npm run build:k12 && npm run build:content && npm run build:authentic && npm run build:hanzi && npm run build:pinyin && npm run ensure:taxonomy && npm run verify:authentic && npm run verify:flagship",
     "build:static": "NEXT_DIST_DIR=.next-build NEXT_PUBLIC_STATIC_EXPORT=true next build && node ../scripts/patch-gh-pages-404.mjs",
     "start": "NEXT_DIST_DIR=.next-build next start -p 3000",
     "serve:static": "npx serve out -l 3000",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "build:hanzi": "node ../scripts/build-hanzi-data.mjs",
-    "build:pinyin": "node ../scripts/build-hanzi-pinyin.mjs"
+    "build:pinyin": "node ../scripts/build-hanzi-pinyin.mjs",
+    "verify:flagship": "node ../scripts/verify-flagship.mjs",
+    "build:videos": "node ../scripts/build-video-manifest.mjs",
+    "verify:flagship:runtime": "node ../scripts/verify-flagship-runtime.mjs",
+    "audit:flagship": "node ../scripts/audit-flagship-layout.mjs && node ../scripts/audit-flagship-visual.mjs"
   },
   "dependencies": {
     "@types/mdast": "^4.0.4",

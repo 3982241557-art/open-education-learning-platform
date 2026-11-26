@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   Award,
   Download,
   Globe2,
-  Lock,
   Printer,
   Star,
   Target,
@@ -15,46 +14,43 @@ import {
 import { useLocale } from "@/context/LocaleContext";
 import { useProfile } from "@/context/ProfileContext";
 import { useMathTaxonomy } from "@/context/MathTaxonomyContext";
-import { useGeometryChain } from "@/context/GeometryChainContext";
 import { BRAND, DREAM_CLASSROOM } from "@/data/site-config";
 import {
-  MATH_STAR_META,
   countNodeStars,
   readMathLedger,
-  settleChainBadge,
   summarizeMath,
 } from "@/lib/math-star-ledger";
+import { FLAGSHIP_EDITORIALS } from "@/lib/flagship-editorial";
+import { FLAGSHIP_TOPIC_IDS } from "@/lib/flagship-topics";
+import {
+  countCompletedTopics,
+  readFlagshipProgress,
+  summarizeCognitive,
+} from "@/lib/flagship-progress";
 import { cn } from "@/lib/cn";
 import { useTraditional } from "@/lib/use-bilingual";
 
-
 /**
- * 成长与结果报告（/report）
- * ========================
+ * 梦想课堂 × Open Education · Result Report（/report）
+ * ====================================================
  *
  * .. code-block:: text
  *
- *     ┌──────────────────────────────────────────┐
- *     │  ① 官方结业证书（中英双语 + 防伪编号）      │
- *     ├──────────────────────────────────────────┤
- *     │  ② 数学逻辑宇宙覆盖总览                    │
- *     ├──────────────────────────────────────────┤
- *     │  ③ 八条逻辑链的掌握进度 + 链徽章           │
- *     ├──────────────────────────────────────────┤
- *     │  ④ 已精通节点清单 + 个性化评语             │
- *     └──────────────────────────────────────────┘
+ *     ┌────────────────────────────────────────────────────┐
+ *     │  ① 能力评估：三大核心认知维度（雷达 + 条形）        │
+ *     │  ② 国际能力对标参考（AMC / AP / IB 思维层级）       │
+ *     │  ③ 三个标杆专题的星星与徽章                        │
+ *     │  ④ 证书 + 打印 / PDF 导出                          │
+ *     └────────────────────────────────────────────────────┘
  *
- * 为什么这份报告讲的是「逻辑链」而不是「课程单元」
- * ----------------------------------------------
+ * ⛔ **非应试**。这里报的是**能力刻度**，不是刷题分数——
+ *    对标 AMC / AP / IB 是为了说明「这个思维层级对应国际体系
+ *    的哪一段」，不是为了排名。
  *
- * 数学学习地图是**图**——节点有几百个，分布在八条链上，链内还有真实
- * 的前置依赖。用「学到第几课」来汇报进度，在图结构上是失真的。
+ * 零滚动契约
+ * ----------
  *
- * 所以这里汇报的是：
- *
- * - **覆盖度**——你走过了图谱的哪些部分；
- * - **链掌握度**——每条链的星数进度与徽章；
- * - **精通节点**——哪些知识点你真的三颗星全满。
+ * 严格 100vh 一屏无垂直滚动。
  */
 
 /** 防伪编号——由学习者姓名与统计哈希派生。 */
@@ -70,55 +66,109 @@ function certNumber(name: string, stars: number, nodes: number): string {
 /**
  * 生成 PDF 报告。
  *
- * ⛔ **不引入任何 PDF 库**。
- *
- * 打包一个几百 KB 的 pdf 库只为了输出一张证书，代价与收益完全
- * 不匹配。而浏览器的「打印 → 另存为 PDF」本来就能产出**矢量**
- * PDF——文字可选可搜，体积还比光栅化截图小一个数量级。
- *
- * 所以这里走 ``window.print()``，并给浏览器一个**建议文件名**
- * （``document.title`` 会被 Chrome / Safari 用作默认 PDF 文件名）。
- * @media print 样式已经处理好了：隐藏交互控件、强制实心背景、
- * A4 纵向、避免卡片跨页断裂。
+ * ⛔ **不引入任何 PDF 库**——浏览器的「打印 → 另存为 PDF」产出
+ *    的是**矢量** PDF，文字可选可搜，体积比光栅化截图小一个数量级。
  */
 function exportPdf(): void {
   if (typeof window === "undefined") return;
   window.print();
 }
 
+/** 三大核心认知维度的元信息。 */
+const DIMENSIONS = [
+  {
+    key: "modeling" as const,
+    zhCN: "抽象建模力",
+    zhTW: "抽象建模力",
+    en: "Abstract Modeling",
+    descZh: "把现象翻译成公式，并用它预测下一步。",
+    descEn: "Turn a phenomenon into a formula, and use it to predict.",
+    color: "#0B162C",
+  },
+  {
+    key: "calibration" as const,
+    zhCN: "直觉校准力",
+    zhTW: "直覺校準力",
+    en: "Intuition Calibration",
+    descZh: "发现自己直觉错在哪里，并知道错在第几步。",
+    descEn: "Find where your intuition slips, and know at which step.",
+    color: "#C59B38",
+  },
+  {
+    key: "transfer" as const,
+    zhCN: "跨学科迁移力",
+    zhTW: "跨學科遷移力",
+    en: "Interdisciplinary Transfer",
+    descZh: "把一个数学结构带到另一门学问里继续用。",
+    descEn: "Carry one mathematical structure into another discipline.",
+    color: "#1D4ED8",
+  },
+];
+
+/** 国际能力对标参考——作为**能力刻度**，不是刷题分数。 */
+const BENCHMARKS = [
+  {
+    id: "exp-comfort",
+    zhCN: "指数增长与复利",
+    zhTW: "指數增長與複利",
+    en: "Exponential growth and compounding",
+    cnZh: "高中数学 · 指数函数",
+    cnEn: "Secondary · Exponential functions",
+    amc: "AMC 10/12 · 约第 18–22 题难度",
+    ap: "AP Precalculus · 单元 2（指数与对数函数）",
+    ib: "IB Math AA · HL 主题 7（指数与对数）",
+  },
+  {
+    id: "seq-zeno",
+    zhCN: "等比数列与极限",
+    zhTW: "等比數列與極限",
+    en: "Geometric sequences and limits",
+    cnZh: "高中数学 · 等比数列与极限",
+    cnEn: "Secondary · Geometric sequences and limits",
+    amc: "AMC 12 · 约第 21–25 题难度",
+    ap: "AP Calculus AB · 单元 1（极限与连续）",
+    ib: "IB Math AA · SL/HL 主题 6（数列与级数）",
+  },
+  {
+    id: "prob-bayes",
+    zhCN: "条件概率与贝叶斯",
+    zhTW: "條件機率與貝葉斯",
+    en: "Conditional probability and Bayes",
+    cnZh: "初高中数学 · 概率与条件概率",
+    cnEn: "Secondary · Probability and conditional probability",
+    amc: "AMC 12 · 约第 22–25 题难度",
+    ap: "AP Statistics · 单元 3（概率）与单元 4（抽样分布）",
+    ib: "IB Math AA · SL/HL 主题 4（概率）",
+  },
+];
+
 export default function ReportPage() {
   const { locale } = useLocale();
   const { displayName } = useProfile();
   const { taxonomy, playableNodeIds, chainProgress, summary, refreshStars } =
     useMathTaxonomy();
-  const { lessons: geoLessons } = useGeometryChain();
 
   const isEn = locale === "en";
   const tw = useTraditional();
 
-  /* ── 标杆链（几何）的星数与徽章 ─────────────────────────────
-   *
-   * ⛔ 几何链用**自己的节点 id**（geo-01…geo-08），与图谱节点是
-   *    两套体系。所以这里**单独结算**，不跟 583 节点图谱混算。
-   */
-  const geoStars = useMemo(
-    () => geoLessons.reduce((s, l) => s + countNodeStars(l.id), 0),
-    [geoLessons, summary.stars],
-  );
+  const [tick, setTick] = useState(0);
 
-  const geoBadgeUnlocked = useMemo(
-    () =>
-      geoLessons.length > 0 &&
-      geoLessons.every((l) => countNodeStars(l.id) >= 2),
-    [geoLessons, summary.stars],
-  );
+  /* ── 星星账本变化时刷新 ────────────────────────────────────── */
 
-  /* ── 文档标题 ──
-   *
-   * 浏览器「打印 → 另存为 PDF」会用 ``document.title`` 当默认
-   * 文件名。所以这里给它一个**语言纯净**的名字——导出出来的
-   * PDF 文件名不该是 ``OE Report`` 而内容是中文。
-   */
+  useEffect(() => {
+    const onUpdate = () => setTick((t) => t + 1);
+    window.addEventListener("oe:math-stars-updated", onUpdate);
+    window.addEventListener("oe:flagship-progress-updated", onUpdate);
+    window.addEventListener("storage", onUpdate);
+    return () => {
+      window.removeEventListener("oe:math-stars-updated", onUpdate);
+      window.removeEventListener("oe:flagship-progress-updated", onUpdate);
+      window.removeEventListener("storage", onUpdate);
+    };
+  }, []);
+
+  /* ── 文档标题（打印 → 另存为 PDF 会用它当文件名） ─────────── */
+
   useEffect(() => {
     if (typeof document === "undefined") return;
     document.title = isEn
@@ -128,489 +178,440 @@ export default function ReportPage() {
         : "OE 学习成果报告";
   }, [isEn, locale]);
 
-  /* ── 链徽章结算 ─────────────────────────────────────────────── */
+  /* ── 三大认知维度得分 ──────────────────────────────────────── */
 
-  const chainBadges = useMemo(() => {
-    if (!taxonomy) return [];
-    return taxonomy.chains.map((chain) => {
-      const ids = taxonomy.nodes
-        .filter((n) => n.chainId === chain.id && n.lab)
-        .map((n) => n.id);
-      const settled = settleChainBadge(chain.id, ids);
-      const prog = chainProgress[chain.id] ?? { stars: 0, maxStars: ids.length * 3 };
-      return {
-        chain,
-        unlocked: settled.unlocked,
-        stars: prog.stars,
-        maxStars: prog.maxStars,
-        nodeCount: ids.length,
-      };
-    });
-    // chainProgress 变化时重算（星星点亮后徽章要即时结算）。
-  }, [taxonomy, chainProgress]);
+  const scores = useMemo(
+    () => summarizeCognitive([...FLAGSHIP_TOPIC_IDS]),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [tick],
+  );
 
-  /* ── 已精通节点清单 ─────────────────────────────────────────── */
+  const completed = useMemo(
+    () => countCompletedTopics([...FLAGSHIP_TOPIC_IDS]),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [tick],
+  );
 
-  const masteredNodes = useMemo(() => {
-    if (!taxonomy) return [];
-    const ledger = readMathLedger();
-    return taxonomy.nodes
-      .filter((n) => {
-        const r = ledger.nodes[n.id];
-        return (
-          r && r.explore && r.discover && r.mystery
-        );
-      })
-      .slice(0, 40);
-  }, [taxonomy, summary.stars]);
+  const topicRows = useMemo(
+    () =>
+      FLAGSHIP_TOPIC_IDS.map((id) => {
+        const p = readFlagshipProgress(id);
+        return {
+          id,
+          progress: p,
+          stars:
+            (p.watched ? 1 : 0) +
+            (p.touched ? 1 : 0) +
+            (p.correct >= 3 ? 1 : 0),
+        };
+      }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [tick],
+  );
 
-  /* ── 覆盖度统计 ─────────────────────────────────────────────── */
+  /* ── 覆盖度 ────────────────────────────────────────────────── */
 
   const coverage = useMemo(() => {
-    if (!taxonomy) {
-      return { total: 0, explored: 0, percent: 0, labCount: 0, labTypeCount: 0 };
-    }
+    if (!taxonomy) return { total: 0, percent: 0 };
     const total = taxonomy.stats.nodeCount;
     const explored = Object.keys(readMathLedger().nodes).length;
     return {
       total,
-      explored,
       percent: total > 0 ? Math.round((explored / total) * 100) : 0,
-      labCount: taxonomy.nodes.filter((n) => n.lab).length,
-      labTypeCount: taxonomy.stats.labCount,
     };
-  }, [taxonomy, summary.stars]);
+  }, [taxonomy, tick]);
 
-  /* ── 个性化评语 ─────────────────────────────────────────────── */
-
-  const comment = useMemo(() => {
-    if (summary.nodesMastered === 0 && summary.nodesStarted === 0) {
-      return isEn
-        ? "The map is still untouched. Start from any chain on the left, drag the weights or control points, and the stars will follow your hands."
-        : tw("图谱还没有被点亮。从左侧任意一条逻辑链开始——拖动砝码或控制点，星星会跟着你的手亮起来。");
-    }
-    if (summary.nodesMastered === 0) {
-      return isEn
-        ? `You have started ${summary.nodesStarted} node(s). Keep going — the third star only comes when you solve a Mystery on your own.`
-        : tw(`你已经开始了 ${summary.nodesStarted} 个节点。第三颗星只在你独立破解一个谜题时才会亮起——继续。`);
-    }
-    const badges = chainBadges.filter((c) => c.unlocked).length;
-    if (badges > 0) {
-      return isEn
-        ? `${summary.nodesMastered} node(s) fully mastered, and ${badges} logic chain badge(s) unlocked. A chain badge means every playable node in that chain reached two stars — that is real, not decorative.`
-        : tw(`已有 ${summary.nodesMastered} 个节点三颗星满格，并解锁了 ${badges} 枚逻辑链徽章。徽章意味着那条链上**所有**可玩节点都达到了两星——这不是装饰，是真实覆盖。`);
-    }
-    return isEn
-      ? `${summary.nodesMastered} node(s) fully mastered. Unlock a chain badge by reaching two stars on every playable node in one chain.`
-      : tw(`已有 ${summary.nodesMastered} 个节点三颗星满格。把同一条链上所有可玩节点都推到两星，就能点亮那枚逻辑链大师徽章。`);
-  }, [summary, chainBadges, isEn, tw]);
+  const summaryMemo = useMemo(
+    () => summarizeMath(playableNodeIds),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [playableNodeIds, tick],
+  );
 
   if (!taxonomy) {
     return (
-      <div className="flex h-full items-center justify-center">
+      <div className="flex h-full items-center justify-center bg-[#F8FAFC]">
         <span
           aria-busy="true"
-          className="block h-6 w-6 animate-spin rounded-full border-2 border-[#E2E8F0] border-t-[#1D4ED8]"
+          className="block h-6 w-6 animate-spin rounded-full border-2 border-[#E2E8F0] border-t-[#0B162C]"
         />
       </div>
     );
   }
 
-  const certId = certNumber(displayName, summary.stars, summary.nodesMastered);
+  const certId = certNumber(
+    displayName,
+    summaryMemo.stars + completed * 3,
+    summaryMemo.nodesMastered,
+  );
+  void summary;
+  void chainProgress;
+  void refreshStars;
+  void countNodeStars;
+  void BRAND;
 
   return (
-    <div className="h-full overflow-y-auto">
-      <div className="mx-auto max-w-[1080px] px-6 py-7">
-        {/* ══════════════ ① 官方结业证书 ══════════════ */}
-        <section className="overflow-hidden rounded-2xl border border-[#0B162C] bg-white">
-          <div className="relative bg-[#0B162C] px-7 py-6 text-white">
-            <div
-              aria-hidden
-              className="absolute inset-0 opacity-[0.07]"
-              style={{
-                backgroundImage:
-                  "repeating-linear-gradient(45deg, #fff 0 1px, transparent 1px 11px)",
-              }}
-            />
-            <div className="relative flex items-start justify-between gap-4">
-              <div>
-                <p className="text-[10.5px] tracking-[0.2em] text-white/55 uppercase">
-                  {isEn ? "Certificate of Completion" : tw("结业证书")}
-                </p>
-                <h1 className="mt-1.5 font-serif text-[24px] leading-tight">
-                  {isEn ? "Math Logic Universe" : tw("数学逻辑宇宙")}
-                </h1>
-                <p className="mt-1 text-[11.5px] text-white/60">
-                  {DREAM_CLASSROOM.name}
-                  {isEn ? " (Houhai, Shenzhen Bay HQ)" : tw(`（${DREAM_CLASSROOM.hqLabel}）`)}
-                </p>
-              </div>
-              <span className="shrink-0 rounded-md border border-white/20 px-2.5 py-1 font-mono text-[11px] text-white/75">
-                {certId}
-              </span>
-            </div>
-          </div>
+    <div className="flex h-full min-h-0 flex-col overflow-hidden bg-[#F8FAFC]">
+      {/* 顶部条 */}
+      <header className="flex shrink-0 items-center justify-between gap-4 border-b border-[#E2E8F0] bg-white px-6 py-3">
+        <div className="min-w-0">
+          <p className="text-[10px] font-medium tracking-[0.18em] text-[#94A3B8] uppercase">
+            {isEn ? "Dream Classroom × Open Education" : tw("梦想课堂 × 开放教育")}
+          </p>
+          <h1 className="mt-0.5 truncate font-serif text-[19px] leading-tight text-[#0F172A]">
+            {isEn ? "Result Report" : tw("学习成果报告")}
+          </h1>
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          <span className="rounded-md border border-[#E2E8F0] bg-[#F8FAFC] px-2.5 py-1 font-mono text-[11px] text-[#334155]">
+            {certId}
+          </span>
+          <button
+            type="button"
+            onClick={() => window.print()}
+            className="no-print inline-flex h-8 items-center gap-1.5 rounded-lg border border-[#E2E8F0] px-2.5 text-[11.5px] text-[#334155] transition-colors hover:bg-[#F8FAFC]"
+          >
+            <Printer size={12} strokeWidth={2.2} />
+            {isEn ? "Print" : tw("打印")}
+          </button>
+          <button
+            type="button"
+            onClick={exportPdf}
+            className="no-print inline-flex h-8 items-center gap-1.5 rounded-lg border border-[#E2E8F0] px-2.5 text-[11.5px] text-[#334155] transition-colors hover:bg-[#F8FAFC]"
+          >
+            <Download size={12} strokeWidth={2.2} />
+            PDF
+          </button>
+        </div>
+      </header>
 
-          <div className="grid gap-6 px-7 py-6 sm:grid-cols-[1fr_auto]">
-            <div>
-              <p className="text-[12px] text-[#334155]">
-                {isEn ? "This certifies that" : tw("兹证明")}
-              </p>
-              <p className="mt-1 font-serif text-[26px] leading-tight text-[#0F172A]">
-                {displayName}
-              </p>
-              <p className="mt-2 max-w-lg text-[12.5px] leading-relaxed text-[#334155]">
-                {isEn
-                  ? `has completed ${summary.nodesMastered} fully mastered node(s) and unlocked ${summary.badges} logic chain badge(s) across ${coverage.total} real knowledge nodes, earning ${summary.stars} star(s) in total.`
-                  : tw(`在 ${coverage.total} 个真实知识点构成的国际数学图谱中，完成了 ${summary.nodesMastered} 个节点的三星精通，解锁 ${summary.badges} 枚逻辑链大师徽章，累计获得 ${summary.stars} 颗星。`)}
-              </p>
-
-              <div className="mt-4 flex flex-wrap gap-2">
-                <span className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-1.5 text-[11.5px] text-[#0F172A]">
-                  <Star size={12} strokeWidth={2.2} className="fill-[#C59B38] text-[#C59B38]" />
-                  {summary.stars + geoStars} {isEn ? "stars" : tw("颗星")}
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-1.5 text-[11.5px] text-[#0F172A]">
-                  <Award size={12} strokeWidth={2.2} className="text-[#C59B38]" />
-                  {summary.badges + (geoBadgeUnlocked ? 1 : 0)}{" "}
-                  {isEn ? "chain badges" : tw("枚链徽章")}
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-1.5 text-[11.5px] text-[#0F172A]">
-                  <Target size={12} strokeWidth={2.2} className="text-[#1D4ED8]" />
-                  {coverage.percent}% {isEn ? "coverage" : tw("覆盖")}
-                </span>
-              </div>
-            </div>
-
-            {/* 证书印章 */}
-            <div className="flex flex-col items-center justify-center gap-2 sm:w-36">
-              <div className="flex h-24 w-24 items-center justify-center rounded-full border-2 border-[#C59B38] bg-[#FDF8EC]">
-                <div className="text-center">
-                  <p className="text-[10px] text-[#8A6A20]">OE</p>
-                  <p className="font-serif text-[13px] leading-tight text-[#8A6A20]">
-                    {isEn ? "Certified" : tw("认证")}
-                  </p>
-                  <p className="text-[9px] text-[#8A6A20]">
-                    {new Date().getFullYear()}
-                  </p>
-                </div>
-              </div>
-              <div className="no-print flex gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => window.print()}
-                  className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-[#E2E8F0] px-2.5 text-[11.5px] text-[#334155] transition-colors hover:bg-[#F8FAFC]"
-                >
-                  <Printer size={12} strokeWidth={2.2} />
-                  {isEn ? "Print" : tw("打印")}
-                </button>
-                <button
-                  type="button"
-                  onClick={exportPdf}
-                  className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-[#E2E8F0] px-2.5 text-[11.5px] text-[#334155] transition-colors hover:bg-[#F8FAFC]"
-                >
-                  <Download size={12} strokeWidth={2.2} />
-                  PDF
-                </button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ══════════════ ② 覆盖总览 ══════════════ */}
-        <section className="mt-4 grid gap-3 sm:grid-cols-4">
-          <MetricCard
-            Icon={Globe2}
-            value={String(coverage.total)}
-            label={isEn ? "knowledge nodes" : tw("个知识点")}
-            accent="#0B162C"
-          />
-          <MetricCard
-            Icon={Star}
-            value={String(summary.stars)}
-            label={isEn ? "stars earned" : tw("颗星")}
-            accent="#C59B38"
-          />
-          <MetricCard
-            Icon={TrendingUp}
-            value={String(summary.nodesMastered)}
-            label={isEn ? "nodes mastered" : tw("个精通节点")}
-            accent="#1D4ED8"
-          />
-          <MetricCard
-            Icon={Award}
-            value={String(summary.badges)}
-            label={isEn ? "chain badges" : tw("枚链徽章")}
-            accent="#8A6A20"
-          />
-        </section>
-
-        {/* ══════════════ ③ 逻辑链掌握进度 ══════════════ */}
-        <section className="mt-4 rounded-2xl border border-[#E2E8F0] bg-white p-5">
-          <div className="flex items-center justify-between gap-3">
+      {/* 主体：两栏 */}
+      <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-y-auto p-4 lg:grid-cols-[minmax(0,58fr)_minmax(0,42fr)] lg:overflow-hidden">
+        {/* ── 左栏：三大认知维度 ── */}
+        <section className="flex min-h-0 flex-col gap-4 overflow-y-auto lg:overflow-hidden">
+          {/* 雷达 + 条形 */}
+          <div className="rounded-2xl border border-[#E2E8F0] bg-white p-5">
             <h2 className="text-[14px] font-semibold text-[#0F172A]">
-              {isEn ? "Logic Chain Mastery" : tw("逻辑链掌握进度")}
+              {isEn ? "Three Core Cognitive Dimensions" : tw("三大核心认知维度")}
             </h2>
-            <button
-              type="button"
-              onClick={refreshStars}
-              className="text-[11.5px] text-[#1D4ED8] transition-colors hover:text-[#152a4d]"
-            >
-              {isEn ? "Refresh" : tw("刷新进度")}
-            </button>
-          </div>
-
-          {/* ── 标杆链：空间、角度与几何探究 ──
-           *
-           * ⛔ 这条链用**自己的节点 id**（geo-01…geo-08），与图谱
-           *    里的节点 id 是两套。所以徽章与星数**单独结算**，
-           *    不跟 583 节点图谱混在一起算——混算的话，
-           *    「几何探索大师徽章」的达成条件就说不清了。
-           */}
-          {geoLessons.length > 0 ? (
-            <div className="mt-3.5 rounded-xl border border-[#1D4ED8] bg-[#EFF6FF] p-3.5">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="text-[12.5px] font-semibold text-[#0F172A]">
-                    {isEn
-                      ? "Space, Angles and Geometric Inquiry"
-                      : tw("空间、角度与几何探究")}
-                  </p>
-                  <p className="mt-0.5 text-[10.5px] text-[#64748B]">
-                    {isEn
-                      ? "Flagship track · 8 lessons · real GeoGebra labs"
-                      : tw("标杆链 · 8 节课 · 真实 GeoGebra 实验台")}
-                  </p>
-                </div>
-                <span
-                  className={cn(
-                    "flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10.5px] font-medium",
-                    geoBadgeUnlocked
-                      ? "border-[#C59B38] bg-[#FDF8EC] text-[#8A6A20]"
-                      : "border-[#CBD5E1] bg-white text-[#94A3B8]",
+            <p className="mt-1 text-[11.5px] leading-relaxed text-[#64748B]">
+              {isEn
+                ? "Scores come from how far you got in each flagship topic: watching the film, driving the interactive canvas, and how many situational questions you answered correctly."
+                : tw(
+                    "分数来自你在每个标杆专题里的真实进度：看过短片、动过手、以及三道情境题答对了几道。",
                   )}
-                >
-                  {geoBadgeUnlocked ? (
-                    <Award size={11} strokeWidth={2.4} className="text-[#C59B38]" />
-                  ) : (
-                    <Lock size={10} strokeWidth={2.4} />
-                  )}
-                  {isEn ? "Geometry Master Badge" : tw("几何探索大师徽章")}
-                </span>
-              </div>
+            </p>
 
-              {/* 8 课的星数 */}
-              <div className="mt-3 grid grid-cols-4 gap-1.5 sm:grid-cols-8">
-                {geoLessons.map((lesson) => {
-                  const stars = countNodeStars(lesson.id);
+            <div className="mt-4 grid grid-cols-1 items-center gap-5 sm:grid-cols-[190px_minmax(0,1fr)]">
+              <Radar scores={scores} isEn={isEn} />
+              <div className="space-y-3.5">
+                {DIMENSIONS.map((d) => {
+                  const v = scores[d.key];
                   return (
-                    <Link
-                      key={lesson.id}
-                      href={`/lab?node=${encodeURIComponent(lesson.id)}`}
-                      className="rounded-lg border border-white bg-white px-2 py-1.5 transition-colors hover:border-[#1D4ED8]"
-                    >
-                      <p className="text-[9px] font-medium tracking-[0.08em] text-[#94A3B8] uppercase">
-                        {lesson.id.replace("geo-", "")}
-                      </p>
-                      <div className="mt-0.5 flex items-center gap-0.5">
-                        {[0, 1, 2].map((s) => (
-                          <Star
-                            key={s}
-                            size={9}
-                            strokeWidth={2.4}
-                            className={
-                              s < stars
-                                ? "fill-[#C59B38] text-[#C59B38]"
-                                : "text-[#E2E8F0]"
-                            }
-                          />
-                        ))}
+                    <div key={d.key}>
+                      <div className="flex items-baseline justify-between gap-2">
+                        <span className="text-[12.5px] font-medium text-[#0F172A]">
+                          {isEn ? d.en : tw(d.zhCN)}
+                        </span>
+                        <span className="font-mono text-[13px] font-semibold tabular-nums text-[#0F172A]">
+                          {v}
+                        </span>
                       </div>
-                    </Link>
+                      <div className="mt-1 h-2 overflow-hidden rounded-full bg-[#F1F5F9]">
+                        <div
+                          className="h-full rounded-full transition-[width] duration-700"
+                          style={{ width: `${v}%`, backgroundColor: d.color }}
+                        />
+                      </div>
+                      <p className="mt-1 text-[11px] leading-relaxed text-[#64748B]">
+                        {isEn ? d.descEn : tw(d.descZh)}
+                      </p>
+                    </div>
                   );
                 })}
               </div>
-
-              <p className="mt-2.5 text-[11px] text-[#64748B]">
-                {isEn
-                  ? `${geoStars}/24 stars · the badge unlocks when all eight lessons reach two stars.`
-                  : tw(
-                      `${geoStars}/24 颗星——八节课全部达到两星即可解锁徽章。`,
-                    )}
-              </p>
-            </div>
-          ) : null}
-
-          <div className="mt-3.5 space-y-2.5">
-            {chainBadges.map(({ chain, unlocked, stars, maxStars, nodeCount }) => {
-              const ratio = maxStars > 0 ? stars / maxStars : 0;
-              return (
-                <div key={chain.id} className="flex items-center gap-3">
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-[#0B162C] text-[10px] font-bold text-white">
-                    {chain.no}
-                  </span>
-                  <span className="w-40 shrink-0 truncate text-[12px] text-[#0F172A]">
-                    {isEn ? chain.nameEn : tw(chain.nameZh)}
-                  </span>
-                  <span className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-[#F1F5F9]">
-                    <span
-                      className="block h-full rounded-full bg-[#1D4ED8] transition-[width] duration-500"
-                      style={{ width: `${Math.round(ratio * 100)}%` }}
-                    />
-                  </span>
-                  <span className="w-16 shrink-0 text-right text-[11px] tabular-nums text-[#334155]">
-                    {stars}/{maxStars}
-                  </span>
-                  <span
-                    className={cn(
-                      "inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border",
-                      unlocked
-                        ? "border-[#C59B38] bg-[#FDF8EC]"
-                        : "border-[#E2E8F0] bg-white",
-                    )}
-                    title={
-                      unlocked
-                        ? isEn
-                          ? "Chain badge unlocked"
-                          : tw("已解锁链徽章")
-                        : isEn
-                          ? `${nodeCount} playable nodes — reach 2 stars on each`
-                          : tw(`${nodeCount} 个可玩节点——每个都达到两星即可解锁`)
-                    }
-                  >
-                    <Award
-                      size={12}
-                      strokeWidth={2.2}
-                      className={
-                        unlocked ? "text-[#C59B38]" : "text-[#CBD5E1]"
-                      }
-                    />
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* ══════════════ ④ 个性化评语 + 精通清单 ══════════════ */}
-        <section className="mt-4 grid gap-3 lg:grid-cols-[1fr_1fr]">
-          <div className="rounded-2xl border border-[#E2E8F0] bg-white p-5">
-            <h2 className="text-[14px] font-semibold text-[#0F172A]">
-              {isEn ? "Your Commentary" : tw("个性化评语")}
-            </h2>
-            <p className="mt-2 text-[12.5px] leading-relaxed text-[#334155]">
-              {comment}
-            </p>
-
-            <div className="mt-4 border-t border-[#E2E8F0] pt-3">
-              <p className="text-[10px] font-medium tracking-[0.14em] text-[#64748B] uppercase">
-                {isEn ? "Star meanings" : tw("三星含义")}
-              </p>
-              <ul className="mt-2 space-y-1.5">
-                {MATH_STAR_META.map((meta, i) => (
-                  <li key={meta.kind} className="flex items-center gap-2 text-[12px] text-[#334155]">
-                    <Star
-                      size={12}
-                      strokeWidth={2.2}
-                      className="fill-[#C59B38] text-[#C59B38]"
-                    />
-                    <span className="tabular-nums text-[#94A3B8]">0{i + 1}</span>
-                    {isEn ? meta.labelEn : tw(meta.labelZh)}
-                  </li>
-                ))}
-              </ul>
             </div>
           </div>
 
+          {/* 三个标杆专题的星星与徽章 */}
           <div className="rounded-2xl border border-[#E2E8F0] bg-white p-5">
             <h2 className="text-[14px] font-semibold text-[#0F172A]">
-              {isEn ? "Fully Mastered Nodes" : tw("三颗星满格节点")}
+              {isEn ? "Flagship Topics" : tw("标杆专题")}
               <span className="ml-1.5 text-[12px] font-normal text-[#64748B]">
-                ({masteredNodes.length})
+                ({completed}/{FLAGSHIP_TOPIC_IDS.length})
               </span>
             </h2>
-
-            {masteredNodes.length === 0 ? (
-              <p className="mt-3 text-[12px] leading-relaxed text-[#64748B]">
-                {isEn
-                  ? "No node has reached three stars yet. Open a lab from the map and complete all three stages."
-                  : tw("还没有节点达到三颗星。从学习地图打开一个实验台，把三个阶段都走完。")}
-              </p>
-            ) : (
-              <ul className="mt-3 space-y-1">
-                {masteredNodes.map((n) => (
-                  <li key={n.id}>
-                    <Link
-                      href={`/lab?node=${encodeURIComponent(n.id)}`}
-                      className="flex items-center gap-2 rounded px-1.5 py-1 text-[12px] text-[#1D4ED8] transition-colors hover:bg-[#EFF6FF]"
-                    >
-                      <Star
-                        size={11}
-                        strokeWidth={2.2}
-                        className="shrink-0 fill-[#C59B38] text-[#C59B38]"
-                      />
-                      <span className="min-w-0 flex-1 truncate">
-                        {isEn ? n.nameEn : tw(n.nameZh ?? n.nameEn)}
-                      </span>
-                      <span className="shrink-0 text-[10px] text-[#94A3B8]">
-                        {n.chainNo}
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
+            <div className="mt-3 space-y-2">
+              {topicRows.map(({ id, progress, stars }) => {
+                const ed = FLAGSHIP_EDITORIALS[id];
+                return (
+                  <Link
+                    key={id}
+                    href={`/lab?topic=${encodeURIComponent(id)}`}
+                    className="flex items-center gap-3 rounded-lg border border-[#E2E8F0] px-3 py-2 transition-colors hover:bg-[#F8FAFC]"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[12.5px] font-medium text-[#0F172A]">
+                        {isEn ? ed.anchor.en : tw(ed.anchor.zhCN)}
+                      </p>
+                      <p className="mt-0.5 text-[10.5px] text-[#94A3B8]">
+                        {isEn
+                          ? `film ${progress.watched ? "✓" : "—"} · lab ${progress.touched ? "✓" : "—"} · ${progress.correct}/3 correct`
+                          : tw(
+                              `短片 ${progress.watched ? "✓" : "—"} · 交互 ${progress.touched ? "✓" : "—"} · 答对 ${progress.correct}/3`,
+                            )}
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 gap-0.5">
+                      {[0, 1, 2].map((s) => (
+                        <Star
+                          key={s}
+                          size={12}
+                          strokeWidth={2.4}
+                          className={
+                            s < stars
+                              ? "fill-[#C59B38] text-[#C59B38]"
+                              : "text-[#E2E8F0]"
+                          }
+                        />
+                      ))}
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
           </div>
         </section>
 
-        {/* ══════════════ 数据来源声明 ══════════════ */}
-        <section className="mt-4 rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] p-5">
-          <h2 className="text-[13px] font-semibold text-[#0F172A]">
-            {isEn ? "Data Provenance" : tw("数据来源")}
-          </h2>
-          <p className="mt-1.5 text-[12px] leading-relaxed text-[#334155]">
-            {isEn
-              ? `All ${taxonomy.stats.nodeCount} knowledge nodes and ${taxonomy.stats.edgeCount} prerequisite edges are derived from two real open-source graph datasets. Nothing here is hand-written filler.`
-              : tw(`全部 ${taxonomy.stats.nodeCount} 个知识点与 ${taxonomy.stats.edgeCount} 条前置依赖边，均由两个真实开源图谱数据集融合生成。这里的每一个节点都可追溯到开源原始数据，没有一处手写填充。`)}
-          </p>
-          <div className="mt-3 grid gap-2 sm:grid-cols-2">
-            <a
-              href={`https://github.com/${taxonomy.attribution.primary.repo}`}
-              target="_blank"
-              rel="noreferrer"
-              className="rounded-lg border border-[#E2E8F0] bg-white px-3 py-2 transition-colors hover:bg-[#F8FAFC]"
-            >
-              <p className="text-[11.5px] font-medium text-[#0F172A]">
-                {taxonomy.attribution.primary.name}
-              </p>
-              <p className="mt-0.5 font-mono text-[10px] text-[#64748B]">
-                {taxonomy.attribution.primary.repo} · {taxonomy.attribution.primary.license}
-              </p>
-            </a>
-            <a
-              href={`https://github.com/${taxonomy.attribution.secondary.repo}`}
-              target="_blank"
-              rel="noreferrer"
-              className="rounded-lg border border-[#E2E8F0] bg-white px-3 py-2 transition-colors hover:bg-[#F8FAFC]"
-            >
-              <p className="text-[11.5px] font-medium text-[#0F172A]">
-                {taxonomy.attribution.secondary.name}
-              </p>
-              <p className="mt-0.5 font-mono text-[10px] text-[#64748B]">
-                {taxonomy.attribution.secondary.repo}
-              </p>
-            </a>
+        {/* ── 右栏：国际能力对标 + 证书 ── */}
+        <section className="flex min-h-0 flex-col gap-4 overflow-y-auto lg:overflow-hidden">
+          {/* 对标表 */}
+          <div className="rounded-2xl border border-[#E2E8F0] bg-white p-5">
+            <h2 className="text-[14px] font-semibold text-[#0F172A]">
+              {isEn
+                ? "Curriculum & International Benchmarks"
+                : tw("大纲与国际能力对标参考")}
+            </h2>
+            <p className="mt-1 text-[11.5px] leading-relaxed text-[#64748B]">
+              {isEn
+                ? "This is a thinking-level ruler, not a scoreboard. It shows where each topic's reasoning sits relative to AMC, AP and IB."
+                : tw(
+                    "这是**思维层级刻度**，不是分数榜——它标出每个专题的推理方式对应 AMC / AP / IB 的哪一段。",
+                  )}
+            </p>
+
+            <div className="mt-3.5 space-y-2.5">
+              {BENCHMARKS.map((b) => (
+                <div
+                  key={b.id}
+                  className="rounded-xl border border-[#E2E8F0] p-3"
+                >
+                  <p className="text-[12.5px] font-semibold text-[#0F172A]">
+                    {isEn ? b.en : tw(b.zhCN)}
+                  </p>
+                  <p className="mt-1 text-[11px] text-[#64748B]">
+                    {isEn ? b.cnEn : tw(b.cnZh)}
+                  </p>
+                  <dl className="mt-2 space-y-1">
+                    <div className="flex gap-2 text-[11px]">
+                      <dt className="w-14 shrink-0 font-mono text-[#94A3B8]">AMC</dt>
+                      <dd className="min-w-0 text-[#334155]">{b.amc}</dd>
+                    </div>
+                    <div className="flex gap-2 text-[11px]">
+                      <dt className="w-14 shrink-0 font-mono text-[#94A3B8]">AP</dt>
+                      <dd className="min-w-0 text-[#334155]">{b.ap}</dd>
+                    </div>
+                    <div className="flex gap-2 text-[11px]">
+                      <dt className="w-14 shrink-0 font-mono text-[#94A3B8]">IB</dt>
+                      <dd className="min-w-0 text-[#334155]">{b.ib}</dd>
+                    </div>
+                  </dl>
+                </div>
+              ))}
+            </div>
           </div>
-          <p className="mt-3 font-mono text-[10.5px] text-[#94A3B8]">
-            {taxonomy.generatedAt} · v{taxonomy.version}
-          </p>
+
+          {/* 证书 */}
+          <div className="overflow-hidden rounded-2xl border border-[#0B162C] bg-white">
+            <div className="bg-[#0B162C] px-6 py-4 text-white">
+              <p className="text-[10px] tracking-[0.2em] text-white/55 uppercase">
+                {isEn ? "Certificate of Completion" : tw("结业证书")}
+              </p>
+              <p className="mt-1 font-serif text-[19px] leading-tight">
+                {isEn ? "Everything is Math" : tw("一切皆数学")}
+              </p>
+              <p className="mt-0.5 text-[11px] text-white/55">
+                {DREAM_CLASSROOM.name}
+                {isEn
+                  ? " (Houhai, Shenzhen Bay HQ)"
+                  : tw(`（${DREAM_CLASSROOM.hqLabel}）`)}
+              </p>
+            </div>
+            <div className="px-6 py-4">
+              <p className="text-[11.5px] text-[#334155]">
+                {isEn ? "This certifies that" : tw("兹证明")}
+              </p>
+              <p className="mt-0.5 font-serif text-[21px] leading-tight text-[#0F172A]">
+                {displayName}
+              </p>
+              <p className="mt-2 text-[12px] leading-relaxed text-[#334155]">
+                {isEn
+                  ? `has completed ${completed} of ${FLAGSHIP_TOPIC_IDS.length} flagship topics — each with a sound-and-light film, a hands-on canvas and three situational questions — and scored ${scores.modeling} / ${scores.calibration} / ${scores.transfer} on abstract modeling, intuition calibration and interdisciplinary transfer.`
+                  : tw(
+                      `已完成 ${FLAGSHIP_TOPIC_IDS.length} 个标杆专题中的 ${completed} 个——每个专题都包含一段声画短片、一次动手交互与三道情境思考题——并在抽象建模力、直觉校准力、跨学科迁移力上分别取得 ${scores.modeling} / ${scores.calibration} / ${scores.transfer} 分。`,
+                    )}
+              </p>
+
+              <div className="mt-3.5 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                <MetricCard
+                  Icon={Globe2}
+                  value={String(coverage.total)}
+                  label={isEn ? "knowledge nodes" : tw("个知识点")}
+                  accent="#0B162C"
+                />
+                <MetricCard
+                  Icon={Star}
+                  value={String(summaryMemo.stars + completed * 3)}
+                  label={isEn ? "stars" : tw("颗星")}
+                  accent="#C59B38"
+                />
+                <MetricCard
+                  Icon={TrendingUp}
+                  value={String(summaryMemo.nodesMastered)}
+                  label={isEn ? "mastered" : tw("个精通")}
+                  accent="#1D4ED8"
+                />
+                <MetricCard
+                  Icon={Award}
+                  value={String(summaryMemo.badges)}
+                  label={isEn ? "badges" : tw("枚徽章")}
+                  accent="#8A6A20"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* 数据来源 */}
+          <div className="rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] p-4">
+            <h2 className="text-[12.5px] font-semibold text-[#0F172A]">
+              {isEn ? "Data Provenance" : tw("数据来源")}
+            </h2>
+            <p className="mt-1 text-[11px] leading-relaxed text-[#334155]">
+              {isEn
+                ? "Concept definitions, exercises and hints come from OpenStax College Algebra, OpenStax Statistics, Khan Academy exercises and the cn-k12 knowledge graph — every entry is traceable to a repository path."
+                : tw(
+                    "概念定义、练习与提示来自 OpenStax College Algebra、OpenStax Statistics、Khan Academy 题库与 cn-k12 知识图谱——每一条都可追溯到仓库路径。",
+                  )}
+            </p>
+            <p className="mt-2 font-mono text-[10px] text-[#94A3B8]">
+              openstax/osbooks-college-algebra-bundle · openstax/osbooks-statistics ·
+              Khan/khan-exercises · haojing8312/cn-k12-math-knowledge-graph
+            </p>
+          </div>
         </section>
       </div>
     </div>
   );
 }
 
-/** 一个指标卡。 */
+/* ── 雷达图 ───────────────────────────────────────────────────── */
+
+function Radar({
+  scores,
+  isEn,
+}: {
+  scores: { modeling: number; calibration: number; transfer: number };
+  isEn: boolean;
+}) {
+  const size = 170;
+  const cx = size / 2;
+  const cy = size / 2;
+  const radius = size / 2 - 26;
+  const values = [scores.modeling, scores.calibration, scores.transfer];
+
+  const point = (i: number, v: number) => {
+    const angle = -Math.PI / 2 + (i * 2 * Math.PI) / 3;
+    const r = (Math.max(0, Math.min(100, v)) / 100) * radius;
+    return { x: cx + Math.cos(angle) * r, y: cy + Math.sin(angle) * r };
+  };
+
+  const polygon = values
+    .map((v, i) => {
+      const p = point(i, v);
+      return `${p.x},${p.y}`;
+    })
+    .join(" ");
+
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      role="img"
+      aria-label={isEn ? "cognitive radar" : "认知能力雷达"}
+      className="mx-auto shrink-0"
+    >
+      {/* 网格 */}
+      {[0.25, 0.5, 0.75, 1].map((k) => (
+        <polygon
+          key={k}
+          points={values
+            .map((_, i) => {
+              const p = point(i, k * 100);
+              return `${p.x},${p.y}`;
+            })
+            .join(" ")}
+          fill="none"
+          stroke="#E2E8F0"
+          strokeWidth="1"
+        />
+      ))}
+      {[0, 1, 2].map((i) => {
+        const p = point(i, 100);
+        return (
+          <line
+            key={i}
+            x1={cx}
+            y1={cy}
+            x2={p.x}
+            y2={p.y}
+            stroke="#E2E8F0"
+            strokeWidth="1"
+          />
+        );
+      })}
+
+      {/* 数据多边形 */}
+      <polygon points={polygon} fill="rgba(197,155,56,0.22)" stroke="#C59B38" strokeWidth="1.8" />
+      {values.map((v, i) => {
+        const p = point(i, v);
+        return <circle key={i} cx={p.x} cy={p.y} r="3.4" fill="#C59B38" />;
+      })}
+
+      {/* 轴标签 */}
+      {DIMENSIONS.map((d, i) => {
+        const p = point(i, 128);
+        return (
+          <text
+            key={d.key}
+            x={p.x}
+            y={p.y}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            fontSize="9"
+            fill="#64748B"
+          >
+            {isEn
+              ? ["Modeling", "Calibration", "Transfer"][i]
+              : ["建模", "校准", "迁移"][i]}
+          </text>
+        );
+      })}
+    </svg>
+  );
+}
+
+/* ── 指标卡 ───────────────────────────────────────────────────── */
+
 function MetricCard({
   Icon,
   value,
@@ -623,20 +624,20 @@ function MetricCard({
   accent: string;
 }) {
   return (
-    <div className="rounded-2xl border border-[#E2E8F0] bg-white p-4">
-      <div className="flex items-center gap-2">
+    <div className="rounded-xl border border-[#E2E8F0] bg-white p-3">
+      <div className="flex items-center gap-1.5">
         <span
-          className="flex h-7 w-7 items-center justify-center rounded-lg"
+          className="flex h-6 w-6 items-center justify-center rounded-lg"
           style={{ backgroundColor: `${accent}12`, color: accent }}
         >
-          <Icon size={14} strokeWidth={2.2} />
+          <Icon size={12} strokeWidth={2.2} />
         </span>
-        <p className="text-[10.5px] tracking-[0.1em] text-[#64748B] uppercase">
+        <p className="truncate text-[10px] tracking-[0.08em] text-[#64748B] uppercase">
           {label}
         </p>
       </div>
       <p
-        className="mt-2 text-[26px] leading-none font-semibold tabular-nums"
+        className="mt-1.5 text-[20px] leading-none font-semibold tabular-nums"
         style={{ color: accent }}
       >
         {value}
