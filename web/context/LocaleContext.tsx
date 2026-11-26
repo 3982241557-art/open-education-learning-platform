@@ -45,15 +45,14 @@ import { translateKey } from "@/lib/i18n";
  *
  * 地区不是「换个皮肤」——它决定：
  *
- * * **线路偏好**：B 站在大陆优先，YouTube 在海外优先；
  * * **书写习惯**：日期格式、数字分隔符、时区显示；
  * * **默认语言**：繁体区默认 ``zh-TW``，北美默认 ``en``。
  *
  * 为什么用 Context 而不是纯 CSS
  * ----------------------------
  *
- * 因为要换的不只是文字，还有**线路选择**（B 站 ↔ YouTube 的源
- * 优先级）和**格式化规则**（日期 / 数字）。CSS 做不到后者。
+ * 因为要换的不只是文字，还有**格式化规则**（日期 / 数字）。
+ * CSS 做不到后者。
  *
  * 持久化
  * ------
@@ -84,30 +83,13 @@ export const REGIONS: Array<{
   id: Region;
   label: string;
   nativeLabel: string;
-  /** 该区的首选视频源——线路适配。 */
-  preferredProvider: "bilibili" | "youtube";
 }> = [
-  {
-    id: "cn",
-    label: "中国大陆",
-    nativeLabel: "中国大陆",
-    preferredProvider: "bilibili",
-  },
-  {
-    id: "hktw",
-    label: "中国香港 / 台湾",
-    nativeLabel: "中國香港 / 台灣",
-    preferredProvider: "bilibili",
-  },
-  {
-    id: "apac",
-    label: "亚太与东南亚",
-    nativeLabel: "亞太與東南亞",
-    preferredProvider: "bilibili",
-  },
-  { id: "na", label: "北美", nativeLabel: "北美", preferredProvider: "youtube" },
-  { id: "eu", label: "欧洲", nativeLabel: "歐洲", preferredProvider: "youtube" },
-  { id: "anz", label: "澳新", nativeLabel: "澳新", preferredProvider: "youtube" },
+  { id: "cn", label: "中国大陆", nativeLabel: "中国大陆" },
+  { id: "hktw", label: "中国香港 / 台湾", nativeLabel: "中國香港 / 台灣" },
+  { id: "apac", label: "亚太与东南亚", nativeLabel: "亞太與東南亞" },
+  { id: "na", label: "北美", nativeLabel: "北美" },
+  { id: "eu", label: "欧洲", nativeLabel: "歐洲" },
+  { id: "anz", label: "澳新", nativeLabel: "澳新" },
 ];
 
 const LOCALE_KEY = "dreamclass.locale";
@@ -391,8 +373,6 @@ interface LocaleValue {
    * 找不到 key 时返回 key 本身——**不会静默显示另一种语言**。
    */
   tk: (key: string, vars?: Record<string, string | number>) => string;
-  /** 当前地区偏好的视频源。 */
-  preferredProvider: "bilibili" | "youtube";
   /** 当前语言的 BCP-47 标签。 */
   htmlLang: string;
 }
@@ -474,7 +454,6 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   }, [localeExplicit]);
 
   const value = useMemo<LocaleValue>(() => {
-    const regionMeta = REGIONS.find((item) => item.id === region);
     return {
       locale,
       setLocale,
@@ -483,7 +462,6 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
       t: (text: string) => translate(text, locale),
       tk: (key: string, vars?: Record<string, string | number>) =>
         translateKey(key, locale, vars),
-      preferredProvider: regionMeta?.preferredProvider ?? "bilibili",
       htmlLang: locale,
     };
   }, [locale, region, setLocale, setRegion]);
@@ -507,7 +485,6 @@ export function useLocale(): LocaleValue {
       setRegion: () => {},
       t: (text) => text,
       tk: (key) => key,
-      preferredProvider: "bilibili",
       htmlLang: "zh-CN",
     }),
     [],

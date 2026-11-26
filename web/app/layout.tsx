@@ -1,4 +1,9 @@
 import type { Metadata, Viewport } from "next";
+import {
+  Cormorant_Garamond,
+  Noto_Serif_SC,
+  Playfair_Display,
+} from "next/font/google";
 import "./globals.css";
 import { AppShellProvider } from "@/context/AppShellContext";
 import { ChatProvider } from "@/context/ChatContext";
@@ -8,6 +13,49 @@ import { PLATFORM_METADATA } from "@/lib/branding";
 import { LocaleProvider } from "@/context/LocaleContext";
 import { GradeProvider } from "@/context/GradeContext";
 import GhPagesRedirect from "@/components/layout/GhPagesRedirect";
+
+/**
+ * 品牌展示字体
+ * ===========
+ *
+ * 首页的品牌字标需要**精装展示衬线**的质感——这是整站唯一的
+ * 「收藏级」排版位置，正文绝不用它。
+ *
+ * 三款字体各有分工：
+ *
+ * - ``Cormorant Garamond`` —— 英文主标「Open Education」。它的
+ *   高对比度粗细笔画（thin/thick contrast）在大字号下有一种
+ *   银版印刷般的精致感，是奢侈品牌字标的常见选择；
+ * - ``Playfair Display`` —— 备用英文衬线，用于英文小标题与数字；
+ * - ``Noto Serif SC`` —— 中文全称「开放教育学习平台」。它有完整
+ *   的宋体骨架（大字面、明确的横细竖粗对比），比默认黑体更适合
+ *   做展示级标题。
+ *
+ * ⛔ ``display: "swap"``——字体没加载完时先用回退字体渲染，
+ *    不阻塞首屏。字体文件由 Next 在构建期自托管，**零外部请求**，
+ *    静态导出后也不会有 CDN 依赖。
+ */
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  style: ["normal", "italic"],
+  display: "swap",
+  variable: "--font-display",
+});
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+  variable: "--font-playfair",
+});
+
+const notoSerifSC = Noto_Serif_SC({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+  variable: "--font-serif-sc",
+});
 
 export const viewport: Viewport = { interactiveWidget: "resizes-content" };
 
@@ -52,7 +100,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-CN" suppressHydrationWarning>
+    <html
+      lang="zh-CN"
+      suppressHydrationWarning
+      className={`${cormorant.variable} ${playfair.variable} ${notoSerifSC.variable}`}
+    >
       <body className="font-sans bg-[var(--background)] text-[var(--foreground)]">
         {/* 语言 / 地区在最外层——品牌栏、页脚、导航都要读它 */}
         <LocaleProvider>

@@ -44,41 +44,46 @@
       层级改用 1px 实线 + 极轻阴影表达。 */
 :root {
   /* ── 画布与卡片 ────────────────────────────────────────────────────
-     画布是温润米灰纸白，卡片是纯白。两者对比极轻（≈3:1），
-     所以卡片靠 1px #E5E2DA 的边框「浮」起来，而不是靠阴影。 */
-  --background: #f6f4ef;
-  --foreground: #1e242b;
+     画布是纯净冷灰白 #F8FAFC，卡片是 100% 实心纯白 #FFFFFF。
+     两者靠 1px #E2E8F0 的边框分层，不靠阴影。 */
+  --background: #f8fafc;
+  --foreground: #0f172a;
   --card: #ffffff;
-  --card-foreground: #1e242b;
-  --muted: #f2efe9;
-  --muted-foreground: #5c646d;
+  --card-foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #334155;
 
-  /* 主交互色 = 主墨炭。**不是蓝色**——深墨炭做主按钮，
-     反而比蓝色更「重」，更像实体按键。 */
-  --primary: #1e242b;
+  /* 主交互色 = 交互蓝 #1D4ED8。深牛津蓝 #0B162C 负责「权威外壳」。 */
+  --primary: #1d4ed8;
   --primary-foreground: #ffffff;
-  --border: #e5e2da;
-  --ring: #4e677d;
-  --destructive: #8a6e63;
-  --overlay: rgba(30, 36, 43, 0.45);
+  --border: #e2e8f0;
+  --ring: #1d4ed8;
+  --destructive: #b42318;
+  --overlay: rgba(11, 22, 44, 0.5);
 
-  /* ── 学科语义色（低饱和雾感）──────────────────────────────────────
-     数学 = 雾霾蓝灰。语文 = 暖陶灰褐。两者的明度接近、饱和度都低，
-     所以并排出现时不会打架。 */
-  --math: #4e677d;
-  --math-soft: #eff3f6;
-  --math-line: #d3dce3;
-  --chinese: #8a6e63;
-  --chinese-soft: #f6f1ee;
-  --chinese-line: #e2d6cf;
+  /* ── 深午夜牛津蓝（左侧主栏）──────────────────────────────────── */
+  --navy: #0b162c;
+  --navy-active: #1d4ed8;
+  --navy-foreground: #ffffff;
+  --navy-muted: rgba(255, 255, 255, 0.62);
+  --navy-border: rgba(255, 255, 255, 0.1);
 
-  /* ── 成就色（哑光浅麦金）─────────────────────────────────────────
-     星星、徽章、证书签章。**不是亮金**——浅麦金在米灰纸白上
-     依然可辨，但不会「发光」到抢走内容的注意力。 */
-  --gold: #a48a5e;
-  --gold-soft: #f7f3ea;
-  --gold-deep: #6e5a38;
-  --gold-line: #ddd0b4;
+  /* ── 学科语义色 ─────────────────────────────────────────────────
+     数学 = 交互蓝。语文 = 深青。两者明度接近、饱和度一致，
+     并排出现时不会打架。 */
+  --math: #1d4ed8;
+  --math-soft: #eff6ff;
+  --math-line: #bfdbfe;
+  --chinese: #0e7490;
+  --chinese-soft: #ecfeff;
+  --chinese-line: #a5f3fc;
+
+  /* ── 成就色（克制哑光金）─────────────────────────────────────────
+     星星、逻辑链徽章与证书签章。 */
+  --gold: #c59b38;
+  --gold-soft: #fdf8ec;
+  --gold-deep: #8a6a20;
+  --gold-line: #e8d9ae;
 
   /* 高级字体混排——衬线体负责「大标题 / 学科巨幕 / 古诗文」，
      无衬线体负责「正文 / 导航 / 公式 / 按钮」。 */
@@ -88,65 +93,64 @@
   /* ── 悬浮层：100% 实心，0 模糊 ───────────────────────────────────
      ⛔ 这里**没有** ``--glass``。所有浮层一律用纯白实体 +
          1px 边框 + 一层极轻阴影。 */
-  --shadow-float: 0 4px 16px rgba(30, 36, 43, 0.07);
-  --shadow-panel: 0 8px 28px rgba(30, 36, 43, 0.09);
-  --shadow-card: 0 1px 3px rgba(30, 36, 43, 0.04);
-  --shadow-lift: 0 4px 14px rgba(30, 36, 43, 0.06);
-  --shadow-dock: 0 8px 30px rgba(30, 36, 43, 0.08);
+  --shadow-float: 0 4px 16px rgba(11, 22, 44, 0.07);
+  --shadow-panel: 0 8px 28px rgba(11, 22, 44, 0.09);
+  --shadow-card: 0 1px 3px rgba(11, 22, 44, 0.04);
+  --shadow-lift: 0 4px 14px rgba(11, 22, 44, 0.06);
+  --shadow-dock: 0 8px 30px rgba(11, 22, 44, 0.08);
 
-  /* ── 划线色：全部收敛到雾感家族 ───────────────────────────────────
-     划线是「我标记了这里」，属于语义标记。五种高饱和色会让正文
-     变成万花筒；同一支雾感家族则安静下来。 */
-  --seek-color-amber: #4e677d;
-  --seek-color-haze: #5f7a91;
-  --seek-color-bean: #8a6e63;
-  --seek-color-rose: #6b7f8f;
-  --seek-color-lilac: #7a6a80;
+  /* ── 划线色：全部收敛到蓝白黑家族 ─────────────────────────────────
+     划线是「我标记了这里」，属于语义标记。五种色相会让正文变成
+     万花筒；同一支冷色家族则安静下来。 */
+  --seek-color-amber: #1d4ed8;
+  --seek-color-haze: #334155;
+  --seek-color-bean: #0b162c;
+  --seek-color-rose: #475569;
+  --seek-color-lilac: #64748b;
 
-  --seek-bg-amber: #eff3f6;
-  --seek-bg-haze: #eff3f6;
-  --seek-bg-bean: #f6f1ee;
-  --seek-bg-rose: #f2efe9;
-  --seek-bg-lilac: #f2efe9;
+  --seek-bg-amber: #eff6ff;
+  --seek-bg-haze: #f1f5f9;
+  --seek-bg-bean: #f1f5f9;
+  --seek-bg-rose: #f1f5f9;
+  --seek-bg-lilac: #f1f5f9;
 
   /* ── 三栏认知分区色：完全一致 ───────────────────────────────────
      分区靠 1px 分隔线表达，不靠色块。 */
-  --seek-cream: #f6f4ef;
-  --seek-cool: #f6f4ef;
-  --seek-warm: #f6f4ef;
+  --seek-cream: #f8fafc;
+  --seek-cool: #f8fafc;
+  --seek-warm: #f8fafc;
 
-  /* 强调色——主墨炭。 */
-  --seek-bean: #1e242b;
-  --seek-plum: #4e677d;
+  /* 强调色——交互蓝。 */
+  --seek-bean: #0b162c;
+  --seek-plum: #1d4ed8;
 
-  /* 浅底按钮——「可点击」的信号，用语文/数学的浅底承载。 */
-  --seek-bean-soft: #eff3f6;
-  --seek-bean-soft-border: #d3dce3;
-  --seek-bean-soft-hover: #e6ecf1;
+  /* 浅底按钮——「可点击」的信号。 */
+  --seek-bean-soft: #eff6ff;
+  --seek-bean-soft-border: #bfdbfe;
+  --seek-bean-soft-hover: #dbeafe;
 
-  /* 未激活状态下的次要字色——比 muted-foreground 深一档。 */
-  --seek-muted-foreground: #5c646d;
+  /* 未激活状态下的次要字色。 */
+  --seek-muted-foreground: #334155;
 
   /* 分区之间的硬边界——1px 实线。 */
-  --seek-divider: #e5e2da;
-  --seek-divider-cool: #e5e2da;
-  --seek-divider-warm: #e5e2da;
+  --seek-divider: #e2e8f0;
+  --seek-divider-cool: #e2e8f0;
+  --seek-divider-warm: #e2e8f0;
 
   /* 实体按键——1px 实线边框。 */
-  --seek-key-border: #d5d1c8;
+  --seek-key-border: #cbd5e1;
   --seek-key-shadow: none;
   --seek-key-shadow-sm: none;
 
   /* 弥散阴影——几乎不存在。 */
-  --seek-shadow-soft: 0 1px 2px rgba(30, 36, 43, 0.035);
-  --seek-shadow-paper: 0 1px 2px rgba(30, 36, 43, 0.035);
+  --seek-shadow-soft: 0 1px 2px rgba(11, 22, 44, 0.035);
+  --seek-shadow-paper: 0 1px 2px rgba(11, 22, 44, 0.035);
 
-  /* 旧版左侧深蓝栏的残留令牌——保留但**不再被使用**，
-     以免旧组件编译失败。值改成雾感蓝灰。 */
-  --seek-rail: #1e242b;
+  /* 左侧深牛津蓝主栏。 */
+  --seek-rail: #0b162c;
   --seek-rail-foreground: #ffffff;
   --seek-rail-muted: rgba(255, 255, 255, 0.62);
-  --seek-rail-active: #4e677d;
+  --seek-rail-active: #1d4ed8;
 }
 
 .dark {
@@ -888,6 +892,50 @@ body {
   [style*="seek-breathe"] {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+  }
+}
+
+/* ── 首页品牌字标动效 ──────────────────────────────────────────────
+ *
+ * 两个关键帧：
+ *
+ * - ``oe-shimmer`` —— 深午夜蓝到冷银蓝的**流光扫光**。高光带只有
+ *   约 14% 宽度，以 6.5 秒周期从字标左侧扫到右侧。它把静态的
+ *   深蓝字变成「有金属反射的深蓝字」——这就是「细腻的金属微光」。
+ *
+ * - ``oe-rise`` —— **逐字微浮入场**。每个字母从下方 0.22em 处
+ *   淡入并轻微上浮，用的是 expo-out 缓动（快起慢停），落位时
+ *   有一种「被轻轻放上去」的分量感。
+ *
+ * ⛔ 两个动效都在 ``prefers-reduced-motion`` 下被关闭——组件里
+ *    会先检测一次并直接渲染终态，所以关掉动效不会有残影。
+ */
+@keyframes oe-shimmer {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 280% 0%;
+  }
+}
+
+@keyframes oe-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(0.22em);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [style*="oe-shimmer"],
+  [style*="oe-rise"] {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
   }
 }
 

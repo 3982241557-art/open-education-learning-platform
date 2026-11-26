@@ -65,7 +65,24 @@ yarn-error.log*
 #
 # 真正进版本库的只有 ``backend/data/``——那是**唯一数据源**。
 # CI 里 ``npm run build:static`` 会先跑 ``prebuild`` 自动同步。
-web/public/data/
+#
+# ⚠️ **例外：数学图谱必须进版本库**。
+#
+# ``math-taxonomy.json`` 与上面的镜像规则性质**完全不同**——
+# 它不是 ``backend/data/`` 的拷贝，而是由 ``scripts/import-math-taxonomy.mjs``
+# 从两个 GitHub 开源图谱（os-taxonomy + cn-k12）**融合生成**的产物，
+# 且 ``backend/`` 里**没有**对应源文件。
+#
+# 如果跟着上面的规则被忽略，静态导出出来的站点就**没有学习地图**——
+# ``/map`` 会空、``/lab`` 会找不到任何节点。CI 也没有网络去现场克隆
+# 那两个仓库。
+#
+# ⛔ **注意顺序**：必须先 ``!web/public/data/`` 把**目录本身**捞回来，
+#    再逐个排除文件。Git 不会进入一个被排除的目录，所以只写
+#    ``!web/public/data/math-taxonomy.json`` 是**无效**的——
+#    父目录被排除，子文件就永远没机会被重新包含。
+web/public/data/*
+!web/public/data/math-taxonomy.json
 
 # ── 本地数据与缓存（不提交，但**不是**课程数据） ─────────────
 #

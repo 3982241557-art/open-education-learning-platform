@@ -10,9 +10,9 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
  * .. code-block:: text
  *
  *     首次访问  /                → 正常展示品牌首页
- *     点击「进入学习」            → 写 oe_entered="1" → 跳 /courses
- *     再次访问  /  （无 ?home=1） → 静默跳 /courses
- *     点击岛内 OE 徽标            → 跳 /?home=1  → 正常展示首页
+ *     点击「进入学习」            → 写 oe_entered="1" → 跳 /map
+ *     再次访问  /  （无 ?home=1） → 静默跳 /map
+ *     点击侧栏 OE 徽标            → 跳 /?home=1  → 正常展示首页
  *
  * 为什么要有这一层
  * ----------------
@@ -53,8 +53,8 @@ export default function SmartEntryRedirect() {
     }
     if (entered !== "1") return;
 
-    // 已经进过站，且没有显式要首页 → 静默直达课程总台。
-    router.replace("/courses");
+    // 已经进过站，且没有显式要首页 → 静默直达数学学习地图。
+    router.replace("/map");
   }, [pathname, router, searchParams]);
 
   return null;

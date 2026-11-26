@@ -1,851 +1,509 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useMemo } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import {
   Award,
   Download,
   Globe2,
-  Loader2,
   Printer,
   Star,
   Target,
   TrendingUp,
 } from "lucide-react";
-import { fetchK12Index, fetchK12Series } from "@/lib/k12-client";
-import type { K12IndexEntry } from "@/lib/k12-api";
-import { buildUnits } from "@/lib/course-units";
-import {
-  readLedger,
-  summarizeAll,
-  STARS_UPDATED_EVENT,
-  type StarLedger,
-} from "@/lib/star-ledger";
 import { useLocale } from "@/context/LocaleContext";
 import { useProfile } from "@/context/ProfileContext";
+import { useMathTaxonomy } from "@/context/MathTaxonomyContext";
 import { BRAND, DREAM_CLASSROOM } from "@/data/site-config";
+import {
+  MATH_STAR_META,
+  readMathLedger,
+  settleChainBadge,
+  summarizeMath,
+} from "@/lib/math-star-ledger";
 import { cn } from "@/lib/cn";
+import { useTraditional } from "@/lib/use-bilingual";
+
 
 /**
- * 成长与报告 · Result Report
- * ===========================
+ * 成长与结果报告（/report）
+ * ========================
  *
  * .. code-block:: text
  *
- *     ┌────────────────────────────────────────┐
- *     │  ① 官方结业证书（中英双语 + 防伪编号）  │
- *     ├────────────────────────────────────────┤
- *     │  ② 星星与徽章成果总览                  │
- *     ├────────────────────────────────────────┤
- *     │  ③ 核心能力维度雷达 / 条形图            │
- *     ├────────────────────────────────────────┤
- *     │  ④ 逐课学习明细 + 个性化评语            │
- *     └────────────────────────────────────────┘
+ *     ┌──────────────────────────────────────────┐
+ *     │  ① 官方结业证书（中英双语 + 防伪编号）      │
+ *     ├──────────────────────────────────────────┤
+ *     │  ② 数学逻辑宇宙覆盖总览                    │
+ *     ├──────────────────────────────────────────┤
+ *     │  ③ 八条逻辑链的掌握进度 + 链徽章           │
+ *     ├──────────────────────────────────────────┤
+ *     │  ④ 已精通节点清单 + 个性化评语             │
+ *     └──────────────────────────────────────────┘
  *
- * 为什么要有这样一份东西
- * ----------------------
+ * 为什么这份报告讲的是「逻辑链」而不是「课程单元」
+ * ----------------------------------------------
  *
- * 星星和徽章本身**不是目的**——它们只是过程中的计数。用户真正想带走
- * 的是一份**能给孩子看、能给学校看、能打印出来贴在墙上**的东西。
+ * 数学学习地图是**图**——节点有几百个，分布在八条链上，链内还有真实
+ * 的前置依赖。用「学到第几课」来汇报进度，在图结构上是失真的。
  *
- * 所以这里把散落的星星重新组织成：
+ * 所以这里汇报的是：
  *
- * - 一张有编号、有电子章的**结业证书**；
- * - 一张**能力雷达**——把「学了多少」翻译成「会什么」；
- * - 一份**逐课明细**——教具、星级、正确率，一目了然；
- * - 一段**个性化评语**——自动汇总优势与下阶段建议。
- *
- * ⛔ **纯静态 + localStorage**
- *
- * 没有服务端。所有数据来自浏览器本地账本（``lib/star-ledger.ts``）。
- * 打印时用 ``@media print`` 规则做 A4 排版。
+ * - **覆盖度**——你走过了图谱的哪些部分；
+ * - **链掌握度**——每条链的星数进度与徽章；
+ * - **精通节点**——哪些知识点你真的三颗星全满。
  */
 
-/** 一门课在报告里的明细。 */
-interface ReportCourse {
-  entry: K12IndexEntry;
-  units: string[];
-  lessonRows: Array<{
-    title: string;
-    stars: number;
-    accuracy: number;
-    tool: string | null;
-  }>;
-  stars: number;
-  maxStars: number;
-  badges: number;
-  maxBadges: number;
+/** 防伪编号——由学习者姓名与统计哈希派生。 */
+function certNumber(name: string, stars: number, nodes: number): string {
+  let hash = 0;
+  const seed = `${name}|${stars}|${nodes}`;
+  for (let i = 0; i < seed.length; i += 1) {
+    hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
+  }
+  return `OE-${hash.toString(16).toUpperCase().padStart(8, "0").slice(0, 8)}`;
 }
 
-/** 能力维度。 */
-const MATH_DIMENSIONS = [
-  { key: "logic", zh: "逻辑推演", en: "Logical Deduction" },
-  { key: "space", zh: "空间几何", en: "Spatial Geometry" },
-  { key: "number", zh: "数感运算", en: "Numerical Sense" },
-  { key: "inquiry", zh: "自主探究", en: "Self-Inquiry" },
-];
-
-const CHINESE_DIMENSIONS = [
-  { key: "glyph", zh: "汉字文脉", en: "Character Heritage" },
-  { key: "taste", zh: "审美鉴赏", en: "Aesthetic Judgement" },
-  { key: "culture", zh: "文化通识", en: "Cultural Literacy" },
-  { key: "expression", zh: "思辨表达", en: "Critical Expression" },
-];
-
-/**
- * 年级数字 → 中文词。
- *
- * 证书上写「小学五年级—高中三年级」比「5—12 年级」更适合家长读。
- */
-function gradeWord(grade: number): string {
-  if (grade >= 10) return `高${["一", "二", "三"][grade - 10] ?? grade}年级`;
-  if (grade >= 7) return `初${["一", "二", "三"][grade - 7] ?? grade}年级`;
-  return `小学${["一", "二", "三", "四", "五", "六"][grade - 1] ?? grade}年级`;
-}
-
-/**
- * 组件本体。
- *
- * ⚠️ 它用了 ``useSearchParams``（学科筛选），所以外层
- *    ``ReportPage`` 必须包在 ``<Suspense>`` 里——否则静态导出会
- *    报「missing suspense boundary」。
- */
-function ReportContent() {
+export default function ReportPage() {
   const { locale } = useLocale();
-  /**
-   * 学科筛选——``/report?subject=math`` 只看数学。
-   *
-   * 课程总台的「生成本学科 Result Report →」就是用它进来的。
-   */
-  const searchParams = useSearchParams();
-  const subjectFilter = searchParams.get("subject");
-  const { displayName, profile } = useProfile();
-  const [ledger, setLedger] = useState<StarLedger>({ courses: {} });
-  const [courses, setCourses] = useState<ReportCourse[]>([]);
-  const [loading, setLoading] = useState(true);
-  /** 报告语言——中英可切换（独立于界面语言）。 */
-  const [reportLang, setReportLang] = useState<"cn" | "en">("cn");
+  const { displayName } = useProfile();
+  const { taxonomy, playableNodeIds, chainProgress, summary, refreshStars } =
+    useMathTaxonomy();
 
-  /** 加载账本 + 明细。 */
-  const load = useCallback(async () => {
-    setLoading(true);
-    const current = readLedger();
-    setLedger(current);
+  const isEn = locale === "en";
+  const tw = useTraditional();
 
-    // 只对**真正参与过**的课程做明细展开。
-    //
-    // ⛔ 账本里会为**所有**课程预置空的 unit 槽位（那是给星轨地图
-    //    渲染徽章用的），所以不能只看「课程 id 出现过」——
-    //    否则 24 套课全会被塞进报告，证书上的「课程全称」会变成
-    //    一长串用 · 拼起来的标题。
-    //
-    // 判定标准：**这一套课真的点亮过星星**，或者**解锁过单元徽章**。
-    const courseIds = Object.keys(current.courses).filter((id) => {
-      if (!id.startsWith("k12_")) return false;
-      const entry = current.courses[id];
-      const hasStars = Object.keys(entry?.lessons ?? {}).length > 0;
-      const hasBadges = Object.values(entry?.units ?? {}).some(
-        (unit) => unit.unlocked,
-      );
-      return hasStars || hasBadges;
+  /* ── 链徽章结算 ─────────────────────────────────────────────── */
+
+  const chainBadges = useMemo(() => {
+    if (!taxonomy) return [];
+    return taxonomy.chains.map((chain) => {
+      const ids = taxonomy.nodes
+        .filter((n) => n.chainId === chain.id && n.lab)
+        .map((n) => n.id);
+      const settled = settleChainBadge(chain.id, ids);
+      const prog = chainProgress[chain.id] ?? { stars: 0, maxStars: ids.length * 3 };
+      return {
+        chain,
+        unlocked: settled.unlocked,
+        stars: prog.stars,
+        maxStars: prog.maxStars,
+        nodeCount: ids.length,
+      };
     });
-    if (courseIds.length === 0) {
-      setCourses([]);
-      setLoading(false);
-      return;
+    // chainProgress 变化时重算（星星点亮后徽章要即时结算）。
+  }, [taxonomy, chainProgress]);
+
+  /* ── 已精通节点清单 ─────────────────────────────────────────── */
+
+  const masteredNodes = useMemo(() => {
+    if (!taxonomy) return [];
+    const ledger = readMathLedger();
+    return taxonomy.nodes
+      .filter((n) => {
+        const r = ledger.nodes[n.id];
+        return (
+          r && r.explore && r.discover && r.mystery
+        );
+      })
+      .slice(0, 40);
+  }, [taxonomy, summary.stars]);
+
+  /* ── 覆盖度统计 ─────────────────────────────────────────────── */
+
+  const coverage = useMemo(() => {
+    if (!taxonomy) {
+      return { total: 0, explored: 0, percent: 0, labCount: 0, labTypeCount: 0 };
     }
+    const total = taxonomy.stats.nodeCount;
+    const explored = Object.keys(readMathLedger().nodes).length;
+    return {
+      total,
+      explored,
+      percent: total > 0 ? Math.round((explored / total) * 100) : 0,
+      labCount: taxonomy.nodes.filter((n) => n.lab).length,
+      labTypeCount: taxonomy.stats.labCount,
+    };
+  }, [taxonomy, summary.stars]);
 
-    const index = await fetchK12Index();
-    const rows: ReportCourse[] = [];
+  /* ── 个性化评语 ─────────────────────────────────────────────── */
 
-    for (const id of courseIds) {
-      const entry = index?.series.find((item) => item.id === id);
-      if (!entry) continue;
-      // 学科筛选——只看一个学科时，别的学科整条跳过。
-      if (subjectFilter === "math" || subjectFilter === "chinese") {
-        if (entry.subject !== subjectFilter) continue;
-      }
-      const detail = await fetchK12Series(id);
-      const episodes = detail?.episodes ?? [];
-      const units = buildUnits(
-        episodes.map((item) => ({
-          ep_id: item.ep_id,
-          title: item.title,
-          core_title: item.core_title ?? null,
-        })),
-        entry.subject,
-      );
-      const records = current.courses[id]?.lessons ?? {};
-
-      let stars = 0;
-      const lessonRows = episodes
-        .map((item) => {
-          const record = records[item.ep_id];
-          const count = record
-            ? (record.explore ? 1 : 0) +
-              (record.think ? 1 : 0) +
-              (record.master ? 1 : 0)
-            : 0;
-          stars += count;
-          return {
-            title: item.title,
-            stars: count,
-            accuracy: record?.accuracy ?? 0,
-            tool: item.interactive_lab?.title ?? null,
-          };
-        })
-        .filter((row) => row.stars > 0);
-
-      const badges = units.filter(
-        (unit) => current.courses[id]?.units?.[unit.id]?.unlocked,
-      ).length;
-
-      rows.push({
-        entry,
-        units: units.map((unit) => unit.title),
-        lessonRows,
-        stars,
-        maxStars: episodes.length * 3,
-        badges,
-        maxBadges: units.length,
-      });
+  const comment = useMemo(() => {
+    if (summary.nodesMastered === 0 && summary.nodesStarted === 0) {
+      return isEn
+        ? "The map is still untouched. Start from any chain on the left, drag the weights or control points, and the stars will follow your hands."
+        : tw("图谱还没有被点亮。从左侧任意一条逻辑链开始——拖动砝码或控制点，星星会跟着你的手亮起来。");
     }
-
-    setCourses(rows);
-    setLoading(false);
-  }, [subjectFilter]);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
-
-  /** 星星变化 → 重算。 */
-  useEffect(() => {
-    const refresh = () => void load();
-    window.addEventListener(STARS_UPDATED_EVENT, refresh);
-    return () => window.removeEventListener(STARS_UPDATED_EVENT, refresh);
-  }, [load]);
-
-  /** 全站汇总。 */
-  const totals = useMemo(() => summarizeAll(), [ledger]);
-
-  /**
-   * 能力维度得分。
-   *
-   * ⛔ 这是**由真实作答推导**的，不是编的：
-   *
-   * - 巩固题正确率 → 逻辑推演 / 汉字文脉（**结论的准确性**）；
-   * - 教具动手完成率 → 自主探究（**过程性投入**）；
-   * - 星数密度 → 其余维度的**参与广度**。
-   *
-   * 没有数据时全部是 0——报告**不编数字**。
-   */
-  const dimensions = useMemo(() => {
-    const result: Record<
-      "math" | "chinese",
-      Array<{ key: string; zh: string; en: string; score: number }>
-    > = { math: [], chinese: [] };
-
-    for (const course of courses) {
-      const rows = course.lessonRows;
-      if (rows.length === 0) continue;
-      const avgStars =
-        rows.reduce((sum, row) => sum + row.stars, 0) / (rows.length * 3);
-      const avgAccuracy =
-        rows.reduce((sum, row) => sum + row.accuracy, 0) / rows.length;
-      const explored =
-        rows.filter((row) => row.stars >= 1).length / rows.length;
-
-      const bucket = course.entry.subject === "chinese" ? "chinese" : "math";
-      const dims =
-        bucket === "math" ? MATH_DIMENSIONS : CHINESE_DIMENSIONS;
-      const scores =
-        bucket === "math"
-          ? [
-              Math.round(avgAccuracy * 100),
-              Math.round(avgStars * 100),
-              Math.round(avgAccuracy * 100),
-              Math.round(explored * 100),
-            ]
-          : [
-              Math.round(avgStars * 100),
-              Math.round(avgAccuracy * 100),
-              Math.round(avgStars * 100),
-              Math.round(explored * 100),
-            ];
-
-      result[bucket] = dims.map((dim, index) => ({
-        key: dim.key,
-        zh: dim.zh,
-        en: dim.en,
-        score: scores[index],
-      }));
+    if (summary.nodesMastered === 0) {
+      return isEn
+        ? `You have started ${summary.nodesStarted} node(s). Keep going — the third star only comes when you solve a Mystery on your own.`
+        : tw(`你已经开始了 ${summary.nodesStarted} 个节点。第三颗星只在你独立破解一个谜题时才会亮起——继续。`);
     }
-
-    return result;
-  }, [courses]);
-
-  /** 个性化评语——由真实数据汇总。 */
-  const commentary = useMemo(() => {
-    const math = dimensions.math;
-    const chinese = dimensions.chinese;
-    const all = [...math, ...chinese];
-    if (all.length === 0) return null;
-
-    const sorted = [...all].sort((a, b) => b.score - a.score);
-    const strengths = sorted.slice(0, 2).filter((item) => item.score > 0);
-    const weak = [...all]
-      .filter((item) => item.score < 70)
-      .sort((a, b) => a.score - b.score)
-      .slice(0, 2);
-
-    return { strengths, weak };
-  }, [dimensions]);
-
-  /** 防伪验证编号——由学员与课程派生，稳定且唯一。 */
-  const verifyCode = useMemo(() => {
-    const seed = `${profile.nickname || displayName}|${courses.length}|${totals.stars}`;
-    let hash = 0;
-    for (let i = 0; i < seed.length; i += 1) {
-      hash = (hash << 5) - hash + seed.charCodeAt(i);
-      hash |= 0;
+    const badges = chainBadges.filter((c) => c.unlocked).length;
+    if (badges > 0) {
+      return isEn
+        ? `${summary.nodesMastered} node(s) fully mastered, and ${badges} logic chain badge(s) unlocked. A chain badge means every playable node in that chain reached two stars — that is real, not decorative.`
+        : tw(`已有 ${summary.nodesMastered} 个节点三颗星满格，并解锁了 ${badges} 枚逻辑链徽章。徽章意味着那条链上**所有**可玩节点都达到了两星——这不是装饰，是真实覆盖。`);
     }
-    const abs = Math.abs(hash).toString(36).toUpperCase().padStart(7, "0");
-    return `OE-${new Date().getFullYear()}-${abs.slice(0, 7)}`;
-  }, [profile.nickname, displayName, courses.length, totals.stars]);
+    return isEn
+      ? `${summary.nodesMastered} node(s) fully mastered. Unlock a chain badge by reaching two stars on every playable node in one chain.`
+      : tw(`已有 ${summary.nodesMastered} 个节点三颗星满格。把同一条链上所有可玩节点都推到两星，就能点亮那枚逻辑链大师徽章。`);
+  }, [summary, chainBadges, isEn, tw]);
 
-  const isCn = reportLang === "cn";
-
-  /**
-   * 证书上的「课程全称」。
-   *
-   * ⛔ **不能**把 24 套课的标题用 · 串起来——那是一堵字墙，
-   *    在证书上完全没法读。
-   *
-   * 证书是**结论**，不是清单：只写清楚「修了哪几个学段、哪几个
-   * 学科」，具体课目交给下面的「逐课学习明细」去列。
-   */
-  const courseSummary = useMemo(() => {
-    if (courses.length === 0) return isCn ? "尚未开始学习" : "No courses yet";
-
-    const subjects = new Set(
-      courses.map((course) =>
-        course.entry.subject === "chinese" ? "chinese" : "math",
-      ),
-    );
-
-    // 按年级排序，取出「最小学段 → 最高学段」。
-    const grades = courses
-      .map((course) => course.entry.grade)
-      .filter((grade) => Number.isFinite(grade) && grade > 0)
-      .sort((a, b) => a - b);
-
-    const parts: string[] = [];
-    if (grades.length > 0) {
-      const low = gradeWord(grades[0]);
-      const high = gradeWord(grades[grades.length - 1]);
-      parts.push(isCn ? (low === high ? low : `${low}—${high}`) : `Grade ${grades[0]}–${grades[grades.length - 1]}`);
-    }
-    if (subjects.size > 0) {
-      parts.push(
-        isCn
-          ? [...subjects].map((s) => (s === "chinese" ? "语文" : "数学")).join(" × ")
-          : [...subjects].map((s) => (s === "chinese" ? "Chinese" : "Math")).join(" × "),
-      );
-    }
-    parts.push(
-      isCn
-        ? `共 ${courses.length} 套课程 · ${totals.stars} 颗星`
-        : `${courses.length} courses · ${totals.stars} stars`,
-    );
-    return parts.join(" · ");
-  }, [courses, isCn, totals.stars]);
-
-  if (loading) {
+  if (!taxonomy) {
     return (
-      <div className="flex min-h-[60vh] flex-col items-center justify-center bg-[var(--background)]">
-        <Loader2 size={18} className="animate-spin text-[var(--muted-foreground)]" />
-        <p className="mt-2 text-[12px] text-[var(--muted-foreground)]">
-          正在汇总成长档案…
-        </p>
+      <div className="flex h-full items-center justify-center">
+        <span
+          aria-busy="true"
+          className="block h-6 w-6 animate-spin rounded-full border-2 border-[#E2E8F0] border-t-[#1D4ED8]"
+        />
       </div>
     );
   }
 
+  const certId = certNumber(displayName, summary.stars, summary.nodesMastered);
+
   return (
-    <div className="h-full overflow-y-auto pb-2">
-      {/* ── 报告工具条（打印时隐藏） ── */}
-      <div className="no-print mb-5 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-[22px] font-semibold tracking-[-0.02em] text-[#1E242B]">
-            {isCn ? "成长与报告" : "Growth & Report"}
-          </h1>
-          <p className="mt-1 text-[12.5px] text-[#5C646D]">
-            {isCn
-              ? "梦想课堂 × Open Education · 中英双语结业证书与综合学情评估"
-              : "Dream Classroom × Open Education · Bilingual certificate and comprehensive assessment"}
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="flex items-center overflow-hidden rounded-lg border border-[#E5E2DA] bg-white">
-            {(["cn", "en"] as const).map((lang) => (
-              <button
-                key={lang}
-                type="button"
-                onClick={() => setReportLang(lang)}
-                aria-pressed={reportLang === lang}
-                className={cn(
-                  "h-8 px-3 text-[12px] font-medium transition-colors",
-                  reportLang === lang
-                    ? "bg-[#1E242B] text-white"
-                    : "text-[#5C646D] hover:text-[#1E242B]",
-                )}
-              >
-                {lang === "cn" ? "中文" : "English"}
-              </button>
-            ))}
-          </div>
-          <button
-            type="button"
-            onClick={() => window.print()}
-            className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-[#D5D1C8] bg-white px-3 text-[12px] font-medium text-[#1E242B] transition-colors hover:border-[#4E677D]"
-          >
-            <Printer size={12} strokeWidth={2.2} />
-            {isCn ? "导出 / 打印 PDF" : "Export / Print PDF"}
-          </button>
-          <Link
-            href="/courses"
-            className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[#1E242B] px-3 text-[12px] font-medium text-white transition-colors hover:bg-[#2c333b]"
-          >
-            <Download size={12} strokeWidth={2.2} />
-            {isCn ? "去点亮更多星星" : "Earn More Stars"}
-          </Link>
-        </div>
-      </div>
-
-      {/* ══ 报告正文 ══ */}
-      <div className="space-y-5">
-        {/* ── ① 官方结业证书 ── */}
-        <section className="relative overflow-hidden rounded-2xl border border-[#A48A5E] bg-[#FFFFFF] p-7 oe-card-shadow sm:p-10">
-          {/* 香槟金边框。 */}
-          <span
-            aria-hidden
-            className="pointer-events-none absolute inset-3 rounded-xl border border-[rgba(184,155,94,0.45)]"
-          />
-          {/* 深牛津蓝角饰。 */}
-          <span
-            aria-hidden
-            className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full border border-[rgba(184,155,94,0.25)]"
-          />
-
-          <div className="relative">
-            {/* 联合抬头。 */}
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div>
-                <p
-                  className="text-[11px] font-medium tracking-[0.24em] text-[#A48A5E] uppercase"
-                >
-                  {isCn ? "结业证书" : "Certificate of Completion"}
-                </p>
-                <h2
-                  className="mt-2 text-[28px] leading-tight text-[#1E242B] sm:text-[34px]"
-                  style={{ fontFamily: "var(--font-serif)" }}
-                >
-                  {DREAM_CLASSROOM.name} Dream Classroom
-                  <span className="mx-2 text-[#A48A5E]">×</span>
-                  Open Education
-                </h2>
-              </div>
-              {/* 电子印章。 */}
-              <div className="flex h-20 w-20 shrink-0 flex-col items-center justify-center rounded-full border-2 border-[#A48A5E] bg-white">
-                <span
-                  className="text-[10px] font-semibold tracking-[0.1em] text-[#8A6D3B]"
-                >
-                  {DREAM_CLASSROOM.hqLabel}
-                </span>
-                <span className="mt-0.5 text-[9px] text-[#8A6D3B]">
-                  OFFICIAL SEAL
-                </span>
-              </div>
-            </div>
-
-            {/* 学员信息。 */}
-            <div className="mt-8 grid gap-x-8 gap-y-4 sm:grid-cols-2">
-              <Field
-                label={isCn ? "学员姓名" : "Learner"}
-                value={profile.nickname || displayName}
-              />
-              <Field
-                label={isCn ? "学段 / 年级" : "Stage / Grade"}
-                value={courses[0]?.entry.shortTitle ?? (isCn ? "未开始" : "Not started")}
-              />
-              <Field
-                label={isCn ? "课程全称" : "Course"}
-                value={courseSummary}
-              />
-              <Field
-                label={isCn ? "完成日期" : "Date"}
-                value={new Date().toLocaleDateString(isCn ? "zh-CN" : "en-GB")}
-              />
-            </div>
-
-            {/* 防伪编号。 */}
-            <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-[rgba(184,155,94,0.35)] pt-5">
-              <div>
-                <p className="text-[10px] font-medium tracking-[0.16em] text-[#8A6D3B] uppercase">
-                  {isCn ? "唯一防伪验证编号" : "Unique Verification Code"}
-                </p>
-                <p className="mt-1 font-mono text-[15px] tracking-[0.1em] text-[#1E242B]">
-                  {verifyCode}
-                </p>
-              </div>
-              <p className="max-w-[280px] text-[11px] leading-relaxed text-[#5C646D]">
-                {isCn
-                  ? "凭此编号可向梦想课堂官方核验本报告的真实性。"
-                  : "Use this code to verify the authenticity of this report with Dream Classroom."}
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* ── ② 星星与徽章成果总览 ── */}
-        <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <Metric
-            icon={<Star size={13} strokeWidth={2.2} />}
-            accent="#A48A5E"
-            value={`${totals.stars} / ${totals.maxStars}`}
-            label={isCn ? "总计获得星星" : "Total Stars"}
-          />
-          <Metric
-            icon={<TrendingUp size={13} strokeWidth={2.2} />}
-            accent="#4E677D"
-            value={`${totals.mastery}%`}
-            label={isCn ? "平均掌握度" : "Average Mastery"}
-          />
-          <Metric
-            icon={<Award size={13} strokeWidth={2.2} />}
-            accent="#1E242B"
-            value={String(totals.badges)}
-            label={isCn ? "已解锁学术徽章" : "Badges Unlocked"}
-          />
-          <Metric
-            icon={<Target size={13} strokeWidth={2.2} />}
-            accent="#A48A5E"
-            value={String(courses.length)}
-            label={isCn ? "已参与课程" : "Courses in Progress"}
-          />
-        </section>
-
-        {/* ── ③ 核心能力维度 ── */}
-        {(dimensions.math.length > 0 || dimensions.chinese.length > 0) ? (
-          <section className="rounded-2xl border border-[#E5E2DA] bg-white p-6 oe-card-shadow sm:p-8">
-            <h3
-              className="text-[18px] text-[#1E242B]"
-              style={{ fontFamily: "var(--font-serif)" }}
-            >
-              {isCn ? "核心能力维度" : "Core Competency Dimensions"}
-            </h3>
-            <p className="mt-1 text-[12px] text-[#5C646D]">
-              {isCn
-                ? "由真实作答与动手记录推导——没有数据的维度显示为 0，不做美化。"
-                : "Derived from real answers and hands-on records — dimensions with no data show 0. Nothing is embellished."}
-            </p>
-
-            <div className="mt-6 grid gap-8 md:grid-cols-2">
-              <DimensionChart
-                title={isCn ? "数学" : "Mathematics"}
-                items={dimensions.math}
-                accent="#4E677D"
-                reportLang={reportLang}
-              />
-              <DimensionChart
-                title={isCn ? "语文" : "Chinese"}
-                items={dimensions.chinese}
-                accent="#A48A5E"
-                reportLang={reportLang}
-              />
-            </div>
-          </section>
-        ) : null}
-
-        {/* ── ④ 逐课明细 ── */}
-        {courses.length > 0 ? (
-          <section className="rounded-2xl border border-[#E5E2DA] bg-white p-6 oe-card-shadow sm:p-8">
-            <h3
-              className="text-[18px] text-[#1E242B]"
-              style={{ fontFamily: "var(--font-serif)" }}
-            >
-              {isCn ? "逐课学习明细" : "Lesson-by-Lesson Detail"}
-            </h3>
-
-            <div className="mt-5 space-y-6">
-              {courses.map((course) => (
-                <div key={course.entry.id}>
-                  <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-[#E5E2DA] pb-2.5">
-                    <h4 className="text-[14px] font-semibold text-[#1E242B]">
-                      {course.entry.shortTitle}
-                    </h4>
-                    <span className="text-[11.5px] tabular-nums text-[#5C646D]">
-                      {course.stars} / {course.maxStars} ⭐ ·{" "}
-                      {course.badges} / {course.maxBadges} 徽章
-                    </span>
-                  </div>
-
-                  {course.lessonRows.length === 0 ? (
-                    <p className="mt-3 text-[12.5px] text-[#5C646D]">
-                      {isCn ? "尚未点亮星星。" : "No stars yet."}
-                    </p>
-                  ) : (
-                    <ul className="mt-3 space-y-1.5">
-                      {course.lessonRows.map((row, index) => (
-                        <li
-                          key={index}
-                          className="flex flex-wrap items-center gap-2.5 rounded-lg border border-[#E5E2DA] bg-[#F6F4EF] px-3 py-2"
-                        >
-                          <span className="min-w-0 flex-1 truncate text-[12.5px] text-[#1E293B]">
-                            {row.title}
-                          </span>
-                          {row.tool ? (
-                            <span className="shrink-0 rounded-full border border-[#D5D1C8] bg-white px-2 py-0.5 text-[10px] text-[#5C646D]">
-                              {row.tool}
-                            </span>
-                          ) : null}
-                          {row.accuracy > 0 ? (
-                            <span className="shrink-0 text-[10.5px] tabular-nums text-[#5C646D]">
-                              {Math.round(row.accuracy * 100)}%
-                            </span>
-                          ) : null}
-                          <span className="flex shrink-0 items-center gap-0.5">
-                            {[0, 1, 2].map((i) => (
-                              <Star
-                                key={i}
-                                size={11}
-                                strokeWidth={2}
-                                fill={i < row.stars ? "#A48A5E" : "none"}
-                                className={
-                                  i < row.stars ? "text-[#A48A5E]" : "text-[#DDD8CC]"
-                                }
-                              />
-                            ))}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
-        ) : null}
-
-        {/* ── ⑤ 个性化评语 ── */}
-        {commentary ? (
-          <section className="rounded-2xl border border-[#A48A5E] bg-[#FFFFFF] p-6 oe-card-shadow sm:p-8">
-            <h3
-              className="text-[18px] text-[#1E242B]"
-              style={{ fontFamily: "var(--font-serif)" }}
-            >
-              {isCn ? "个性化评语" : "Personal Commentary"}
-            </h3>
-            <div className="mt-5 grid gap-4 md:grid-cols-2">
-              <div className="rounded-xl border border-[#E5E2DA] bg-white p-4">
-                <p className="flex items-center gap-1.5 text-[10.5px] font-medium tracking-[0.14em] text-[#A48A5E] uppercase">
-                  <TrendingUp size={11} strokeWidth={2.4} />
-                  {isCn ? "优势亮点" : "Strengths"}
-                </p>
-                <ul className="mt-2 space-y-1.5">
-                  {commentary.strengths.length > 0 ? (
-                    commentary.strengths.map((item) => (
-                      <li
-                        key={item.key}
-                        className="text-[12.5px] leading-[1.8] text-[#1E293B]"
-                      >
-                        <span className="font-medium text-[#1E242B]">
-                          {isCn ? item.zh : item.en}
-                        </span>
-                        <span className="ml-1.5 tabular-nums text-[#5C646D]">
-                          {item.score}
-                        </span>
-                      </li>
-                    ))
-                  ) : (
-                    <li className="text-[12.5px] text-[#5C646D]">
-                      {isCn
-                        ? "继续点亮更多星星，这里会显示你的优势维度。"
-                        : "Light up more stars — your strongest dimensions will appear here."}
-                    </li>
-                  )}
-                </ul>
-              </div>
-
-              <div className="rounded-xl border border-[#E5E2DA] bg-white p-4">
-                <p className="flex items-center gap-1.5 text-[10.5px] font-medium tracking-[0.14em] text-[#4E677D] uppercase">
-                  <Target size={11} strokeWidth={2.4} />
-                  {isCn ? "下阶段探究建议" : "Next Exploration"}
-                </p>
-                <ul className="mt-2 space-y-1.5">
-                  {commentary.weak.length > 0 ? (
-                    commentary.weak.map((item) => (
-                      <li
-                        key={item.key}
-                        className="text-[12.5px] leading-[1.8] text-[#1E293B]"
-                      >
-                        <span className="font-medium text-[#1E242B]">
-                          {isCn ? item.zh : item.en}
-                        </span>
-                        <span className="ml-1.5 tabular-nums text-[#5C646D]">
-                          {item.score}
-                        </span>
-                      </li>
-                    ))
-                  ) : (
-                    <li className="text-[12.5px] text-[#5C646D]">
-                      {isCn
-                        ? "各维度表现均衡——可以尝试更高年级的课程。"
-                        : "Balanced across all dimensions — consider a higher grade."}
-                    </li>
-                  )}
-                </ul>
-              </div>
-            </div>
-          </section>
-        ) : null}
-
-        {/* ── 空状态 ── */}
-        {totals.stars === 0 ? (
-          <section className="rounded-2xl border border-dashed border-[#D5D1C8] bg-white px-6 py-14 text-center">
-            <Globe2
-              size={24}
-              strokeWidth={1.3}
-              className="mx-auto mb-2.5 text-[#8A8578]"
+    <div className="h-full overflow-y-auto">
+      <div className="mx-auto max-w-[1080px] px-6 py-7">
+        {/* ══════════════ ① 官方结业证书 ══════════════ */}
+        <section className="overflow-hidden rounded-2xl border border-[#0B162C] bg-white">
+          <div className="relative bg-[#0B162C] px-7 py-6 text-white">
+            <div
+              aria-hidden
+              className="absolute inset-0 opacity-[0.07]"
+              style={{
+                backgroundImage:
+                  "repeating-linear-gradient(45deg, #fff 0 1px, transparent 1px 11px)",
+              }}
             />
-            <p className="text-[13px] font-medium text-[#1E242B]">
-              {isCn ? "还没有学习记录" : "No learning record yet"}
-            </p>
-            <p className="mx-auto mt-1.5 max-w-sm text-[12px] leading-relaxed text-[#5C646D]">
-              {isCn
-                ? "去星轨学习地图上完成任意一课——完成教具操作、通过巩固题，这里就会自动生成一份属于你的成长报告。"
-                : "Complete any lesson on the star track map — the report builds itself from your hands-on work and quiz results."}
-            </p>
-            <Link
-              href="/courses"
-              className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-[#1E242B] px-3.5 py-2 text-[12.5px] font-medium text-white transition-colors hover:bg-[#2c333b]"
+            <div className="relative flex items-start justify-between gap-4">
+              <div>
+                <p className="text-[10.5px] tracking-[0.2em] text-white/55 uppercase">
+                  {isEn ? "Certificate of Completion" : tw("结业证书")}
+                </p>
+                <h1 className="mt-1.5 font-serif text-[24px] leading-tight">
+                  {isEn ? "Math Logic Universe" : tw("数学逻辑宇宙")}
+                </h1>
+                <p className="mt-1 text-[11.5px] text-white/60">
+                  {DREAM_CLASSROOM.name}
+                  {isEn ? " (Houhai, Shenzhen Bay HQ)" : tw(`（${DREAM_CLASSROOM.hqLabel}）`)}
+                </p>
+              </div>
+              <span className="shrink-0 rounded-md border border-white/20 px-2.5 py-1 font-mono text-[11px] text-white/75">
+                {certId}
+              </span>
+            </div>
+          </div>
+
+          <div className="grid gap-6 px-7 py-6 sm:grid-cols-[1fr_auto]">
+            <div>
+              <p className="text-[12px] text-[#334155]">
+                {isEn ? "This certifies that" : tw("兹证明")}
+              </p>
+              <p className="mt-1 font-serif text-[26px] leading-tight text-[#0F172A]">
+                {displayName}
+              </p>
+              <p className="mt-2 max-w-lg text-[12.5px] leading-relaxed text-[#334155]">
+                {isEn
+                  ? `has completed ${summary.nodesMastered} fully mastered node(s) and unlocked ${summary.badges} logic chain badge(s) across ${coverage.total} real knowledge nodes, earning ${summary.stars} star(s) in total.`
+                  : tw(`在 ${coverage.total} 个真实知识点构成的国际数学图谱中，完成了 ${summary.nodesMastered} 个节点的三星精通，解锁 ${summary.badges} 枚逻辑链大师徽章，累计获得 ${summary.stars} 颗星。`)}
+              </p>
+
+              <div className="mt-4 flex flex-wrap gap-2">
+                <span className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-1.5 text-[11.5px] text-[#0F172A]">
+                  <Star size={12} strokeWidth={2.2} className="fill-[#C59B38] text-[#C59B38]" />
+                  {summary.stars} {isEn ? "stars" : tw("颗星")}
+                </span>
+                <span className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-1.5 text-[11.5px] text-[#0F172A]">
+                  <Award size={12} strokeWidth={2.2} className="text-[#C59B38]" />
+                  {summary.badges} {isEn ? "chain badges" : tw("枚链徽章")}
+                </span>
+                <span className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-1.5 text-[11.5px] text-[#0F172A]">
+                  <Target size={12} strokeWidth={2.2} className="text-[#1D4ED8]" />
+                  {coverage.percent}% {isEn ? "coverage" : tw("覆盖")}
+                </span>
+              </div>
+            </div>
+
+            {/* 证书印章 */}
+            <div className="flex flex-col items-center justify-center gap-2 sm:w-36">
+              <div className="flex h-24 w-24 items-center justify-center rounded-full border-2 border-[#C59B38] bg-[#FDF8EC]">
+                <div className="text-center">
+                  <p className="text-[10px] text-[#8A6A20]">OE</p>
+                  <p className="font-serif text-[13px] leading-tight text-[#8A6A20]">
+                    {isEn ? "Certified" : tw("认证")}
+                  </p>
+                  <p className="text-[9px] text-[#8A6A20]">
+                    {new Date().getFullYear()}
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-[#E2E8F0] px-2.5 text-[11.5px] text-[#334155] transition-colors hover:bg-[#F8FAFC]"
+                >
+                  <Printer size={12} strokeWidth={2.2} />
+                  {isEn ? "Print" : tw("打印")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-[#E2E8F0] px-2.5 text-[11.5px] text-[#334155] transition-colors hover:bg-[#F8FAFC]"
+                >
+                  <Download size={12} strokeWidth={2.2} />
+                  PDF
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════════ ② 覆盖总览 ══════════════ */}
+        <section className="mt-4 grid gap-3 sm:grid-cols-4">
+          <MetricCard
+            Icon={Globe2}
+            value={String(coverage.total)}
+            label={isEn ? "knowledge nodes" : tw("个知识点")}
+            accent="#0B162C"
+          />
+          <MetricCard
+            Icon={Star}
+            value={String(summary.stars)}
+            label={isEn ? "stars earned" : tw("颗星")}
+            accent="#C59B38"
+          />
+          <MetricCard
+            Icon={TrendingUp}
+            value={String(summary.nodesMastered)}
+            label={isEn ? "nodes mastered" : tw("个精通节点")}
+            accent="#1D4ED8"
+          />
+          <MetricCard
+            Icon={Award}
+            value={String(summary.badges)}
+            label={isEn ? "chain badges" : tw("枚链徽章")}
+            accent="#8A6A20"
+          />
+        </section>
+
+        {/* ══════════════ ③ 逻辑链掌握进度 ══════════════ */}
+        <section className="mt-4 rounded-2xl border border-[#E2E8F0] bg-white p-5">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-[14px] font-semibold text-[#0F172A]">
+              {isEn ? "Logic Chain Mastery" : tw("八条逻辑链掌握进度")}
+            </h2>
+            <button
+              type="button"
+              onClick={refreshStars}
+              className="text-[11.5px] text-[#1D4ED8] transition-colors hover:text-[#152a4d]"
             >
-              {isCn ? "去星轨学习地图" : "Go to the Star Track Map"}
-            </Link>
-          </section>
-        ) : null}
+              {isEn ? "Refresh" : tw("刷新进度")}
+            </button>
+          </div>
+
+          <div className="mt-3.5 space-y-2.5">
+            {chainBadges.map(({ chain, unlocked, stars, maxStars, nodeCount }) => {
+              const ratio = maxStars > 0 ? stars / maxStars : 0;
+              return (
+                <div key={chain.id} className="flex items-center gap-3">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-[#0B162C] text-[10px] font-bold text-white">
+                    {chain.no}
+                  </span>
+                  <span className="w-40 shrink-0 truncate text-[12px] text-[#0F172A]">
+                    {isEn ? chain.nameEn : tw(chain.nameZh)}
+                  </span>
+                  <span className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-[#F1F5F9]">
+                    <span
+                      className="block h-full rounded-full bg-[#1D4ED8] transition-[width] duration-500"
+                      style={{ width: `${Math.round(ratio * 100)}%` }}
+                    />
+                  </span>
+                  <span className="w-16 shrink-0 text-right text-[11px] tabular-nums text-[#334155]">
+                    {stars}/{maxStars}
+                  </span>
+                  <span
+                    className={cn(
+                      "inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border",
+                      unlocked
+                        ? "border-[#C59B38] bg-[#FDF8EC]"
+                        : "border-[#E2E8F0] bg-white",
+                    )}
+                    title={
+                      unlocked
+                        ? isEn
+                          ? "Chain badge unlocked"
+                          : tw("已解锁链徽章")
+                        : isEn
+                          ? `${nodeCount} playable nodes — reach 2 stars on each`
+                          : tw(`${nodeCount} 个可玩节点——每个都达到两星即可解锁`)
+                    }
+                  >
+                    <Award
+                      size={12}
+                      strokeWidth={2.2}
+                      className={
+                        unlocked ? "text-[#C59B38]" : "text-[#CBD5E1]"
+                      }
+                    />
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* ══════════════ ④ 个性化评语 + 精通清单 ══════════════ */}
+        <section className="mt-4 grid gap-3 lg:grid-cols-[1fr_1fr]">
+          <div className="rounded-2xl border border-[#E2E8F0] bg-white p-5">
+            <h2 className="text-[14px] font-semibold text-[#0F172A]">
+              {isEn ? "Your Commentary" : tw("个性化评语")}
+            </h2>
+            <p className="mt-2 text-[12.5px] leading-relaxed text-[#334155]">
+              {comment}
+            </p>
+
+            <div className="mt-4 border-t border-[#E2E8F0] pt-3">
+              <p className="text-[10px] font-medium tracking-[0.14em] text-[#64748B] uppercase">
+                {isEn ? "Star meanings" : tw("三星含义")}
+              </p>
+              <ul className="mt-2 space-y-1.5">
+                {MATH_STAR_META.map((meta, i) => (
+                  <li key={meta.kind} className="flex items-center gap-2 text-[12px] text-[#334155]">
+                    <Star
+                      size={12}
+                      strokeWidth={2.2}
+                      className="fill-[#C59B38] text-[#C59B38]"
+                    />
+                    <span className="tabular-nums text-[#94A3B8]">0{i + 1}</span>
+                    {isEn ? meta.labelEn : tw(meta.labelZh)}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-[#E2E8F0] bg-white p-5">
+            <h2 className="text-[14px] font-semibold text-[#0F172A]">
+              {isEn ? "Fully Mastered Nodes" : tw("三颗星满格节点")}
+              <span className="ml-1.5 text-[12px] font-normal text-[#64748B]">
+                ({masteredNodes.length})
+              </span>
+            </h2>
+
+            {masteredNodes.length === 0 ? (
+              <p className="mt-3 text-[12px] leading-relaxed text-[#64748B]">
+                {isEn
+                  ? "No node has reached three stars yet. Open a lab from the map and complete all three stages."
+                  : tw("还没有节点达到三颗星。从学习地图打开一个实验台，把三个阶段都走完。")}
+              </p>
+            ) : (
+              <ul className="mt-3 space-y-1">
+                {masteredNodes.map((n) => (
+                  <li key={n.id}>
+                    <Link
+                      href={`/lab?node=${encodeURIComponent(n.id)}`}
+                      className="flex items-center gap-2 rounded px-1.5 py-1 text-[12px] text-[#1D4ED8] transition-colors hover:bg-[#EFF6FF]"
+                    >
+                      <Star
+                        size={11}
+                        strokeWidth={2.2}
+                        className="shrink-0 fill-[#C59B38] text-[#C59B38]"
+                      />
+                      <span className="min-w-0 flex-1 truncate">
+                        {isEn ? n.nameEn : tw(n.nameZh ?? n.nameEn)}
+                      </span>
+                      <span className="shrink-0 text-[10px] text-[#94A3B8]">
+                        {n.chainNo}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </section>
+
+        {/* ══════════════ 数据来源声明 ══════════════ */}
+        <section className="mt-4 rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] p-5">
+          <h2 className="text-[13px] font-semibold text-[#0F172A]">
+            {isEn ? "Data Provenance" : tw("数据来源")}
+          </h2>
+          <p className="mt-1.5 text-[12px] leading-relaxed text-[#334155]">
+            {isEn
+              ? `All ${taxonomy.stats.nodeCount} knowledge nodes and ${taxonomy.stats.edgeCount} prerequisite edges are derived from two real open-source graph datasets. Nothing here is hand-written filler.`
+              : tw(`全部 ${taxonomy.stats.nodeCount} 个知识点与 ${taxonomy.stats.edgeCount} 条前置依赖边，均由两个真实开源图谱数据集融合生成。这里的每一个节点都可追溯到开源原始数据，没有一处手写填充。`)}
+          </p>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            <a
+              href={`https://github.com/${taxonomy.attribution.primary.repo}`}
+              target="_blank"
+              rel="noreferrer"
+              className="rounded-lg border border-[#E2E8F0] bg-white px-3 py-2 transition-colors hover:bg-[#F8FAFC]"
+            >
+              <p className="text-[11.5px] font-medium text-[#0F172A]">
+                {taxonomy.attribution.primary.name}
+              </p>
+              <p className="mt-0.5 font-mono text-[10px] text-[#64748B]">
+                {taxonomy.attribution.primary.repo} · {taxonomy.attribution.primary.license}
+              </p>
+            </a>
+            <a
+              href={`https://github.com/${taxonomy.attribution.secondary.repo}`}
+              target="_blank"
+              rel="noreferrer"
+              className="rounded-lg border border-[#E2E8F0] bg-white px-3 py-2 transition-colors hover:bg-[#F8FAFC]"
+            >
+              <p className="text-[11.5px] font-medium text-[#0F172A]">
+                {taxonomy.attribution.secondary.name}
+              </p>
+              <p className="mt-0.5 font-mono text-[10px] text-[#64748B]">
+                {taxonomy.attribution.secondary.repo}
+              </p>
+            </a>
+          </div>
+          <p className="mt-3 font-mono text-[10.5px] text-[#94A3B8]">
+            {taxonomy.generatedAt} · v{taxonomy.version}
+          </p>
+        </section>
       </div>
     </div>
   );
 }
 
-/** 证书上的一个字段。 */
-function Field({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <p className="text-[10px] font-medium tracking-[0.16em] text-[#8A6D3B] uppercase">
-        {label}
-      </p>
-      <p className="mt-1 text-[14px] text-[#1E242B]">{value}</p>
-    </div>
-  );
-}
-
-/** 一枚指标。 */
-function Metric({
-  icon,
-  accent,
+/** 一个指标卡。 */
+function MetricCard({
+  Icon,
   value,
   label,
+  accent,
 }: {
-  icon: React.ReactNode;
-  accent: string;
+  Icon: typeof Globe2;
   value: string;
   label: string;
+  accent: string;
 }) {
   return (
-    <div className="rounded-xl border border-[#E5E2DA] bg-white px-4 py-3.5 oe-card-shadow">
-      <p className="flex items-center gap-1.5 text-[11px] text-[#5C646D]">
-        <span style={{ color: accent }}>{icon}</span>
-        {label}
-      </p>
-      <p className="mt-1.5 text-[22px] leading-none font-semibold tabular-nums text-[#1E242B]">
+    <div className="rounded-2xl border border-[#E2E8F0] bg-white p-4">
+      <div className="flex items-center gap-2">
+        <span
+          className="flex h-7 w-7 items-center justify-center rounded-lg"
+          style={{ backgroundColor: `${accent}12`, color: accent }}
+        >
+          <Icon size={14} strokeWidth={2.2} />
+        </span>
+        <p className="text-[10.5px] tracking-[0.1em] text-[#64748B] uppercase">
+          {label}
+        </p>
+      </div>
+      <p
+        className="mt-2 text-[26px] leading-none font-semibold tabular-nums"
+        style={{ color: accent }}
+      >
         {value}
       </p>
     </div>
-  );
-}
-
-/** 能力维度条形图。 */
-function DimensionChart({
-  title,
-  items,
-  accent,
-  reportLang,
-}: {
-  title: string;
-  items: Array<{ key: string; zh: string; en: string; score: number }>;
-  accent: string;
-  reportLang: "cn" | "en";
-}) {
-  if (items.length === 0) {
-    return (
-      <div className="rounded-xl border border-[#E5E2DA] bg-[#F6F4EF] px-4 py-8 text-center">
-        <p className="text-[12.5px] text-[#5C646D]">
-          {reportLang === "cn" ? "暂无该学科数据" : "No data for this subject yet"}
-        </p>
-      </div>
-    );
-  }
-
-  const max = Math.max(...items.map((item) => item.score), 100);
-
-  return (
-    <div className="rounded-xl border border-[#E5E2DA] bg-[#F6F4EF] p-5">
-      <p className="text-[13px] font-semibold text-[#1E242B]">{title}</p>
-      <ul className="mt-4 space-y-3.5">
-        {items.map((item) => (
-          <li key={item.key}>
-            <div className="flex items-baseline justify-between gap-2">
-              <span className="text-[12.5px] text-[#1E293B]">
-                {reportLang === "cn" ? item.zh : item.en}
-              </span>
-              <span className="text-[12px] font-semibold tabular-nums text-[#1E242B]">
-                {item.score}
-              </span>
-            </div>
-            <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-white">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${(item.score / max) * 100}%` }}
-                transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-                className="h-full rounded-full"
-                style={{ background: accent }}
-              />
-            </div>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-/**
- * 页面入口——包一层 ``<Suspense>``。
- */
-export default function ReportPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="flex h-full items-center justify-center bg-[#f6f4ef]">
-          <Loader2 size={18} className="animate-spin text-[#5c646d]" />
-        </div>
-      }
-    >
-      <ReportContent />
-    </Suspense>
   );
 }
