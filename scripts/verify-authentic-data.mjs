@@ -680,6 +680,94 @@ function checkZeroPhet() {
 }
 
 /* ──────────────────────────────────────────────────────────────────
+ * 红线 ⑫ · 静态资源路径必须带 basePath
+ * ────────────────────────────────────────────────────────────────── */
+
+/**
+ * 静态资源的 URL **必须**经过 ``staticUrl()`` 拼 basePath。
+ *
+ * 背景
+ * ----
+ *
+ * GitHub Pages 的项目站点在**二级路径**下：
+ *
+ *     https://<用户名>.github.io/<仓库名>/
+ *
+ * 所以 ``/data/math-taxonomy.json`` 这种**绝对路径**在部署后会打到
+ * 域名根目录（``https://<用户名>.github.io/data/...``）——那里当然
+ * 没有文件，**404**。
+ *
+ * 正确写法是 ``staticUrl("/data/math-taxonomy.json")``，它会拼上
+ * ``/open-education-learning-platform``。
+ *
+ * 为什么它像 bug
+ * --------------
+ *
+ * 本地 ``next dev`` 跑在根路径上，``/data/...`` 照样能加载——**开发
+ * 时完全正常**。只有部署到 GitHub Pages 才炸，而且炸得很安静：
+ * ``loadTaxonomy()`` 失败时返回 ``null``，页面渲染「未能读取
+ * math-taxonomy.json」的空状态，而不是整页白屏。
+ *
+ * 所以这里在构建期把**所有**裸静态路径揪出来。
+ */
+function checkStaticPathsUseBasePath() {
+  /**
+   * 允许出现的模式：
+   *
+   * - ``staticUrl(...)`` / ``apiUrl(...)`` —— 已经处理过 basePath；
+   * - ``/api/...`` —— 后端路由，走 rewrite，不受 basePath 影响；
+   * - 注释与文档里的示例路径。
+   */
+  const ALLOWED = [
+    /staticUrl\(/,
+    /apiUrl\(/,
+    /staticFetch\w*\(/,
+    /fetchStatic\w*\(/,
+    /^\s*\*\s/, // 注释行
+  ];
+
+  /** 会被检视的裸路径模式。 */
+  const PATTERNS = [
+    // fetch("/data/...") 之类
+    { re: /\bfetch\(\s*["'`](\/(?:data|images)\/[^"'`]*)["'`]/g, kind: "fetch" },
+    // src: "/images/..." 之类（对象字面量里的静态路径）
+    { re: /\bsrc:\s*["'`](\/(?:data|images)\/[^"'`]*)["'`]/g, kind: "src" },
+    // const X = "/data/....json" 之类（导出的路径常量）
+    {
+      re: /\b(?:const|let|var)\s+\w*(?:URL|PATH|URI)\w*\s*(?::[^=]+)?=\s*["'`](\/(?:data|images)\/[^"'`]*)["'`]/g,
+      kind: "const",
+    },
+  ];
+
+  for (const file of walk(WEB)) {
+    if (!/\.(tsx|ts)$/.test(file)) continue;
+    const source = readCode(file);
+
+    for (const { re, kind } of PATTERNS) {
+      // 每行独立判断——某一行只要出现过 staticUrl 就放行。
+      const lines = source.split("\n");
+      for (let i = 0; i < lines.length; i += 1) {
+        const line = lines[i];
+        if (!line.trim()) continue;
+        if (ALLOWED.some((a) => a.test(line))) continue;
+
+        re.lastIndex = 0;
+        let m = re.exec(line);
+        while (m !== null) {
+          fail(
+            "XII",
+            `静态资源路径「${m[1]}」没有走 staticUrl()——` +
+              "部署到 GitHub Pages 二级路径下会 404",
+            `${rel(file)}:${i + 1}`,
+          );
+          m = re.exec(line);
+        }
+      }
+    }
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────
  * 红线 ⑪ · 三语资产齐备
  * ────────────────────────────────────────────────────────────────── */
 
@@ -1021,10 +1109,13 @@ console.log(`红线 ⑩    图谱完整性 + 0 空壳          ${playable} 个�
 checkBilingualAssets();
 console.log("红线 ⑪    三语资产齐备（繁体表进库）  已检查");
 
+checkStaticPathsUseBasePath();
+console.log("红线 ⑫    静态资源路径均带 basePath    已检查");
+
 console.log("");
 
 if (violations.length === 0) {
-  console.log("✅ 十一条红线全部通过 —— 0 违规。\n");
+  console.log("✅ 十二条红线全部通过 —— 0 违规。\n");
   process.exit(0);
 }
 

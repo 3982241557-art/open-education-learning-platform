@@ -18,6 +18,8 @@
  */
 
 /** 一条逻辑链。 */
+import { staticUrl } from "@/lib/static-data";
+
 export interface MathChain {
   id: string;
   no: string;
@@ -209,7 +211,7 @@ export interface MathTaxonomy {
 }
 
 /** 数据文件的静态路径。 */
-export const TAXONOMY_URL = "/data/math-taxonomy.json";
+export const TAXONOMY_URL = staticUrl("/data/math-taxonomy.json");
 
 /**
  * 加载图谱。

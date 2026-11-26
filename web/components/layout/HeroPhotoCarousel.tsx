@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { useTraditional } from "@/lib/use-bilingual";
+import { staticUrl } from "@/lib/static-data";
 
 /**
  * 首页轮播窗 · HeroPhotoCarousel
@@ -46,17 +47,17 @@ interface Slide {
 /** 三张幻灯片。 */
 const SLIDES: Slide[] = [
   {
-    src: "/images/hero-1.jpg",
+    src: staticUrl("/images/hero-1.jpg"),
     captionZh: "独立探索 · 直观理解几何与数理",
     captionEn: "Independent exploration · seeing geometry and number make sense",
   },
   {
-    src: "/images/hero-2.jpg",
+    src: staticUrl("/images/hero-2.jpg"),
     captionZh: "家庭共研 · 跨越时差的无边界课堂",
     captionEn: "Family study · a classroom without borders or time zones",
   },
   {
-    src: "/images/hero-3.jpg",
+    src: staticUrl("/images/hero-3.jpg"),
     captionZh: "深度思考 · 从公式到推演",
     captionEn: "Deep thinking · from formula to deduction",
   },

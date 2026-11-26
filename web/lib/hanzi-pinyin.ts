@@ -12,6 +12,8 @@
  * ```
  */
 
+import { staticUrl } from "@/lib/static-data";
+
 let cache: Record<string, string> | null = null;
 let pending: Promise<Record<string, string>> | null = null;
 
@@ -19,7 +21,7 @@ let pending: Promise<Record<string, string>> | null = null;
 export async function loadPinyinTable(): Promise<Record<string, string>> {
   if (cache) return cache;
   if (!pending) {
-    pending = fetch("/data/hanzi-pinyin.json")
+    pending = fetch(staticUrl("/data/hanzi-pinyin.json"))
       .then((response) => response.json())
       .then((data: Record<string, string>) => {
         cache = data;

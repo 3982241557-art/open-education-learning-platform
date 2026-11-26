@@ -30,6 +30,8 @@
  * ``scripts/build-s2t-table.mjs`` 生成。
  */
 
+import { staticUrl } from "@/lib/static-data";
+
 /** 单字映射表（懒加载）。 */
 let table: Record<string, string> | null = null;
 
@@ -40,7 +42,7 @@ let loading: Promise<Record<string, string>> | null = null;
 export async function loadS2TTable(): Promise<Record<string, string>> {
   if (table) return table;
   if (!loading) {
-    loading = fetch("/data/s2t-chars.json")
+    loading = fetch(staticUrl("/data/s2t-chars.json"))
       .then((res) => (res.ok ? res.json() : {}))
       .then((data) => {
         table = data as Record<string, string>;
