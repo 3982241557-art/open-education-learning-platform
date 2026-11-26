@@ -1,19 +1,26 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { BookOpen, FlaskConical, Lock, Star, Zap } from "lucide-react";
+import Link from "next/link";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  BookOpen,
+  ChevronRight,
+  FlaskConical,
+  Lock,
+  Star,
+  Zap,
+} from "lucide-react";
 import { useLocale } from "@/context/LocaleContext";
 import { useMathTaxonomy } from "@/context/MathTaxonomyContext";
-import MapNodeCard, {
-  NodeDetail,
-  type PlacedNode,
-} from "@/app/(workspace)/map/MapNodeCard";
-import { TIER_META, type MathChain, type MathNode } from "@/lib/math-taxonomy";
-import { countNodeStars } from "@/lib/math-star-ledger";
-import { useDynamicBilingual } from "@/lib/use-bilingual";
-import { cn } from "@/lib/cn";
+import { useGeometryChain } from "@/context/GeometryChainContext";
+import {
+  GEOMETRY_LESSON_IDS,
+  GEOMETRY_STAGE_META,
+  type GeometryStage,
+} from "@/lib/geometry-chain";
+import { countNodeStars, isChainBadgeUnlocked } from "@/lib/math-star-ledger";
 import { useTraditional } from "@/lib/use-bilingual";
-
+import { cn } from "@/lib/cn";
 
 /**
  * 黄金因果学习地图（/map）
@@ -21,203 +28,126 @@ import { useTraditional } from "@/lib/use-bilingual";
  *
  * .. code-block:: text
  *
-    20| *  ┌──────────────┬──────────────────────────────────────────┐
- *     │  240px 侧栏   │  学科分栏胶囊（零滚动）                    │
- *     │              ├──────────────────────────────────────────┤
- *     │  逻辑链筛选   │  画布（可滚动 + 可缩放）                   │
- *     │  进度条      │                                          │
- *     │              │  链 01 数感与数量结构                     │
- *     │              │   ① 直觉启蒙  ② 结构推导  ③ 综合建模     │
- *     │              │    ●──▶●──▶●──▶●──▶●──▶●──▶●            │
- *     └──────────────┴──────────────────────────────────────────┘
+ *     ┌────────────────────────────────────────────────────────┐
+ *     │  [ 数学 ]  [ 语文（筹备中）]        标杆链进度 / 徽章   │
+ *     ├────────────────────────────────────────────────────────┤
+ *     │  空间、角度与几何探究（8 课全通标杆链）               │
+ *     │   第 1 阶 直觉测量 → 第 2 阶 图形转化 → 第 3 阶 定理证明│
+ *     │   ● START ──▶ ● ──▶ ● ──▶ ● ──▶ ● ──▶ ● ──▶ ●       │
+ *     │                                                        │
+ *     │  其余 7 条逻辑链：清晰的路线占位（即将上线）             │
+ *     └────────────────────────────────────────────────────────┘
  *
- * 三阶因果横轨
+ * 三阶因果阶梯
  * ------------
  *
- * ⛔ **彻底废弃 6 列蜘蛛网**。之前 583 个节点平铺，节点标签互相
- *    遮挡，谁也看不出「该从哪儿开始学」。
+ * ⛔ **其它 7 条链只做路线占位，绝不放半成品假课**。
  *
- * 现在每条链切成三阶**横轨**，每阶 2–3 个节点，节点之间用**单向
- * 箭头**明确标出先后。第一课挂 **START · 从这里开始** 徽章。
+ *    之前 583 个节点平铺在画布上，标签互相遮挡，谁也看不出该从
+ *    哪儿开始。现在把 100% 的力气砸在**一条**标杆链上——「空间、
+ *    角度与几何探究」的 8 节课，全部可玩、全部可追踪、全部能拿
+ *    徽章。其余的链保留清晰的路线占位，标明「即将上线」。
+ *
+ * 严格单语
+ * --------
+ *
+ * ⛔ 标题下方**不出现**「01 · Number Sense & Place Value」这种
+ *    中英双行夹杂。切换到简 = 100% 纯简体中文；繁 = 100% 纯繁体；
+ *    EN = 100% 纯英文。三种语言**各自独立成列**，渲染时只取
+ *    当前那一列。
  */
 
 /** 学科分栏。 */
 type Subject = "math" | "chinese";
 
-/** 画布布局常量。 */
-const LAYOUT = {
-  /** 每条链的垂直间距。 */
-  chainGap: 208,
-  /** 链内节点之间的水平间距。 */
-  nodeGap: 214,
-  /** 链标题的垂直偏移。 */
-  titleOffset: -62,
-  /** 节点起始 X。 */
-  startX: 132,
-  /** 节点起始 Y。 */
-  startY: 118,
-  /** 三阶轨道标签的 Y 偏移。 */
-  tierLabelOffset: -78,
-};
+/** 标杆链在图谱里的链 id。 */
+const FLAGSHIP_CHAIN_ID = "geometry";
 
-/** 三阶轨道的横向偏移（每个阶占一段）。 */
-const TIER_X = [0, 1, 2].map((i) => i * 3 * LAYOUT.nodeGap);
+/** 三阶因果阶梯的横向间距。 */
+const STEP_X = 176;
+
+/** 三阶因果阶梯的纵向偏移。 */
+const STAGE_Y = [0, 1, 2].map((i) => i * 108);
 
 export default function MathMapPage() {
   const { locale } = useLocale();
-  const {
-    taxonomy,
-    loading,
-    failed,
-    chainProgress,
-    activeChainId,
-    setActiveChainId,
-  } = useMathTaxonomy();
-  const [selected, setSelected] = useState<string | null>(null);
-  const [zoom, setZoom] = useState(1);
-  const [starTick, setStarTick] = useState(0);
+  const { taxonomy, loading, failed } = useMathTaxonomy();
+  const { lessons, lessonMap, loading: geoLoading } = useGeometryChain();
+
   const [subject, setSubject] = useState<Subject>("math");
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const [starTick, setStarTick] = useState(0);
+  /** 画布缩放——全站唯一可缩放区域。 */
+  const [zoom, setZoom] = useState(1);
+
+  const tw = useTraditional();
+  const isEn = locale === "en";
 
   /**
    * 当前学科的**宽类型**别名。
    *
    * ⛔ 不能直接用 ``subject``——TypeScript 在 ``if (subject ===
    *    "chinese") return`` 之后会把它窄化成 ``"math"``，导致后面
-   *    渲染学科分栏时 ``subject === "chinese"`` 恒为假。
+   *    渲染学科分栏时 ``subject === "chinese"`` 恒为假（那一栏
+   *    永远不会高亮）。
    */
   const activeSubject: Subject = subject;
-
-  const isEn = locale === "en";
-  const tw = useTraditional();
-  const t = useDynamicBilingual();
 
   /* ── 星星账本变化时刷新 ────────────────────────────────────── */
 
   useEffect(() => {
-    const onUpdate = () => setStarTick((tick) => tick + 1);
+    const onUpdate = () => setStarTick((t) => t + 1);
     window.addEventListener("oe:math-stars-updated", onUpdate);
-    return () => window.removeEventListener("oe:math-stars-updated", onUpdate);
+    window.addEventListener("storage", onUpdate);
+    return () => {
+      window.removeEventListener("oe:math-stars-updated", onUpdate);
+      window.removeEventListener("storage", onUpdate);
+    };
   }, []);
 
-  /* ── 布局：把节点摆到画布上 ────────────────────────────────── */
+  /* ── 单语挑选：只取当前语言那一列 ────────────────────────── */
 
-  const { placed, canvasW, canvasH } = useMemo(() => {
-    if (!taxonomy) {
-      return { placed: [] as PlacedNode[], canvasW: 0, canvasH: 0 };
-    }
-
-    const placedList: PlacedNode[] = [];
-    const posById = new Map<string, PlacedNode>();
-    const edgeKindByPair = new Map<string, "direct" | "derived" | "sequential">();
-
-    for (const edge of taxonomy.edges) {
-      edgeKindByPair.set(`${edge.from}->${edge.to}`, edge.kind);
-    }
-
-    let y = LAYOUT.startY;
-    let maxX = 0;
-
-    for (const chain of taxonomy.chains) {
-      const chainNodes = taxonomy.nodes
-        .filter((n) => n.chainId === chain.id)
-        .sort((a, b) => a.index - b.index);
-
-      // 每阶的横向起点与链内偏移。
-      const tierStart = new Map<number, number>();
-
-      chainNodes.forEach((node, i) => {
-        const tierIdx = node.tierOrder ?? 0;
-        const withinTier = chainNodes
-          .slice(0, i)
-          .filter((n) => (n.tierOrder ?? 0) === tierIdx).length;
-
-        const px = LAYOUT.startX + TIER_X[tierIdx] + withinTier * LAYOUT.nodeGap;
-        const py = y;
-        const p: PlacedNode = {
-          node,
-          x: px,
-          y: py,
-          order: i + 1,
-          isStart: i === 0,
-          prevId: i > 0 ? chainNodes[i - 1].id : null,
-          nextId: i < chainNodes.length - 1 ? chainNodes[i + 1].id : null,
-          edgeKind:
-            i > 0
-              ? (edgeKindByPair.get(`${chainNodes[i - 1].id}->${node.id}`) ??
-                "sequential")
-              : null,
-        };
-        placedList.push(p);
-        posById.set(node.id, p);
-        if (px > maxX) maxX = px;
-      });
-
-      // 每阶的起始 X——用于画阶标签。
-      for (const tierIdx of [0, 1, 2]) {
-        const first = chainNodes.find((n) => (n.tierOrder ?? 0) === tierIdx);
-        tierStart.set(tierIdx, first ? LAYOUT.startX + TIER_X[tierIdx] : 0);
-      }
-      // 记到链对象上（供渲染使用）。
-      (chain as ChainLayout).__tierStart = tierStart;
-
-      y += LAYOUT.chainGap;
-    }
-
-    return {
-      placed: placedList,
-      canvasW: Math.max(maxX + 340, 1500),
-      canvasH: y + 40,
-    };
-  }, [taxonomy]);
-
-  /* ── 可见节点 ──────────────────────────────────────────────── */
-
-  const visible = useMemo(() => {
-    if (!activeChainId) return placed;
-    return placed.filter((p) => p.node.chainId === activeChainId);
-  }, [placed, activeChainId]);
-
-  /** 可见的边——只在可见节点之间画。 */
-  const visibleEdges = useMemo(() => {
-    const ids = new Set(visible.map((p) => p.node.id));
-    const list: Array<{
-      from: PlacedNode;
-      to: PlacedNode;
-      kind: "direct" | "derived" | "sequential";
-    }> = [];
-    for (const p of visible) {
-      if (!p.nextId) continue;
-      const next = visible.find((v) => v.node.id === p.nextId);
-      if (!next) continue;
-      list.push({ from: p, to: next, kind: p.edgeKind ?? "sequential" });
-    }
-    void ids;
-    return list;
-  }, [visible]);
-
-  /* ── 选中节点 ──────────────────────────────────────────────── */
-
-  const selectedNode = selected
-    ? placed.find((p) => p.node.id === selected)
-    : undefined;
-
-  /* ── 切换逻辑链：滚动回顶部并精准渲染 ──────────────────────── */
-
-  const handleChainFocus = useCallback(
-    (chainId: string | null) => {
-      setActiveChainId(chainId);
-      setSelected(null);
-      // ⛔ 关键：切换链条时**必须滚回顶部**，否则画布停在上一条链的
-      //    位置，看起来就是「点击后一片空白」。
-      scrollRef.current?.scrollTo({ top: 0, behavior: "auto" });
+  const pick = useCallback(
+    (tr: { zhCN: string; zhTW: string; en: string }): string => {
+      if (isEn) return tr.en;
+      if (locale === "zh-TW") return tr.zhTW;
+      return tr.zhCN;
     },
-    [setActiveChainId],
+    [isEn, locale],
   );
+
+  /* ── 标杆链的 8 节课（按固定顺序） ────────────────────────── */
+
+  const flagship = useMemo(
+    () =>
+      GEOMETRY_LESSON_IDS.map((id) => lessonMap.get(id)).filter(
+        (l): l is NonNullable<typeof l> => Boolean(l),
+      ),
+    [lessonMap],
+  );
+
+  /** 本链总星数。 */
+  const chainStars = useMemo(
+    () =>
+      flagship.reduce((sum, l) => sum + countNodeStars(l.id), 0),
+    [flagship, starTick],
+  );
+
+  /** 链徽章是否已解锁。 */
+  const badgeUnlocked = useMemo(
+    () => isChainBadgeUnlocked(FLAGSHIP_CHAIN_ID),
+    [starTick],
+  );
+
+  /* ── 其余 7 条链（占位） ──────────────────────────────────── */
+
+  const otherChains = useMemo(() => {
+    if (!taxonomy) return [];
+    return taxonomy.chains.filter((c) => c.id !== FLAGSHIP_CHAIN_ID);
+  }, [taxonomy]);
 
   /* ── 加载态 ────────────────────────────────────────────────── */
 
-  if (loading) {
+  if (loading || geoLoading) {
     return (
       <div className="flex h-full items-center justify-center">
         <span
@@ -228,7 +158,7 @@ export default function MathMapPage() {
     );
   }
 
-  if (failed || !taxonomy) {
+  if (failed) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3 p-8 text-center">
         <p className="text-[14px] font-semibold text-[#0F172A]">
@@ -243,7 +173,7 @@ export default function MathMapPage() {
     );
   }
 
-  /* ── 语文预览 ──────────────────────────────────────────────── */
+  /* ── 语文预览（筹备中） ───────────────────────────────────── */
 
   if (subject === "chinese") {
     return (
@@ -254,274 +184,296 @@ export default function MathMapPage() {
   /* ── 主渲染 ────────────────────────────────────────────────── */
 
   return (
-    <div className="flex h-full min-h-0">
-      {/* 画布 */}
-      <div className="relative min-h-0 min-w-0 flex-1 overflow-hidden bg-[#F8FAFC]">
-        {/* 顶部工具条 + 学科分栏 */}
-        <div className="absolute inset-x-0 top-0 z-20 flex items-center justify-between gap-3 border-b border-[#E2E8F0] bg-white px-4 py-2.5">
-          <div className="flex min-w-0 items-center gap-3">
-            {/* 学科分栏胶囊 */}
-            <div className="flex shrink-0 items-stretch rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-0.5">
-              <SubjectTab
-                active={subject === "math"}
-                onClick={() => setSubject("math")}
-                icon={<FlaskConical size={11} strokeWidth={2.4} />}
-                label={isEn ? "Math · Logic Map" : tw("数学 · 逻辑实验图谱")}
-              />
-              <SubjectTab
-                active={activeSubject === "chinese"}
-                onClick={() => setSubject("chinese")}
-                icon={<BookOpen size={11} strokeWidth={2.4} />}
-                label={isEn ? "Chinese · Culture" : tw("语文 · 中国文化通识")}
-              />
-            </div>
-
-            <div className="hidden min-w-0 lg:block">
-              <h1 className="truncate text-[13px] font-semibold text-[#0F172A]">
-                {isEn ? "Causal Math Map" : tw("黄金因果学习地图")}
-              </h1>
-              <p className="truncate text-[10.5px] text-[#334155]">
-                {taxonomy.stats.nodeCount} {isEn ? "milestones" : tw("个里程碑")} ·{" "}
-                {taxonomy.stats.chainCount} {isEn ? "chains" : tw("条逻辑链")} ·{" "}
-                {taxonomy.stats.labCount} {isEn ? "own labs" : tw("个自研实验台")}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex shrink-0 items-center gap-2">
-            {activeChainId ? (
-              <button
-                type="button"
-                onClick={() => handleChainFocus(null)}
-                className="h-8 rounded-lg border border-[#E2E8F0] px-2.5 text-[11.5px] text-[#334155] transition-colors hover:bg-[#F8FAFC]"
-              >
-                {isEn ? "All chains" : tw("显示全部逻辑链")}
-              </button>
-            ) : null}
-            <div className="flex items-center overflow-hidden rounded-lg border border-[#E2E8F0]">
-              <button
-                type="button"
-                onClick={() => setZoom((z) => Math.max(0.4, z - 0.15))}
-                aria-label={isEn ? "Zoom out" : tw("缩小")}
-                className="h-8 w-8 text-[15px] text-[#334155] transition-colors hover:bg-[#F8FAFC]"
-              >
-                −
-              </button>
-              <span className="w-12 text-center text-[11px] tabular-nums text-[#334155]">
-                {Math.round(zoom * 100)}%
-              </span>
-              <button
-                type="button"
-                onClick={() => setZoom((z) => Math.min(1.8, z + 0.15))}
-                aria-label={isEn ? "Zoom in" : tw("放大")}
-                className="h-8 w-8 text-[15px] text-[#334155] transition-colors hover:bg-[#F8FAFC]"
-              >
-                +
-              </button>
-            </div>
+    <div className="flex h-full min-h-0 flex-col bg-[#F8FAFC]">
+      {/* 顶部：学科分栏 + 标杆链进度 */}
+      <header className="z-20 flex shrink-0 items-center justify-between gap-3 border-b border-[#E2E8F0] bg-white px-4 py-2.5">
+        <div className="flex min-w-0 items-center gap-3">
+          {/* 极简点击切换分栏 */}
+          <div className="flex shrink-0 items-stretch rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-0.5">
+            <SubjectTab
+              active={subject === "math"}
+              onClick={() => setSubject("math")}
+              icon={<FlaskConical size={11} strokeWidth={2.4} />}
+              label={isEn ? "Math" : tw("数学")}
+            />
+            <SubjectTab
+              active={activeSubject === "chinese"}
+              onClick={() => setSubject("chinese")}
+              icon={<BookOpen size={11} strokeWidth={2.4} />}
+              label={isEn ? "Chinese (in preparation)" : tw("语文（筹备中）")}
+            />
           </div>
         </div>
 
-        {/* 可滚动画布 —— 全站唯一允许内部滚动与缩放的区域 */}
-        <div
-          ref={scrollRef}
-          className="h-full overflow-auto pt-14"
-          style={{ contain: "strict" }}
-        >
-          <div
-            style={{
-              width: canvasW * zoom,
-              height: canvasH * zoom,
-              position: "relative",
-            }}
-          >
-            <div
-              style={{
-                transform: `scale(${zoom})`,
-                transformOrigin: "top left",
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: canvasW,
-                height: canvasH,
-              }}
+        {/* 标杆链进度 */}
+        <div className="flex shrink-0 items-center gap-3">
+          {/* 缩放控件 */}
+          <div className="flex items-center overflow-hidden rounded-lg border border-[#E2E8F0] bg-white">
+            <button
+              type="button"
+              onClick={() => setZoom((z) => Math.max(0.7, z - 0.15))}
+              aria-label={isEn ? "Zoom out" : tw("缩小")}
+              className="h-8 w-8 text-[15px] text-[#334155] transition-colors hover:bg-[#F8FAFC]"
             >
-              {/* SVG 因果箭头 */}
-              <svg
-                width={canvasW}
-                height={canvasH}
-                className="pointer-events-none absolute inset-0"
-                aria-hidden
-              >
-                {visibleEdges.map((e) => {
-                  const x1 = e.from.x + 93;
-                  const y1 = e.from.y;
-                  const x2 = e.to.x - 93;
-                  const y2 = e.to.y;
-                  const mastered =
-                    countNodeStars(e.to.node.id) >= 3 &&
-                    countNodeStars(e.from.node.id) >= 3;
-                  const stroke = mastered
-                    ? "#C59B38"
-                    : e.kind === "direct"
-                      ? "#1D4ED8"
-                      : e.kind === "derived"
-                        ? "#94A3B8"
-                        : "#CBD5E1";
+              −
+            </button>
+            <span className="w-12 text-center text-[11px] tabular-nums text-[#334155]">
+              {Math.round(zoom * 100)}%
+            </span>
+            <button
+              type="button"
+              onClick={() => setZoom((z) => Math.min(1.6, z + 0.15))}
+              aria-label={isEn ? "Zoom in" : tw("放大")}
+              className="h-8 w-8 text-[15px] text-[#334155] transition-colors hover:bg-[#F8FAFC]"
+            >
+              +
+            </button>
+          </div>
+
+          <div className="hidden items-center gap-1.5 lg:flex">
+            <Star
+              size={12}
+              strokeWidth={2.4}
+              className={cn(
+                chainStars > 0 ? "fill-[#C59B38] text-[#C59B38]" : "text-[#CBD5E1]",
+              )}
+            />
+            <span className="text-[11.5px] tabular-nums text-[#334155]">
+              {chainStars}/24
+            </span>
+          </div>
+          <div
+            className={cn(
+              "flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors",
+              badgeUnlocked
+                ? "border-[#C59B38] bg-[#FDF8EC] text-[#8A6A20]"
+                : "border-[#E2E8F0] bg-white text-[#94A3B8]",
+            )}
+          >
+            {badgeUnlocked ? (
+              <Star size={11} strokeWidth={2.4} className="fill-[#C59B38] text-[#C59B38]" />
+            ) : (
+              <Lock size={10} strokeWidth={2.4} />
+            )}
+            {isEn ? "Geometry Master Badge" : tw("几何探索大师徽章")}
+          </div>
+        </div>
+      </header>
+
+      {/* 画布（可滚动 · 全站唯一可滚动 + 可缩放区域） */}
+      <div className="min-h-0 flex-1 overflow-auto">
+        {/* 缩放容器——transform 缩放，原点固定在左上角 */}
+        <div
+          style={{
+            width: `${100 / zoom}%`,
+            transform: `scale(${zoom})`,
+            transformOrigin: "top left",
+          }}
+        >
+        <div className="mx-auto max-w-[1180px] px-6 py-8">
+          {/* ── 标杆链 ── */}
+          <section className="mb-10">
+            {/* 链标题 */}
+            <div className="mb-6 flex items-start gap-3">
+              <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[#0B162C] text-[11px] font-bold text-white">
+                05
+              </span>
+              <div className="min-w-0">
+                <h2 className="text-[17px] font-semibold text-[#0F172A]">
+                  {pick({
+                    zhCN: "空间、角度与几何探究",
+                    zhTW: "空間、角度與幾何探究",
+                    en: "Space, Angles and Geometric Inquiry",
+                  })}
+                  <span className="ml-2 align-middle text-[11px] font-normal text-[#64748B]">
+                    {isEn ? "8-lesson flagship track" : tw("8 课全通标杆链")}
+                  </span>
+                </h2>
+                <p className="mt-0.5 text-[11.5px] text-[#64748B]">
+                  {isEn
+                    ? "Every lesson runs on a real GeoGebra engine, with content pulled from Khan Academy and OpenStax open-source repositories."
+                    : tw(
+                        "每节课都跑在真实的 GeoGebra 引擎上，内容取自 Khan Academy 与 OpenStax 开源仓库。",
+                      )}
+                </p>
+              </div>
+            </div>
+
+            {/* 三阶因果阶梯 */}
+            <div className="relative rounded-xl border border-[#E2E8F0] bg-white p-5">
+              {/* 阶标签 */}
+              <div className="mb-4 flex items-center gap-1">
+                {([1, 2, 3] as GeometryStage[]).map((stage) => {
+                  const meta = GEOMETRY_STAGE_META[stage];
+                  const count = flagship.filter(
+                    (l) => l.stage === stage,
+                  ).length;
                   return (
-                    <g key={`${e.from.node.id}-${e.to.node.id}`}>
-                      <line
-                        x1={x1}
-                        y1={y1}
-                        x2={x2 - 8}
-                        y2={y2}
-                        stroke={stroke}
-                        strokeWidth={mastered ? 2.2 : 1.6}
-                        strokeDasharray={
-                          e.kind === "sequential" ? "4 4" : undefined
-                        }
-                        opacity={mastered ? 0.95 : 0.75}
-                      />
-                      {/* 箭头 */}
-                      <polygon
-                        points={`${x2},${y2} ${x2 - 9},${y2 - 5} ${x2 - 9},${y2 + 5}`}
-                        fill={stroke}
-                        opacity={mastered ? 0.95 : 0.75}
-                      />
-                    </g>
+                    <div
+                      key={stage}
+                      className="flex items-center gap-1.5"
+                      style={{ width: STEP_X }}
+                    >
+                      <span className="flex h-4 w-4 items-center justify-center rounded bg-[#1D4ED8] text-[9px] font-bold text-white">
+                        {stage}
+                      </span>
+                      <span className="text-[11px] font-medium text-[#334155]">
+                        {pick(meta)}
+                      </span>
+                      <span className="text-[10px] text-[#94A3B8]">
+                        ×{count}
+                      </span>
+                    </div>
                   );
                 })}
-              </svg>
+              </div>
 
-              {/* 链标题 + 三阶轨道标签 */}
-              {taxonomy.chains.map((chain) => {
-                const chainNodes = placed.filter(
-                  (p) => p.node.chainId === chain.id,
-                );
-                if (chainNodes.length === 0) return null;
-                if (activeChainId && activeChainId !== chain.id) return null;
-                const first = chainNodes[0];
-                const prog = chainProgress[chain.id] ?? { stars: 0, maxStars: 0 };
-                const layout = chain as ChainLayout;
-
-                return (
-                  <div key={chain.id}>
-                    {/* 链标题 */}
-                    <div
-                      className="absolute"
-                      style={{
-                        left: first.x,
-                        top: first.y + LAYOUT.titleOffset,
-                      }}
+              {/* 阶梯轨道 */}
+              <div className="relative">
+                {/* 连线：8 个点连成一条单向因果链 */}
+                <svg
+                  className="pointer-events-none absolute inset-0"
+                  width="100%"
+                  height="100%"
+                  aria-hidden
+                >
+                  <defs>
+                    <marker
+                      id="oe-arrow"
+                      markerWidth="8"
+                      markerHeight="8"
+                      refX="7"
+                      refY="4"
+                      orient="auto"
                     >
-                      <div className="flex items-center gap-2">
-                        <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#0B162C] text-[10px] font-bold text-white">
-                          {chain.no}
-                        </span>
-                        <span className="text-[13px] font-semibold text-[#0F172A]">
-                          {t(chain.nameZh, chain.nameEn)}
-                        </span>
-                        <span className="rounded-full border border-[#E2E8F0] bg-white px-2 py-0.5 text-[10px] tabular-nums text-[#334155]">
-                          ⭐ {prog.stars}/{prog.maxStars}
-                        </span>
-                      </div>
-                    </div>
+                      <polygon points="0,0 8,4 0,8" fill="#94A3B8" />
+                    </marker>
+                  </defs>
+                  {flagship.slice(0, -1).map((l, i) => {
+                    const next = flagship[i + 1];
+                    const x1 = i * STEP_X + STEP_X - 14;
+                    const y1 =
+                      (l.stage - 1) * 108 + 26 + (l.stage === next.stage ? 0 : 22);
+                    const x2 = (i + 1) * STEP_X + 2;
+                    const y2 = (next.stage - 1) * 108 + 26;
+                    return (
+                      <path
+                        key={`${l.id}-${next.id}`}
+                        d={`M ${x1} ${y1} L ${x2} ${y2}`}
+                        stroke="#CBD5E1"
+                        strokeWidth="1.8"
+                        fill="none"
+                        markerEnd="url(#oe-arrow)"
+                      />
+                    );
+                  })}
+                </svg>
 
-                    {/* 三阶轨道标签 */}
-                    {(["intuition", "structure", "modeling"] as const).map(
-                      (tierId, tierIdx) => {
-                        const tierStart = layout.__tierStart?.get(tierIdx);
-                        if (tierStart === undefined) return null;
-                        const meta = TIER_META[tierId];
-                        const count = chainNodes.filter(
-                          (p) => p.node.tier === tierId,
-                        ).length;
-                        if (count === 0) return null;
-                        return (
-                          <div
-                            key={tierId}
-                            className="absolute"
-                            style={{
-                              left: tierStart,
-                              top: first.y + LAYOUT.tierLabelOffset,
-                            }}
-                          >
-                            <div className="flex items-center gap-1.5">
-                              <span className="flex h-4 w-4 items-center justify-center rounded bg-[#1D4ED8] text-[9px] font-bold text-white">
-                                {meta.no}
+                {/* 8 个课节点 */}
+                <div className="relative">
+                  {flagship.map((lesson, i) => {
+                    const stars = countNodeStars(lesson.id);
+                    const isStart = i === 0;
+                    const mastered = stars >= 3;
+                    const chapter =
+                      lesson.sources.cn.topics?.[0]?.chapter ??
+                      lesson.sources.openstax.sections?.[0] ??
+                      lesson.id;
+
+                    return (
+                      <div
+                        key={lesson.id}
+                        className="absolute"
+                        style={{
+                          left: i * STEP_X,
+                          top: (lesson.stage - 1) * 108,
+                        }}
+                      >
+                        <Link
+                          href={`/lab?node=${encodeURIComponent(lesson.id)}`}
+                          className={cn(
+                            "group flex w-[160px] flex-col gap-1 rounded-lg border p-2.5 transition-all",
+                            mastered
+                              ? "border-[#C59B38] bg-[#FDF8EC]"
+                              : "border-[#E2E8F0] bg-white hover:border-[#1D4ED8] hover:shadow-sm",
+                          )}
+                        >
+                          <div className="flex items-center justify-between gap-1">
+                            <span className="text-[9.5px] font-medium tracking-[0.1em] text-[#94A3B8] uppercase">
+                              {lesson.id}
+                            </span>
+                            {isStart ? (
+                              <span className="rounded bg-[#1D4ED8] px-1.5 py-0.5 text-[8.5px] font-bold tracking-[0.08em] text-white uppercase">
+                                {isEn ? "Start" : tw("起点")}
                               </span>
-                              <span className="text-[10.5px] font-medium text-[#334155]">
-                                {isEn ? meta.nameEn : tw(meta.nameZh)}
-                              </span>
-                              <span className="text-[9.5px] text-[#94A3B8]">
-                                ×{count}
-                              </span>
-                            </div>
+                            ) : null}
                           </div>
-                        );
-                      },
-                    )}
-                  </div>
-                );
-              })}
+                          <p className="line-clamp-2 min-h-[30px] text-[11.5px] leading-snug font-medium text-[#0F172A]">
+                            {chapter}
+                          </p>
+                          <div className="flex items-center gap-1">
+                            {[0, 1, 2].map((s) => (
+                              <Star
+                                key={s}
+                                size={10}
+                                strokeWidth={2.4}
+                                className={
+                                  s < stars
+                                    ? "fill-[#C59B38] text-[#C59B38]"
+                                    : "text-[#E2E8F0]"
+                                }
+                              />
+                            ))}
+                            <span className="ml-auto text-[9.5px] tabular-nums text-[#94A3B8]">
+                              {stars}/3
+                            </span>
+                          </div>
+                        </Link>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </section>
 
-              {/* 节点 */}
-              {visible.map((p) => (
-                <MapNodeCard
-                  key={p.node.id}
-                  placed={p}
-                  selected={selected === p.node.id}
-                  isEn={isEn}
-                  tick={starTick}
-                  onSelect={() => setSelected(p.node.id)}
-                />
+          {/* ── 其余逻辑链（路线占位） ── */}
+          <section>
+            <h3 className="mb-3 flex items-center gap-2 text-[13px] font-semibold text-[#0F172A]">
+              {isEn ? "Other logic chains" : tw("其余逻辑链")}
+              <span className="rounded-full border border-[#E2E8F0] bg-white px-2 py-0.5 text-[10px] font-normal text-[#64748B]">
+                {isEn ? "Coming soon" : tw("即将上线")}
+              </span>
+            </h3>
+            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
+              {otherChains.map((chain) => (
+                <div
+                  key={chain.id}
+                  className="rounded-lg border border-[#E2E8F0] bg-white p-3"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="flex h-5 w-5 items-center justify-center rounded bg-[#F1F5F9] text-[9.5px] font-bold text-[#64748B]">
+                      {chain.no}
+                    </span>
+                    <p className="min-w-0 flex-1 truncate text-[12px] font-medium text-[#334155]">
+                      {isEn ? chain.nameEn : tw(chain.nameZh)}
+                    </p>
+                  </div>
+                  <div className="mt-2 flex items-center gap-1.5 text-[10.5px] text-[#94A3B8]">
+                    <Lock size={10} strokeWidth={2.4} />
+                    {isEn
+                      ? `${chain.nodeCount} lessons · in preparation`
+                      : tw(`${chain.nodeCount} 节课 · 筹备中`)}
+                  </div>
+                </div>
               ))}
             </div>
-          </div>
+          </section>
         </div>
-
-        {/* 图例 */}
-        <div className="pointer-events-none absolute bottom-3 left-3 z-20 rounded-lg border border-[#E2E8F0] bg-white px-3 py-2">
-          <p className="text-[9.5px] font-medium tracking-[0.12em] text-[#334155] uppercase">
-            {isEn ? "Legend" : tw("图例")}
-          </p>
-          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-[#334155]">
-            <span className="flex items-center gap-1">
-              <span className="h-2.5 w-2.5 rounded-full bg-[#0B162C]" />
-              {isEn ? "mastered" : tw("已精通")}
-            </span>
-            <span className="flex items-center gap-1">
-              <span className="h-2.5 w-2.5 rounded-full border-2 border-[#1D4ED8] bg-white" />
-              {isEn ? "exploring" : tw("探索中")}
-            </span>
-            <span className="flex items-center gap-1">
-              <Zap size={10} className="text-[#1D4ED8]" />
-              {isEn ? "OE lab" : tw("OE 自研实验台")}
-            </span>
-            <span className="flex items-center gap-1">
-              <Lock size={10} className="text-[#94A3B8]" />
-              {isEn ? "in development" : tw("待解锁实验室")}
-            </span>
-          </div>
         </div>
       </div>
-
-      {/* 右侧详情面板 */}
-      {selectedNode ? (
-        <NodeDetail
-          placed={selectedNode}
-          isEn={isEn}
-          tick={starTick}
-          onClose={() => setSelected(null)}
-        />
-      ) : null}
     </div>
   );
-}
-
-/** 链的额外布局信息。 */
-interface ChainLayout extends MathChain {
-  __tierStart?: Map<number, number>;
 }
 
 /** 学科分栏按钮。 */
@@ -542,9 +494,9 @@ function SubjectTab({
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[11.5px] font-medium transition-colors",
+        "flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[11.5px] font-medium transition-colors",
         active
-          ? "bg-[#0B162C] text-white shadow-[0_1px_4px_rgba(11,22,44,0.22)]"
+          ? "bg-[#0B162C] text-white"
           : "text-[#334155] hover:bg-white",
       )}
     >
@@ -556,15 +508,7 @@ function SubjectTab({
   );
 }
 
-/**
- * 语文 · 中国文化与通识实验图谱（规划筹备中）
- * ===================================================
- *
- * ⛔ **绝不留丑陋空屏**。
- *
- * 点击「语文」分栏时，右侧一屏零滚动地展示一张**典雅克制**的
- * 预览卡，说明未来的三个方向，并提供一键切回数学。
- */
+/** 语文预览——筹备中，清晰的路线占位。 */
 function ChinesePreview({
   isEn,
   onBack,
@@ -573,87 +517,35 @@ function ChinesePreview({
   onBack: () => void;
 }) {
   const tw = useTraditional();
-  const directions = isEn
-    ? [
-        {
-          no: "01",
-          title: "Character Origins",
-          desc: "Tracing how each character was built from pictographs and radicals.",
-        },
-        {
-          no: "02",
-          title: "Classic Imagery",
-          desc: "Reading the recurring images of nature, season and longing in classical poetry.",
-        },
-        {
-          no: "03",
-          title: "Cross-cultural Reasoning",
-          desc: "Comparing ideas across Chinese and world literature to sharpen argument.",
-        },
-      ]
-    : [
-        {
-          no: "01",
-          title: "汉字溯源",
-          desc: "从甲骨文到楷书，看每一个字是怎样被一笔一笔造出来的。",
-        },
-        {
-          no: "02",
-          title: "经典意象",
-          desc: "读懂古典文学里反复出现的自然、时序与乡愁意象。",
-        },
-        {
-          no: "03",
-          title: "跨文化思辨",
-          desc: "把中国文本与世界文本并置比较，让论证变得更锋利。",
-        },
-      ];
-
   return (
     <div className="flex h-full min-h-0 items-center justify-center overflow-y-auto bg-[#F8FAFC] p-6">
-      <div className="w-full max-w-2xl rounded-xl border border-[#E2E8F0] bg-white p-8">
-        <p className="text-[10px] font-medium tracking-[0.16em] text-[#64748B] uppercase">
-          {isEn ? "Planned · in preparation" : tw("规划筹备中")}
-        </p>
-        <h2 className="mt-2 text-[22px] leading-snug font-semibold text-[#0F172A]">
+      <div className="w-full max-w-lg rounded-xl border border-[#E2E8F0] bg-white p-6">
+        <div className="flex items-center gap-2">
+          <BookOpen size={16} strokeWidth={2.2} className="text-[#1D4ED8]" />
+          <h2 className="text-[15px] font-semibold text-[#0F172A]">
+            {isEn ? "Chinese · Culture" : tw("语文 · 中国文化通识")}
+          </h2>
+        </div>
+        <p className="mt-2 text-[12.5px] leading-relaxed text-[#334155]">
           {isEn
-            ? "Chinese · Culture & General Knowledge Map"
-            : tw("语文 · 中国文化与通识实验图谱")}
-        </h2>
-        <p className="mt-3 max-w-lg text-[13px] leading-relaxed text-[#334155]">
-          {isEn
-            ? "This map is being designed. It will follow the same three-stage causal structure as the math map, with its own hands-on labs built by OE — no third-party simulations. The mathematics map is fully live right now."
-            : tw("这张图谱正在设计中。它将沿用数学图谱同样的三阶因果结构，并配套 OE 自主研发的动手实验台——同样不引入任何第三方仿真。数学图谱目前已全部上线。")}
+            ? "The Chinese track is in preparation. Its course content is being curated from authentic open-source textbooks, and its interactive labs are still being built — so nothing half-finished is shown here yet."
+            : tw(
+                "语文线正在筹备中。课程内容正在从真实的开源教材中筛选整理，互动教具也在研发中——所以这里暂时不展示任何半成品。",
+              )}
         </p>
-
-        <ul className="mt-6 space-y-3">
-          {directions.map((d) => (
-            <li
-              key={d.no}
-              className="flex gap-3 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-3.5"
-            >
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[#0B162C] text-[11px] font-bold text-white">
-                {d.no}
-              </span>
-              <div className="min-w-0">
-                <p className="text-[13px] font-semibold text-[#0F172A]">
-                  {d.title}
-                </p>
-                <p className="mt-1 text-[12px] leading-relaxed text-[#334155]">
-                  {d.desc}
-                </p>
-              </div>
-            </li>
-          ))}
-        </ul>
-
+        <div className="mt-4 flex items-center gap-2 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2.5">
+          <Lock size={12} strokeWidth={2.4} className="text-[#94A3B8]" />
+          <span className="text-[11.5px] text-[#64748B]">
+            {isEn ? "Coming soon" : tw("即将上线")}
+          </span>
+        </div>
         <button
           type="button"
           onClick={onBack}
-          className="mt-7 inline-flex h-10 items-center gap-2 rounded-lg bg-[#0B162C] px-5 text-[13px] font-medium text-white transition-colors hover:bg-[#152a4d]"
+          className="mt-5 inline-flex h-9 items-center gap-1.5 rounded-lg bg-[#0B162C] px-4 text-[12.5px] font-medium text-white"
         >
-          {isEn ? "Back to the Math Map" : tw("切回数学逻辑实验图谱")}
-          <Star size={13} strokeWidth={2.4} className="rotate-90" />
+          <ChevronRight size={14} strokeWidth={2.2} className="rotate-180" />
+          {isEn ? "Back to Math" : tw("返回数学")}
         </button>
       </div>
     </div>

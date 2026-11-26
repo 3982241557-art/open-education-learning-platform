@@ -95,6 +95,24 @@ web/public/data/*
 # ``/data/s2t-chars.json`` 404 → 繁体模式退化成简体（不报错，最难查）。
 !web/public/data/s2t-chars.json
 
+# ⚠️ **例外三：几何标杆链数据也必须进版本库**。
+#
+# ``geometry-chain.json`` 由 ``scripts/fetch-open-geometry.mjs`` 从三个
+# GitHub 开源仓库（Khan/khan-exercises、openstax/osbooks-prealgebra-bundle、
+# haojing8312/cn-k12-math-knowledge-graph）拉取生成。
+#
+# 它同样**不是** ``backend/data/`` 的镜像——``backend/`` 里没有对应源文件。
+# 如果跟着上面的规则被忽略，静态导出出来的站点就**没有几何链**——
+# ``/lab`` 会报「未能读取 geometry-chain.json」，整条标杆链直接消失。
+#
+# ⛔ **而且不能指望 CI 现场生成**：这个脚本要联网访问
+# ``raw.githubusercontent.com``，Actions runner 不保证网络可用；
+# 就算可用，拉到的内容也会随上游仓库变动而漂移，导致
+# 「提交时是 A，构建时变成 B」这种无法复现的构建。
+#
+# 所以：**拉一次，进版本库**，让构建是确定性的。
+!web/public/data/geometry-chain.json
+
 # ── 本地数据与缓存（不提交，但**不是**课程数据） ─────────────
 #
 # GitHub 筛选器的检索缓存——纯网络加速用，重新跑一次就有了。
@@ -131,3 +149,6 @@ npm-debug.log*
 .cursor/*
 !.cursor/rules
 !.cursorrules
+
+# 开源素材本地缓存（scripts/fetch-open-geometry.mjs 的下载缓存）
+.geometry-cache/

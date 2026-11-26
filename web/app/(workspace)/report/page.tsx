@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import Link from "next/link";
 import {
   Award,
   Download,
   Globe2,
+  Lock,
   Printer,
   Star,
   Target,
@@ -14,9 +15,11 @@ import {
 import { useLocale } from "@/context/LocaleContext";
 import { useProfile } from "@/context/ProfileContext";
 import { useMathTaxonomy } from "@/context/MathTaxonomyContext";
+import { useGeometryChain } from "@/context/GeometryChainContext";
 import { BRAND, DREAM_CLASSROOM } from "@/data/site-config";
 import {
   MATH_STAR_META,
+  countNodeStars,
   readMathLedger,
   settleChainBadge,
   summarizeMath,
@@ -64,14 +67,66 @@ function certNumber(name: string, stars: number, nodes: number): string {
   return `OE-${hash.toString(16).toUpperCase().padStart(8, "0").slice(0, 8)}`;
 }
 
+/**
+ * 生成 PDF 报告。
+ *
+ * ⛔ **不引入任何 PDF 库**。
+ *
+ * 打包一个几百 KB 的 pdf 库只为了输出一张证书，代价与收益完全
+ * 不匹配。而浏览器的「打印 → 另存为 PDF」本来就能产出**矢量**
+ * PDF——文字可选可搜，体积还比光栅化截图小一个数量级。
+ *
+ * 所以这里走 ``window.print()``，并给浏览器一个**建议文件名**
+ * （``document.title`` 会被 Chrome / Safari 用作默认 PDF 文件名）。
+ * @media print 样式已经处理好了：隐藏交互控件、强制实心背景、
+ * A4 纵向、避免卡片跨页断裂。
+ */
+function exportPdf(): void {
+  if (typeof window === "undefined") return;
+  window.print();
+}
+
 export default function ReportPage() {
   const { locale } = useLocale();
   const { displayName } = useProfile();
   const { taxonomy, playableNodeIds, chainProgress, summary, refreshStars } =
     useMathTaxonomy();
+  const { lessons: geoLessons } = useGeometryChain();
 
   const isEn = locale === "en";
   const tw = useTraditional();
+
+  /* ── 标杆链（几何）的星数与徽章 ─────────────────────────────
+   *
+   * ⛔ 几何链用**自己的节点 id**（geo-01…geo-08），与图谱节点是
+   *    两套体系。所以这里**单独结算**，不跟 583 节点图谱混算。
+   */
+  const geoStars = useMemo(
+    () => geoLessons.reduce((s, l) => s + countNodeStars(l.id), 0),
+    [geoLessons, summary.stars],
+  );
+
+  const geoBadgeUnlocked = useMemo(
+    () =>
+      geoLessons.length > 0 &&
+      geoLessons.every((l) => countNodeStars(l.id) >= 2),
+    [geoLessons, summary.stars],
+  );
+
+  /* ── 文档标题 ──
+   *
+   * 浏览器「打印 → 另存为 PDF」会用 ``document.title`` 当默认
+   * 文件名。所以这里给它一个**语言纯净**的名字——导出出来的
+   * PDF 文件名不该是 ``OE Report`` 而内容是中文。
+   */
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    document.title = isEn
+      ? "OE Result Report"
+      : locale === "zh-TW"
+        ? "OE 學習成果報告"
+        : "OE 学习成果报告";
+  }, [isEn, locale]);
 
   /* ── 链徽章结算 ─────────────────────────────────────────────── */
 
@@ -213,11 +268,12 @@ export default function ReportPage() {
               <div className="mt-4 flex flex-wrap gap-2">
                 <span className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-1.5 text-[11.5px] text-[#0F172A]">
                   <Star size={12} strokeWidth={2.2} className="fill-[#C59B38] text-[#C59B38]" />
-                  {summary.stars} {isEn ? "stars" : tw("颗星")}
+                  {summary.stars + geoStars} {isEn ? "stars" : tw("颗星")}
                 </span>
                 <span className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-1.5 text-[11.5px] text-[#0F172A]">
                   <Award size={12} strokeWidth={2.2} className="text-[#C59B38]" />
-                  {summary.badges} {isEn ? "chain badges" : tw("枚链徽章")}
+                  {summary.badges + (geoBadgeUnlocked ? 1 : 0)}{" "}
+                  {isEn ? "chain badges" : tw("枚链徽章")}
                 </span>
                 <span className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-1.5 text-[11.5px] text-[#0F172A]">
                   <Target size={12} strokeWidth={2.2} className="text-[#1D4ED8]" />
@@ -239,7 +295,7 @@ export default function ReportPage() {
                   </p>
                 </div>
               </div>
-              <div className="flex gap-1.5">
+              <div className="no-print flex gap-1.5">
                 <button
                   type="button"
                   onClick={() => window.print()}
@@ -250,7 +306,7 @@ export default function ReportPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => window.print()}
+                  onClick={exportPdf}
                   className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-[#E2E8F0] px-2.5 text-[11.5px] text-[#334155] transition-colors hover:bg-[#F8FAFC]"
                 >
                   <Download size={12} strokeWidth={2.2} />
@@ -293,7 +349,7 @@ export default function ReportPage() {
         <section className="mt-4 rounded-2xl border border-[#E2E8F0] bg-white p-5">
           <div className="flex items-center justify-between gap-3">
             <h2 className="text-[14px] font-semibold text-[#0F172A]">
-              {isEn ? "Logic Chain Mastery" : tw("八条逻辑链掌握进度")}
+              {isEn ? "Logic Chain Mastery" : tw("逻辑链掌握进度")}
             </h2>
             <button
               type="button"
@@ -303,6 +359,87 @@ export default function ReportPage() {
               {isEn ? "Refresh" : tw("刷新进度")}
             </button>
           </div>
+
+          {/* ── 标杆链：空间、角度与几何探究 ──
+           *
+           * ⛔ 这条链用**自己的节点 id**（geo-01…geo-08），与图谱
+           *    里的节点 id 是两套。所以徽章与星数**单独结算**，
+           *    不跟 583 节点图谱混在一起算——混算的话，
+           *    「几何探索大师徽章」的达成条件就说不清了。
+           */}
+          {geoLessons.length > 0 ? (
+            <div className="mt-3.5 rounded-xl border border-[#1D4ED8] bg-[#EFF6FF] p-3.5">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-[12.5px] font-semibold text-[#0F172A]">
+                    {isEn
+                      ? "Space, Angles and Geometric Inquiry"
+                      : tw("空间、角度与几何探究")}
+                  </p>
+                  <p className="mt-0.5 text-[10.5px] text-[#64748B]">
+                    {isEn
+                      ? "Flagship track · 8 lessons · real GeoGebra labs"
+                      : tw("标杆链 · 8 节课 · 真实 GeoGebra 实验台")}
+                  </p>
+                </div>
+                <span
+                  className={cn(
+                    "flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10.5px] font-medium",
+                    geoBadgeUnlocked
+                      ? "border-[#C59B38] bg-[#FDF8EC] text-[#8A6A20]"
+                      : "border-[#CBD5E1] bg-white text-[#94A3B8]",
+                  )}
+                >
+                  {geoBadgeUnlocked ? (
+                    <Award size={11} strokeWidth={2.4} className="text-[#C59B38]" />
+                  ) : (
+                    <Lock size={10} strokeWidth={2.4} />
+                  )}
+                  {isEn ? "Geometry Master Badge" : tw("几何探索大师徽章")}
+                </span>
+              </div>
+
+              {/* 8 课的星数 */}
+              <div className="mt-3 grid grid-cols-4 gap-1.5 sm:grid-cols-8">
+                {geoLessons.map((lesson) => {
+                  const stars = countNodeStars(lesson.id);
+                  return (
+                    <Link
+                      key={lesson.id}
+                      href={`/lab?node=${encodeURIComponent(lesson.id)}`}
+                      className="rounded-lg border border-white bg-white px-2 py-1.5 transition-colors hover:border-[#1D4ED8]"
+                    >
+                      <p className="text-[9px] font-medium tracking-[0.08em] text-[#94A3B8] uppercase">
+                        {lesson.id.replace("geo-", "")}
+                      </p>
+                      <div className="mt-0.5 flex items-center gap-0.5">
+                        {[0, 1, 2].map((s) => (
+                          <Star
+                            key={s}
+                            size={9}
+                            strokeWidth={2.4}
+                            className={
+                              s < stars
+                                ? "fill-[#C59B38] text-[#C59B38]"
+                                : "text-[#E2E8F0]"
+                            }
+                          />
+                        ))}
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+
+              <p className="mt-2.5 text-[11px] text-[#64748B]">
+                {isEn
+                  ? `${geoStars}/24 stars · the badge unlocks when all eight lessons reach two stars.`
+                  : tw(
+                      `${geoStars}/24 颗星——八节课全部达到两星即可解锁徽章。`,
+                    )}
+              </p>
+            </div>
+          ) : null}
 
           <div className="mt-3.5 space-y-2.5">
             {chainBadges.map(({ chain, unlocked, stars, maxStars, nodeCount }) => {

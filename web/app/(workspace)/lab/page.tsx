@@ -3,10 +3,9 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Star, Zap } from "lucide-react";
+import { ArrowLeft, ChevronDown, Star, Zap } from "lucide-react";
 import { useLocale } from "@/context/LocaleContext";
-import { useMathTaxonomy } from "@/context/MathTaxonomyContext";
-import { LAB_META, type LabId } from "@/lib/math-taxonomy";
+import { useGeometryChain } from "@/context/GeometryChainContext";
 import {
   MATH_STAR_META,
   awardMathStar,
@@ -14,9 +13,12 @@ import {
   readNodeStars,
   type MathStarKind,
 } from "@/lib/math-star-ledger";
-import type { LabStage, TelemetryEvent } from "@/components/labs/lab-types";
-import { LAB_COMPONENTS } from "@/components/labs/lab-registry";
-import { useDynamicBilingual, useTraditional } from "@/lib/use-bilingual";
+import type { LiveReading } from "@/components/lab/GeoGebraStudio";
+import GeometryLab, {
+  GEO_STAGE_LABELS,
+  type GeoStage,
+} from "@/components/lab/GeometryLab";
+import { useTraditional } from "@/lib/use-bilingual";
 import { cn } from "@/lib/cn";
 
 /**
@@ -26,20 +28,24 @@ import { cn } from "@/lib/cn";
  * .. code-block:: text
  *
  *     ┌────────────────────────────────┬──────────────────────────┐
- *     │  左 70% · 互动主舞台          │  右 30% · 实时伴学与     │
- *     │                                │  任务追踪栏               │
- *     │  [ 01 探索 ] [ 02 规律 ]      │  · LIVE CONTEXT          │
- *     │  [ 03 谜题 ]                   │  · 启发提问               │
- *     │                                │  · 星级进度               │
- *     │  OE 自研实验台（物理 / 几何）  │  · 节点前置链路           │
+ *     │  左 70% · 互动主舞台          │  右 30% · 伴学与追踪栏    │
+ *     │  [ 01 探索 ] [ 02 规律 ]      │  ① LIVE CONTEXT          │
+ *     │  [ 03 谜题 ]                   │  ② 本课 3 颗星进度        │
+ *     │                                │  ③ 开源教材核心概念卡     │
+ *     │  GeoGebra 真实几何引擎          │  ④ 本链 8 课快速切换      │
  *     └────────────────────────────────┴──────────────────────────┘
  *
  * 零滚动契约：严格 100vh 一屏无垂直滚动。
  *
- * ⛔ **杜绝「正在等待左侧动作」的断联**。右侧 LIVE CONTEXT 由
- *    实验台通过 ``onTelemetryChange`` 实时推送。首次进入时伴学栏
- *    给出**当前的初始状态**（而不是占位符），之后每次真实操作
- *    都会覆盖它。
+ * ⛔ **模式切换栏只有一套**。之前的版本在画布上方和右侧栏里各放
+ *    了一套一模一样的 [探索/规律/谜题] 按钮——两套控制同一个状态，
+ *    改一个另一个不跟着变，用户会以为点错了。现在只在画布顶部留
+ *    唯一一套。
+ *
+ * ⛔ **LIVE CONTEXT 里没有硬编码引导语**。它显示的是**引擎此刻
+ *    的真实数值**（GeoGebra 的 getValue 读回来的），加上本课
+ *    开源数据里的真实提示。原来那句「把砝码或控制点拖一拖」在
+ *    几何课上驴唇不对马嘴，已彻底删除。
  */
 
 /** 实验台加载骨架。 */
@@ -54,32 +60,6 @@ function LabSkeleton() {
   );
 }
 
-/** 右侧伴学栏的启发提问——按阶段与实时状态给不同的引导。 */
-function hintFor(
-  stage: LabStage,
-  telemetry: TelemetryEvent | null,
-  isEn: boolean,
-): { zh: string; en: string } {
-  if (telemetry) {
-    return { zh: telemetry.textZh, en: telemetry.textEn };
-  }
-  const table: Record<LabStage, { zh: string; en: string }> = {
-    explore: {
-      zh: "先自由动手：把砝码或控制点拖一拖，观察数字与图形怎么变。",
-      en: "Start by playing: drag a weight or a control point and watch the numbers or shapes respond.",
-    },
-    discover: {
-      zh: "现在验证一条规律——让两边同时变化，看看什么保持不变。",
-      en: "Now verify a rule: change both sides and see what stays invariant.",
-    },
-    mystery: {
-      zh: "最后的挑战：独立解出谜题，把答案写进右边的输入框。",
-      en: "Final challenge: solve the mystery on your own and type the answer on the right.",
-    },
-  };
-  return table[stage];
-}
-
 export default function LabPage() {
   return (
     /*
@@ -88,7 +68,7 @@ export default function LabPage() {
      * ``useSearchParams`` 在 App Router 里会让整棵子树退化成
      * 客户端渲染边界——静态导出时如果没有 Suspense 兜底，
      * 构建会直接报错。包裹之后，构建期先吐一个骨架，
-     * 客户端再按 ``?node=<skill_id>`` 换出真实舞台。
+     * 客户端再按 ``?node=<lesson_id>`` 换出真实舞台。
      */
     <Suspense fallback={<LabSkeleton />}>
       <LabStage />
@@ -106,22 +86,17 @@ function LabStage() {
   const searchParams = useSearchParams();
   const nodeParam = searchParams.get("node");
   const { locale } = useLocale();
-  const { nodeMap, taxonomy, loading, failed, refreshStars } = useMathTaxonomy();
+  const { lessons, lessonMap, loading, failed } = useGeometryChain();
 
-  const [stage, setStage] = useState<LabStage>("explore");
-  const [telemetry, setTelemetry] = useState<TelemetryEvent | null>(null);
+  const [stage, setStage] = useState<GeoStage>("explore");
+  const [readings, setReadings] = useState<LiveReading[]>([]);
   const [stars, setStars] = useState(0);
-  const t = useDynamicBilingual();
+  const [conceptOpen, setConceptOpen] = useState(false);
   const tw = useTraditional();
 
   const isEn = locale === "en";
-  const node = nodeParam ? nodeMap.get(nodeParam) : undefined;
 
-  /* ── 遥测回调 ───────────────────────────────────────────────── */
-
-  const handleTelemetry = useCallback((event: TelemetryEvent) => {
-    setTelemetry(event);
-  }, []);
+  const node = nodeParam ? lessonMap.get(nodeParam) : undefined;
 
   /* ── 星星状态 ───────────────────────────────────────────────── */
 
@@ -140,64 +115,68 @@ function LabStage() {
       if (!nodeParam) return;
       awardMathStar(nodeParam, kind);
       setStars(countNodeStars(nodeParam));
-      refreshStars();
     },
-    [nodeParam, refreshStars],
+    [nodeParam],
   );
 
-  /* ── 阶段切换 → 自动点亮对应阶段的星 ────────────────────────── */
-
-  const changeStage = useCallback(
-    (next: LabStage) => {
-      setStage(next);
-      // 走到「规律」说明探索已完成 → 点亮第 1 颗星。
-      if (next === "discover") lightStar("explore");
-      // 走到「谜题」说明规律验证已完成 → 点亮第 2 颗星。
-      if (next === "mystery") lightStar("discover");
-    },
-    [lightStar],
-  );
+  /* ── 阶段切换 ──────────────────────────────────────────────────
+   *
+   * ⛔ **切换阶段本身不点星星**。
+   *
+   *    之前的版本是「切到规律就点亮第 1 颗星，切到谜题就点亮
+   *    第 2 颗星」。这是**自欺欺人**——学生只要连点几下标签栏，
+   *    三颗星就全亮了，GeoGebra 引擎一次都没用上。
+   *
+   *    现在星星**只**由引擎判定点亮（见 ``handleGoalMet``）——
+   *    也就是学生必须真的在画布上做出了对应的操作。
+   */
+  const changeStage = useCallback((next: GeoStage) => {
+    setStage(next);
+  }, []);
 
   /** 谜题解出 → 点亮第 3 颗星。 */
-  const handleSolved = useCallback(
-    (zh: string, en: string) => {
-      lightStar("mystery");
-      setTelemetry({ kind: "success", textZh: zh, textEn: en, at: Date.now() });
+  const handleSolved = useCallback(() => {
+    lightStar("mystery");
+  }, [lightStar]);
+
+  /** 引擎判定某个阶段达标 → 点亮对应的星。
+   *
+   * ⛔ 这才是点星的**唯一**入口——GeoGebra 引擎在真实判定里
+   *    返回达标时才会走到这里。
+   */
+  const handleGoalMet = useCallback(
+    (metStage: GeoStage) => {
+      if (metStage === "explore") lightStar("explore");
+      else if (metStage === "discover") lightStar("discover");
+      else if (metStage === "mystery") lightStar("mystery");
     },
     [lightStar],
   );
 
-  /* ── 无节点时的默认实验台 ───────────────────────────────────── */
-
-  const labId: LabId | null = node?.lab ?? null;
-  const LabComponent = labId ? LAB_COMPONENTS[labId] : null;
-
-  /**
-   * 节点切换时重置实验阶段。
-   */
+  /* 节点切换时重置实验阶段与读数。 */
   useEffect(() => {
     setStage("explore");
-    setTelemetry(null);
-  }, [node?.id, labId]);
+    setReadings([]);
+  }, [node?.id]);
 
-  /** 提示语。 */
-  const hint = useMemo(
-    () => {
-      const raw = hintFor(stage, telemetry, isEn);
-      // 繁体模式下，遥测推送的中文也要做字符级转换。
-      if (isEn) return raw.en;
-      return tw(raw.zh);
+  /* ── 本课的真实三语内容 ────────────────────────────────────── */
+
+  /** 从三语文本里挑当前语言那一列——绝不混排。 */
+  const pick = useCallback(
+    (tr: { zhCN: string[]; zhTW: string[]; en: string[] }): string[] => {
+      if (isEn) return tr.en;
+      if (locale === "zh-TW") return tr.zhTW;
+      return tr.zhCN;
     },
-    [stage, telemetry, isEn, tw],
+    [isEn, locale],
   );
 
-  /** 本链的全部节点（右侧「本链路径」）。 */
-  const siblings = useMemo(() => {
-    if (!node || !taxonomy) return [];
-    return taxonomy.nodes
-      .filter((n) => n.chainId === node.chainId)
-      .sort((a, b) => a.index - b.index);
-  }, [node, taxonomy]);
+  const concepts = useMemo(
+    () => (node ? pick(node.concept) : []),
+    [node, pick],
+  );
+  const hints = useMemo(() => (node ? pick(node.hints) : []), [node, pick]);
+  const trials = useMemo(() => (node ? pick(node.trials) : []), [node, pick]);
 
   /* ── 加载中 / 失败 ──────────────────────────────────────────── */
 
@@ -212,16 +191,16 @@ function LabStage() {
     );
   }
 
-  if (failed || !taxonomy) {
+  if (failed || lessons.length === 0) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3 p-8 text-center">
         <p className="text-[14px] font-semibold text-[#0F172A]">
-          {isEn ? "Math graph unavailable" : tw("数学图谱加载失败")}
+          {isEn ? "Geometry chain unavailable" : tw("几何链数据加载失败")}
         </p>
         <p className="max-w-md text-[12px] leading-relaxed text-[#334155]">
           {isEn
-            ? "The taxonomy JSON could not be loaded. Please refresh the page."
-            : tw("未能读取 math-taxonomy.json。请刷新页面重试。")}
+            ? "The geometry-chain JSON could not be loaded. Please refresh the page."
+            : tw("未能读取 geometry-chain.json。请刷新页面重试。")}
         </p>
         <Link
           href="/map"
@@ -241,12 +220,14 @@ function LabStage() {
       <div className="flex h-full flex-col items-center justify-center gap-4 p-8 text-center">
         <div>
           <p className="text-[15px] font-semibold text-[#0F172A]">
-            {isEn ? "Pick a node to start" : tw("先从学习地图里选一个知识点")}
+            {isEn ? "Pick a lesson to start" : tw("先从学习地图里选一节课")}
           </p>
           <p className="mt-1.5 max-w-md text-[12px] leading-relaxed text-[#334155]">
             {isEn
-              ? "Every node on the map opens its own lab. Nodes with a ⚡ badge run our own physics and geometry engines — nothing is outsourced."
-              : tw("地图上的每个节点都会打开自己的实验台。带 ⚡ 徽标的是 OE 自研的物理 / 几何引擎，全部自主研发，不接入任何第三方仿真。")}
+              ? "Every lesson on the map opens a real GeoGebra lab. The geometry chain is our flagship track — eight lessons, all playable."
+              : tw(
+                  "地图上的每一节课都会打开一个真实的 GeoGebra 实验台。几何链是我们的标杆路线——8 节课，全部可玩。",
+                )}
           </p>
         </div>
         <Link
@@ -276,14 +257,17 @@ function LabStage() {
           </Link>
           <div className="min-w-0">
             <h1 className="truncate text-[15px] font-semibold text-[#0F172A]">
-              {t(node.nameZh, node.nameEn)}
+              {node.id} ·{" "}
+              {isEn
+                ? (node.sources.openstax.sections?.[0] ?? "Geometry")
+                : tw(node.sources.cn.topics?.[0]?.chapter ?? "几何探究")}
             </h1>
             <p className="mt-0.5 truncate text-[11px] text-[#334155]">
-              {node.chainNo} · {node.domain}
-              {node.cnRef?.book ? ` · ${node.cnRef.book}` : ""}
-              {node.ageRangeStart
-                ? ` · ${node.ageRangeStart}–${node.ageRangeEnd ?? node.ageRangeStart}${tw("岁")}`
-                : ""}
+              {isEn
+                ? `${node.sources.khan.length} open-source exercises · GeoGebra engine`
+                : tw(
+                    `${node.sources.khan.length} 道开源题库练习 · GeoGebra 真引擎`,
+                  )}
             </p>
           </div>
         </div>
@@ -296,7 +280,11 @@ function LabStage() {
             return (
               <span
                 key={kind}
-                title={isEn ? MATH_STAR_META[i].labelEn : tw(MATH_STAR_META[i].labelZh)}
+                title={
+                  isEn
+                    ? MATH_STAR_META[i].labelEn
+                    : tw(MATH_STAR_META[i].labelZh)
+                }
                 className={cn(
                   "flex h-7 w-7 items-center justify-center rounded-full border transition-colors",
                   lit
@@ -307,7 +295,9 @@ function LabStage() {
                 <Star
                   size={13}
                   strokeWidth={2.2}
-                  className={lit ? "fill-[#C59B38] text-[#C59B38]" : "text-[#CBD5E1]"}
+                  className={
+                    lit ? "fill-[#C59B38] text-[#C59B38]" : "text-[#CBD5E1]"
+                  }
                 />
               </span>
             );
@@ -319,32 +309,19 @@ function LabStage() {
       <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(0,3fr)_minmax(0,2fr)] gap-3 lg:grid-cols-[minmax(0,7fr)_minmax(0,3fr)] lg:grid-rows-1">
         {/* 左 70% · 互动主舞台 */}
         <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-[#E2E8F0] bg-white p-3">
-          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-          {LabComponent ? (
-            <LabComponent
-              onTelemetryChange={handleTelemetry}
-              stage={stage}
-              isEn={isEn}
-              onSolved={handleSolved}
-            />
-          ) : (
-            <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
-              <p className="text-[14px] font-semibold text-[#0F172A]">
-                {isEn ? "Depth lab in development" : tw("深度实验室研发中")}
-              </p>
-              <p className="max-w-md text-[12px] leading-relaxed text-[#334155]">
-                {isEn
-                  ? "This node has no hands-on lab yet — start from the first step of its chain and come back."
-                  : tw("这个知识点还没有可动手的实验室——先从本链第一步开始，实验做好后回来继续。")}
-              </p>
-            </div>
-          )}
-          </div>
+          <GeometryLab
+            lesson={node}
+            stage={stage}
+            onStageChange={changeStage}
+            onSolved={handleSolved}
+            onReadings={setReadings}
+            onGoalMet={handleGoalMet}
+          />
         </div>
 
-        {/* 右 30% · 实时伴学与任务追踪栏 */}
+        {/* 右 30% · 伴学与追踪栏——自上而下只有 4 块 */}
         <aside className="flex min-h-0 flex-col gap-3 overflow-y-auto">
-          {/* LIVE CONTEXT */}
+          {/* ① LIVE CONTEXT —— 引擎真实读数 */}
           <section className="rounded-xl border border-[#0B162C] bg-[#0B162C] p-3.5">
             <div className="flex items-center gap-2">
               <span className="flex h-1.5 w-1.5 rounded-full bg-[#C59B38]" />
@@ -352,61 +329,38 @@ function LabStage() {
                 Live Context
               </p>
             </div>
-            <p className="mt-2 text-[12.5px] leading-relaxed text-white">
-              {hint}
-            </p>
-            {telemetry?.value ? (
-              <p className="mt-1.5 font-mono text-[11.5px] text-[#93C5FD]">
-                {telemetry.value}
+            {readings.length > 0 ? (
+              <ul className="mt-2 space-y-1">
+                {readings.map((r) => (
+                  <li
+                    key={r.name}
+                    className="flex items-center justify-between gap-2"
+                  >
+                    <span className="min-w-0 truncate text-[12px] text-white/80">
+                      {r.label}
+                    </span>
+                    <span className="shrink-0 font-mono text-[13px] font-medium text-[#93C5FD]">
+                      {r.value}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-2 text-[12.5px] leading-relaxed text-white/70">
+                {isEn
+                  ? "Waiting for the GeoGebra engine to report the current state…"
+                  : tw("等待 GeoGebra 引擎回报当前状态…")}
+              </p>
+            )}
+            {/* 本阶段的真实提示（来自开源题库） */}
+            {hints.length > 0 ? (
+              <p className="mt-2.5 border-t border-white/10 pt-2 text-[12px] leading-relaxed text-white/60">
+                {hints[0]}
               </p>
             ) : null}
           </section>
 
-          {/* 阶段切换 */}
-          {labId ? (
-            <section className="rounded-xl border border-[#E2E8F0] bg-white p-3">
-              <p className="mb-2 text-[10px] font-medium tracking-[0.12em] text-[#334155] uppercase">
-                {isEn ? "Lab mode" : tw("实验台模式")}
-              </p>
-              <div className="flex items-stretch gap-1 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-1">
-                {(
-                  [
-                    { id: "explore", no: "01", zh: "探索", en: "Explore" },
-                    { id: "discover", no: "02", zh: "规律", en: "Discover" },
-                    { id: "mystery", no: "03", zh: "谜题", en: "Mystery" },
-                  ] as const
-                ).map((item) => {
-                  const active = stage === item.id;
-                  return (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => changeStage(item.id)}
-                      aria-pressed={active}
-                      className={cn(
-                        "flex-1 rounded-md px-2 py-1.5 text-[11.5px] font-medium transition-colors",
-                        active
-                          ? "bg-[#0B162C] text-white"
-                          : "text-[#334155] hover:bg-white",
-                      )}
-                    >
-                      <span
-                        className={cn(
-                          "mr-1 text-[9.5px] tabular-nums",
-                          active ? "text-[#C59B38]" : "text-[#94A3B8]",
-                        )}
-                      >
-                        {item.no}
-                      </span>
-                      {isEn ? item.en : tw(item.zh)}
-                    </button>
-                  );
-                })}
-              </div>
-            </section>
-          ) : null}
-
-          {/* 星级进度 */}
+          {/* ② 本课 3 颗星进度 */}
           <section className="rounded-xl border border-[#E2E8F0] bg-white p-3">
             <p className="mb-2 text-[10px] font-medium tracking-[0.12em] text-[#334155] uppercase">
               {isEn ? "Star progress" : tw("星级进度")}
@@ -415,16 +369,23 @@ function LabStage() {
               {MATH_STAR_META.map((meta, i) => {
                 const lit = readNodeStars(node.id)[meta.kind];
                 return (
-                  <button
+                  /* ⛔ 星星进度是**只读指示器**，不是按钮。
+                   *
+                   *    之前这里是可点的 ``<button onClick={lightStar}``——
+                   *    学生点一下就直接拿星，GeoGebra 引擎一次都没用上。
+                   *    现在星星**只**由引擎判定点亮（handleGoalMet），
+                   *    这里只负责如实显示。
+                   */
+                  <div
                     key={meta.kind}
-                    type="button"
-                    onClick={() => lightStar(meta.kind)}
-                    className="flex w-full items-center gap-2 rounded border border-[#E2E8F0] bg-white px-2.5 py-1.5 text-left transition-colors hover:bg-[#F8FAFC]"
+                    className="flex w-full items-center gap-2 rounded border border-[#E2E8F0] bg-white px-2.5 py-1.5 text-left"
                   >
                     <Star
                       size={13}
                       strokeWidth={2.2}
-                      className={lit ? "fill-[#C59B38] text-[#C59B38]" : "text-[#CBD5E1]"}
+                      className={
+                        lit ? "fill-[#C59B38] text-[#C59B38]" : "text-[#CBD5E1]"
+                      }
                     />
                     <span className="min-w-0 flex-1 truncate text-[11.5px] text-[#0F172A]">
                       {isEn ? meta.labelEn : tw(meta.labelZh)}
@@ -432,89 +393,146 @@ function LabStage() {
                     <span className="shrink-0 text-[10px] tabular-nums text-[#94A3B8]">
                       {lit ? "✓" : `0${i + 1}`}
                     </span>
-                  </button>
+                  </div>
                 );
               })}
             </div>
-          </section>
 
-          {/* 实验台信息 */}
-          {labId ? (
-            <section className="rounded-xl border border-[#E2E8F0] bg-white p-3">
-              <p className="mb-1.5 text-[10px] font-medium tracking-[0.12em] text-[#334155] uppercase">
-                {isEn ? "Engine" : tw("底层引擎")}
-              </p>
-              <p className="text-[12px] font-medium text-[#0F172A]">
-                {isEn ? LAB_META[labId].nameEn : tw(LAB_META[labId].nameZh)}
-              </p>
-              <p className="mt-0.5 font-mono text-[10.5px] text-[#64748B]">
-                {LAB_META[labId].engine}
-              </p>
-            </section>
-          ) : null}
-
-          {/* 节点概念卡 */}
-          <section className="rounded-xl border border-[#E2E8F0] bg-white p-3">
-            <p className="mb-1.5 text-[10px] font-medium tracking-[0.12em] text-[#334155] uppercase">
-              {isEn ? "Concept" : tw("核心概念")}
-            </p>
-            <p className="text-[12px] leading-relaxed text-[#334155]">
-              {t(node.descriptionZh, node.descriptionEn)}
-            </p>
-            {!isEn ? (
-              <p className="mt-1.5 text-[11.5px] text-[#64748B]">
-                {node.nameEn}
-              </p>
+            {/* 巩固题 —— 来自开源题库 */}
+            {trials.length > 0 ? (
+              <div className="mt-2.5 border-t border-[#E2E8F0] pt-2">
+                <p className="mb-1 text-[10px] font-medium tracking-[0.12em] text-[#334155] uppercase">
+                  {isEn ? "From the open-source bank" : tw("来自开源题库")}
+                </p>
+                <ul className="space-y-1">
+                  {trials.slice(0, 2).map((t, i) => (
+                    <li
+                      key={i}
+                      className="text-[11.5px] leading-relaxed text-[#334155]"
+                    >
+                      · {t}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             ) : null}
           </section>
 
-          {/* 本链路径 */}
-          {siblings.length > 0 ? (
-            <section className="rounded-xl border border-[#E2E8F0] bg-white p-3">
-              <p className="mb-1.5 text-[10px] font-medium tracking-[0.12em] text-[#334155] uppercase">
-                {isEn ? "This chain" : tw("本链路径")}
+          {/* ③ 开源教材核心概念卡（带折叠的来源标注） */}
+          <section className="rounded-xl border border-[#E2E8F0] bg-white p-3">
+            <p className="mb-1.5 text-[10px] font-medium tracking-[0.12em] text-[#334155] uppercase">
+              {isEn ? "Open-source concept" : tw("开源教材核心概念")}
+            </p>
+            {concepts.length > 0 ? (
+              <ul className="space-y-1.5">
+                {concepts.slice(0, 2).map((c, i) => (
+                  <li
+                    key={i}
+                    className="text-[11.5px] leading-relaxed text-[#334155]"
+                  >
+                    {c}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-[11.5px] text-[#94A3B8]">
+                {isEn ? "No concept extracted." : tw("未抽取到概念。")}
               </p>
-              <ul className="space-y-0.5">
-                {siblings.map((s) => {
-                  const isCurrent = s.id === node.id;
-                  const label = t(s.nameZh, s.nameEn);
-                  return (
-                    <li key={s.id}>
-                      <Link
-                        href={`/lab?node=${encodeURIComponent(s.id)}`}
+            )}
+
+            {/* 来源标注（可折叠） */}
+            <button
+              type="button"
+              onClick={() => setConceptOpen((v) => !v)}
+              className="mt-2 flex w-full items-center gap-1 text-[10.5px] font-medium text-[#1D4ED8] transition-colors"
+            >
+              <ChevronDown
+                size={12}
+                strokeWidth={2.4}
+                className={cn(
+                  "transition-transform",
+                  conceptOpen && "rotate-180",
+                )}
+              />
+              {isEn ? "Source" : tw("来源")}
+            </button>
+            {conceptOpen ? (
+              <ul className="mt-1.5 space-y-1">
+                {node.sources.khan.map((s, i) => (
+                  <li key={`k${i}`} className="text-[10.5px] leading-relaxed text-[#64748B]">
+                    <span className="font-mono">{s.repo}</span>
+                    <br />
+                    {s.path}
+                  </li>
+                ))}
+                <li className="text-[10.5px] leading-relaxed text-[#64748B]">
+                  <span className="font-mono">{node.sources.openstax.repo}</span>
+                  <br />
+                  {node.sources.openstax.path}
+                </li>
+                <li className="text-[10.5px] leading-relaxed text-[#64748B]">
+                  <span className="font-mono">{node.sources.cn.repo}</span>
+                  <br />
+                  {node.sources.cn.path}
+                </li>
+                <li className="pt-1 text-[10px] text-[#94A3B8]">
+                  {isEn ? "License" : tw("协议")}:{" "}
+                  {node.sources.khan[0]?.license ??
+                    node.sources.openstax.license}
+                </li>
+              </ul>
+            ) : null}
+          </section>
+
+          {/* ④ 本链 8 课快速切换 */}
+          <section className="rounded-xl border border-[#E2E8F0] bg-white p-3">
+            <p className="mb-1.5 text-[10px] font-medium tracking-[0.12em] text-[#334155] uppercase">
+              {isEn ? "This chain" : tw("本链路径")}
+            </p>
+            <ul className="space-y-0.5">
+              {lessons.map((s, i) => {
+                const isCurrent = s.id === node.id;
+                const lit = countNodeStars(s.id);
+                return (
+                  <li key={s.id}>
+                    <Link
+                      href={`/lab?node=${encodeURIComponent(s.id)}`}
+                      className={cn(
+                        "flex items-center gap-1.5 rounded px-1.5 py-1 text-[11.5px] transition-colors",
+                        isCurrent
+                          ? "bg-[#0B162C] font-medium text-white"
+                          : "text-[#1D4ED8] hover:bg-[#EFF6FF]",
+                      )}
+                    >
+                      <span
                         className={cn(
-                          "flex items-center gap-1.5 truncate rounded px-1.5 py-1 text-[11.5px] transition-colors",
-                          isCurrent
-                            ? "bg-[#0B162C] font-medium text-white"
-                            : "text-[#1D4ED8] hover:bg-[#EFF6FF]",
+                          "shrink-0 text-[9.5px] tabular-nums",
+                          isCurrent ? "text-white/60" : "text-[#94A3B8]",
                         )}
                       >
-                        <span
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      <span className="min-w-0 truncate">
+                        {s.sources.cn.topics?.[0]?.chapter ??
+                          s.sources.openstax.sections?.[0] ??
+                          s.id}
+                      </span>
+                      {lit > 0 ? (
+                        <Zap
+                          size={9}
+                          strokeWidth={2.8}
                           className={cn(
-                            "shrink-0 text-[9.5px] tabular-nums",
-                            isCurrent ? "text-white/60" : "text-[#94A3B8]",
+                            "ml-auto shrink-0",
+                            isCurrent ? "text-[#C59B38]" : "text-[#1D4ED8]",
                           )}
-                        >
-                          {String(s.index).padStart(2, "0")}
-                        </span>
-                        <span className="min-w-0 truncate">{label}</span>
-                        {s.lab ? (
-                          <Zap
-                            size={9}
-                            strokeWidth={2.8}
-                            className={cn(
-                              "ml-auto shrink-0",
-                              isCurrent ? "text-[#C59B38]" : "text-[#1D4ED8]",
-                            )}
-                          />
-                        ) : null}
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </section>
-          ) : null}
+                        />
+                      ) : null}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
         </aside>
       </div>
     </div>
