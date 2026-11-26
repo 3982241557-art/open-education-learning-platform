@@ -1,9 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import {
-  Cormorant_Garamond,
-  Noto_Serif_SC,
-  Playfair_Display,
-} from "next/font/google";
 import "./globals.css";
 import { AppShellProvider } from "@/context/AppShellContext";
 import { ChatProvider } from "@/context/ChatContext";
@@ -21,41 +16,36 @@ import GhPagesRedirect from "@/components/layout/GhPagesRedirect";
  * 首页的品牌字标需要**精装展示衬线**的质感——这是整站唯一的
  * 「收藏级」排版位置，正文绝不用它。
  *
- * 三款字体各有分工：
+ * ⛔ **纯系统字体栈，零网络字体下载**
  *
- * - ``Cormorant Garamond`` —— 英文主标「Open Education」。它的
- *   高对比度粗细笔画（thin/thick contrast）在大字号下有一种
- *   银版印刷般的精致感，是奢侈品牌字标的常见选择；
- * - ``Playfair Display`` —— 备用英文衬线，用于英文小标题与数字；
- * - ``Noto Serif SC`` —— 中文全称「开放教育学习平台」。它有完整
- *   的宋体骨架（大字面、明确的横细竖粗对比），比默认黑体更适合
- *   做展示级标题。
+ * 之前用的是 ``next/font/google``（Cormorant Garamond / Playfair
+ * Display / Noto Serif SC）。它的失败模式很实际：构建期要联网从
+ * ``fonts.gstatic.com`` 拉字体文件——网络一抖，构建就卡死；重试
+ * 三次仍失败就直接让整条部署流水线断掉。
  *
- * ⛔ ``display: "swap"``——字体没加载完时先用回退字体渲染，
- *    不阻塞首屏。字体文件由 Next 在构建期自托管，**零外部请求**，
- *    静态导出后也不会有 CDN 依赖。
+ * 现在改成**系统内置字体栈**：
+ *
+ * - ``--font-display`` —— 英文大标题「Open Education」。
+ *   Didot / Bodoni MT 是 macOS 与 Windows 上**自带**的高对比度
+ *   衬线体，质感与 Cormorant Garamond 同源（都是 Didone 家族）；
+ * - ``--font-playfair`` —— 备用英文衬线，用于英文小标题与数字；
+ * - ``--font-serif-sc`` —— 中文宋体骨架。Songti SC（macOS）/ STSong
+ *   （Windows）都有明确的横细竖粗对比，比默认黑体更适合展示级标题；
+ *
+ * 代价是不同系统上的字形**不完全一致**。换来的是：构建零网络依赖、
+ * 零外部请求、秒级完成，且字体永远立即可用（没有 FOUT）。
+ *
+ * 这些变量以**行内 style** 注入到 ``<html>`` 上——与原先
+ * ``next/font`` 的 ``variable`` 机制保持一致的用法，调用方不需要改。
  */
-const cormorant = Cormorant_Garamond({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  style: ["normal", "italic"],
-  display: "swap",
-  variable: "--font-display",
-});
-
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-  variable: "--font-playfair",
-});
-
-const notoSerifSC = Noto_Serif_SC({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-  variable: "--font-serif-sc",
-});
+const FONT_STACKS = {
+  /** 英文展示级衬线——品牌字标。 */
+  display: '"Didot", "Bodoni MT", "Palatino Linotype", Georgia, serif',
+  /** 备用英文衬线——小标题与数字。 */
+  playfair: '"Didot", "Bodoni MT", "Palatino Linotype", Georgia, serif',
+  /** 中文宋体骨架——中文全称与宣言。 */
+  serifSc: '"Songti SC", "STSong", "SimSun", serif',
+} as const;
 
 export const viewport: Viewport = { interactiveWidget: "resizes-content" };
 
@@ -103,7 +93,13 @@ export default function RootLayout({
     <html
       lang="zh-CN"
       suppressHydrationWarning
-      className={`${cormorant.variable} ${playfair.variable} ${notoSerifSC.variable}`}
+      style={
+        {
+          "--font-display": FONT_STACKS.display,
+          "--font-playfair": FONT_STACKS.playfair,
+          "--font-serif-sc": FONT_STACKS.serifSc,
+        } as React.CSSProperties
+      }
     >
       <body className="font-sans bg-[var(--background)] text-[var(--foreground)]">
         {/* 语言 / 地区在最外层——品牌栏、页脚、导航都要读它 */}

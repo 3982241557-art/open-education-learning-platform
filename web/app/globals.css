@@ -87,8 +87,8 @@
 
   /* 高级字体混排——衬线体负责「大标题 / 学科巨幕 / 古诗文」，
      无衬线体负责「正文 / 导航 / 公式 / 按钮」。 */
-  --font-sans: "Inter", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
-  --font-serif: "Noto Serif SC", "Songti SC", "STSong", Georgia, serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+  --font-serif: "Songti SC", "STSong", "SimSun", serif;
 
   /* ── 悬浮层：100% 实心，0 模糊 ───────────────────────────────────
      ⛔ 这里**没有** ``--glass``。所有浮层一律用纯白实体 +

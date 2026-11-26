@@ -83,6 +83,17 @@ yarn-error.log*
 #    父目录被排除，子文件就永远没机会被重新包含。
 web/public/data/*
 !web/public/data/math-taxonomy.json
+#
+# ⚠️ **例外二：简繁转换表也必须进版本库**。
+#
+# ``s2t-chars.json`` 由 ``scripts/build-s2t-table.mjs`` 用 Python +
+# OpenCC 生成。CI 环境**没有** opencc，也没法装（pip 依赖链在
+# Actions runner 上编译困难），所以没法在构建期现场生成。
+#
+# 它同样不是 ``backend/data/`` 的镜像——``backend/`` 里没有对应源文件。
+# 如果被忽略，线上繁体模式就**永远加载不到映射表**，
+# ``/data/s2t-chars.json`` 404 → 繁体模式退化成简体（不报错，最难查）。
+!web/public/data/s2t-chars.json
 
 # ── 本地数据与缓存（不提交，但**不是**课程数据） ─────────────
 #

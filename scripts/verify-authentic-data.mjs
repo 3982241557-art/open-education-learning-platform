@@ -680,6 +680,72 @@ function checkZeroPhet() {
 }
 
 /* ──────────────────────────────────────────────────────────────────
+ * 红线 ⑪ · 三语资产齐备
+ * ────────────────────────────────────────────────────────────────── */
+
+/**
+ * 繁体模式依赖的字符转换表必须**已进版本库**。
+ *
+ * 为什么这是独立的一条红线
+ * ----------------------
+ *
+ * ``s2t-chars.json`` 由 ``scripts/build-s2t-table.mjs`` 用 Python +
+ * OpenCC 生成。CI 环境没有 opencc、pip 也装不上，所以**没法在构建期
+ * 现场生成**——它必须提交进仓库。
+ *
+ * 它的失败模式极其阴险：``.gitignore`` 里 ``web/public/data/*`` 把
+ * 整个目录排除了，只对 ``math-taxonomy.json`` 开了白名单。转换表就这么
+ * 被误伤。结果是线上 ``/data/s2t-chars.json`` 返回 404，
+ * 而**页面不会报错**——``toTraditional()`` 拿到空表就原样返回，
+ * 繁体模式安静地退化成简体。
+ *
+ * 一句话：用户在繁体模式下看到的还是简体，但没有任何报错。
+ * 这种静默失败必须靠构建期红线挡住。
+ */
+function checkBilingualAssets() {
+  const S2T_FILE = join(WEB, "public", "data", "s2t-chars.json");
+  if (!existsSync(S2T_FILE)) {
+    fail(
+      "XI",
+      "缺少简繁转换表——繁体模式会静默退化成简体",
+      "web/public/data/s2t-chars.json",
+    );
+    return;
+  }
+
+  let table;
+  try {
+    table = JSON.parse(readFileSync(S2T_FILE, "utf8"));
+  } catch (error) {
+    fail("XI", `简繁转换表不是合法 JSON：${error.message}`, rel(S2T_FILE));
+    return;
+  }
+
+  const count = Object.keys(table).length;
+  if (count < 1000) {
+    fail(
+      "XI",
+      `简繁转换表只有 ${count} 条——预期 1000 条以上`,
+      "web/public/data/s2t-chars.json",
+    );
+    return;
+  }
+
+  // 抽查几个高频字，确认映射是真的（而不是空壳占位）。
+  const SPOT_CHECKS = { 学: "學", 数: "數", 长: "長", 点: "點" };
+  for (const [simplified, traditional] of Object.entries(SPOT_CHECKS)) {
+    if (table[simplified] !== traditional) {
+      fail(
+        "XI",
+        `简繁转换表抽查未通过：「${simplified}」应为「${traditional}」，实际为「${table[simplified] ?? "未定义"}」`,
+        "web/public/data/s2t-chars.json",
+      );
+      return;
+    }
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────
  * 红线 ⑧ · 三阶段闯关模式
  * ────────────────────────────────────────────────────────────────── */
 
@@ -941,7 +1007,7 @@ checkFlagshipLabs();
 console.log("红线 ⑥    九个自研实验台挂真实引擎      已检查");
 
 checkZeroPhet();
-console.log("红线 ⑦    零 PhET · 零第三方 iframe    已检查");
+console.log("红线 ⑦    零第三方仿真 · 零 iframe   已检查");
 
 checkThreeStages();
 console.log("红线 ⑧    三阶段闯关（探索/规律/谜题）  已检查");
@@ -952,10 +1018,13 @@ console.log("红线 ⑨    星星账本 ≥2 星解锁链主徽章    已检查"
 const playable = checkTaxonomyIntegrity();
 console.log(`红线 ⑩    图谱完整性 + 0 空壳          ${playable} 个可玩节点已检查`);
 
+checkBilingualAssets();
+console.log("红线 ⑪    三语资产齐备（繁体表进库）  已检查");
+
 console.log("");
 
 if (violations.length === 0) {
-  console.log("✅ 十条红线全部通过 —— 0 违规。\n");
+  console.log("✅ 十一条红线全部通过 —— 0 违规。\n");
   process.exit(0);
 }
 

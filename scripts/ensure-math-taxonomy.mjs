@@ -140,13 +140,43 @@ for (const node of taxonomy.nodes ?? []) {
   if (!node.tier) problems.push(`节点 ${node.id} 缺少三阶因果位置`);
 }
 
-/** ⛔ 零 PhET 红线。 */
+/** ⛔ 零第三方仿真红线。 */
 if (taxonomy.phetBindings) {
-  problems.push("图谱里还有 phetBindings 字段——必须彻底清零 PhET");
+  problems.push("图谱里还有 phetBindings 字段——必须彻底清零第三方仿真");
 }
 const serialized = JSON.stringify(taxonomy);
 if (serialized.toLowerCase().includes("phet")) {
-  problems.push("图谱 JSON 里还有 PhET 残留字样");
+  problems.push("图谱 JSON 里还有第三方仿真残留字样");
+}
+
+/**
+ * ⛔ 繁体转换表必须在场。
+ *
+ * ``s2t-chars.json`` 决定 zh-TW 模式能不能把简体转成繁体。
+ *
+ * 它**不能**在构建期现场生成——CI 环境没有 opencc，pip 装不上。
+ * 所以它必须**已进版本库**。
+ *
+ * 一旦被 ``.gitignore`` 误伤，线上 ``/data/s2t-chars.json`` 就是 404，
+ * 而页面**不会报错**：``toTraditional()`` 拿到空表就原样返回，
+ * 繁体模式安静地退化成简体。这种静默失败最难查——
+ * 所以在这里直接**炸**。
+ */
+const S2T_FILE = join(ROOT, "web", "public", "data", "s2t-chars.json");
+if (!existsSync(S2T_FILE)) {
+  problems.push(
+    "缺少 web/public/data/s2t-chars.json——繁体模式会静默退化成简体，" +
+      "请确认它已进版本库（.gitignore 需显式 ! 放行）",
+  );
+} else {
+  const s2t = JSON.parse(readFileSync(S2T_FILE, "utf8"));
+  const s2tCount = Object.keys(s2t).length;
+  if (s2tCount < 1000) {
+    problems.push(
+      `繁简转换表只有 ${s2tCount} 条——预期 1000 条以上。` +
+        "请执行：node scripts/build-s2t-table.mjs",
+    );
+  }
 }
 
 if (problems.length > 0) {
